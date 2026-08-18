@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { db } from './db';
+import { db } from './db.js';
 import {
   requireAdminAuth,
   generateSessionToken,
@@ -10,7 +10,7 @@ import {
   resetLoginAttempts,
   SESSION_COOKIE_NAME,
   type AuthenticatedRequest
-} from './auth';
+} from './auth.js';
 import {
   loginSchema,
   productSchema,
@@ -19,10 +19,10 @@ import {
   stockUpdateSchema,
   inquirySchema,
   settingsSchema
-} from './validation';
-import { generateCloudinarySignature, getOptimizedImageUrl, uploadToCloudinary } from './cloudinary';
-import { testSupabaseConnection, isSupabaseConnected } from './supabase';
-import type { Product, Category, Offer } from '../src/types';
+} from './validation.js';
+import { generateCloudinarySignature, getOptimizedImageUrl, uploadToCloudinary } from './cloudinary.js';
+import { testSupabaseConnection, isSupabaseConnected } from './supabase.js';
+import type { Product, Category, Offer } from '../src/types.js';
 
 export const apiRouter = Router();
 
