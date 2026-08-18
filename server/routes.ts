@@ -5,7 +5,6 @@ import {
   requireAdminAuth,
   generateSessionToken,
   verifySessionToken,
-  comparePassword,
   checkLoginRateLimit,
   recordFailedLogin,
   resetLoginAttempts,
@@ -22,10 +21,13 @@ import {
   settingsSchema
 } from './validation';
 import { generateCloudinarySignature, getOptimizedImageUrl, uploadToCloudinary } from './cloudinary';
-import { testSupabaseConnection, syncLocalStoreToSupabase, isSupabaseConnected } from './supabase';
-import type { Product, Category, Offer, ProductImage } from '../src/types';
+import { testSupabaseConnection, isSupabaseConnected } from './supabase';
+import type { Product, Category, Offer } from '../src/types';
 
 export const apiRouter = Router();
+
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@aurajewelry.com').toLowerCase();
+const ADMIN_PASSWORD = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
 
 // ==========================================
 // 1. PUBLIC STOREFRONT ROUTES
@@ -47,7 +49,7 @@ function sanitizeProductForCustomer(p: Product) {
 }
 
 // GET /api/products - public list with filter & search
-apiRouter.get('/products', (req: Request, res: Response) => {
+apiRouter.get('/products', async (req: Request, res: Response) => {
   try {
     const {
       category,
@@ -61,7 +63,7 @@ apiRouter.get('/products', (req: Request, res: Response) => {
       inStockOnly
     } = req.query;
 
-    let products = db.getProducts({
+    let products = await db.getProducts({
       categoryId: category ? String(category) : undefined,
       isHot: isHot === 'true',
       isNewDrop: isNewDrop === 'true',
@@ -105,18 +107,18 @@ apiRouter.get('/products', (req: Request, res: Response) => {
 });
 
 // GET /api/products/:slug - product detail by slug
-apiRouter.get('/products/:slug', (req: Request, res: Response) => {
+apiRouter.get('/products/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
-    const product = db.getProductBySlug(slug);
+    const product = await db.getProductBySlug(slug);
 
     if (!product || !product.isActive) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
     // Find related products in the same category
-    const related = db
-      .getProducts({ categoryId: product.categoryId, includeInactive: false })
+    const relatedRaw = await db.getProducts({ categoryId: product.categoryId, includeInactive: false });
+    const related = relatedRaw
       .filter(p => p.id !== product.id)
       .slice(0, 4)
       .map(sanitizeProductForCustomer);
@@ -131,9 +133,9 @@ apiRouter.get('/products/:slug', (req: Request, res: Response) => {
 });
 
 // GET /api/categories - public categories
-apiRouter.get('/categories', (req: Request, res: Response) => {
+apiRouter.get('/categories', async (req: Request, res: Response) => {
   try {
-    const categories = db.getCategories(false);
+    const categories = await db.getCategories(false);
     res.json({ categories });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch categories' });
@@ -141,9 +143,9 @@ apiRouter.get('/categories', (req: Request, res: Response) => {
 });
 
 // GET /api/offers/active - public active offers
-apiRouter.get('/offers/active', (req: Request, res: Response) => {
+apiRouter.get('/offers/active', async (req: Request, res: Response) => {
   try {
-    const offers = db.getOffers(false);
+    const offers = await db.getOffers(false);
     res.json({ offers });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch offers' });
@@ -151,9 +153,9 @@ apiRouter.get('/offers/active', (req: Request, res: Response) => {
 });
 
 // GET /api/settings/public - public site settings
-apiRouter.get('/settings/public', (req: Request, res: Response) => {
+apiRouter.get('/settings/public', async (req: Request, res: Response) => {
   try {
-    const settings = db.getSettings();
+    const settings = await db.getSettings();
     res.json({ settings });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch site settings' });
@@ -161,14 +163,14 @@ apiRouter.get('/settings/public', (req: Request, res: Response) => {
 });
 
 // POST /api/inquiries - record Instagram customer inquiry
-apiRouter.post('/inquiries', (req: Request, res: Response) => {
+apiRouter.post('/inquiries', async (req: Request, res: Response) => {
   try {
     const parsed = inquirySchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: 'Invalid inquiry data', details: parsed.error.format() });
     }
 
-    const inquiry = db.createInquiry(parsed.data);
+    const inquiry = await db.createInquiry(parsed.data);
     res.status(201).json({ success: true, inquiry });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to register inquiry' });
@@ -197,29 +199,23 @@ apiRouter.post('/auth/login', async (req: Request, res: Response) => {
   }
 
   const { email, password } = parsed.data;
-  const user = db.getUserByEmail(email);
 
-  if (!user) {
-    recordFailedLogin(ip);
-    return res.status(401).json({ error: 'Invalid email or password.' });
-  }
-
-  const isValidPassword = await comparePassword(password, user.passwordHash);
-  if (!isValidPassword) {
+  if (email.toLowerCase() !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
     recordFailedLogin(ip);
     return res.status(401).json({ error: 'Invalid email or password.' });
   }
 
   // Success
   resetLoginAttempts(ip);
-  db.updateUserLastLogin(user.id);
 
-  const token = generateSessionToken({
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role
-  });
+  const user = {
+    id: 'admin',
+    email: ADMIN_EMAIL,
+    name: 'Atelier Director',
+    role: 'SUPER_ADMIN' as const
+  };
+
+  const token = generateSessionToken(user);
 
   // Set secure cookie
   res.cookie(SESSION_COOKIE_NAME, token, {
@@ -229,23 +225,18 @@ apiRouter.post('/auth/login', async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
 
-  db.addAuditLog({
-    adminEmail: user.email,
-    action: 'ADMIN_LOGIN_SUCCESS',
-    entity: 'AUTH',
-    details: `Admin ${user.email} successfully logged in from ${ip}`
-  });
+  try {
+    await db.addAuditLog({
+      adminEmail: user.email,
+      action: 'ADMIN_LOGIN_SUCCESS',
+      entity: 'AUTH',
+      details: `Admin ${user.email} successfully logged in from ${ip}`
+    });
+  } catch {
+    // Audit logging failure should never block a successful login
+  }
 
-  res.json({
-    success: true,
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role
-    },
-    token
-  });
+  res.json({ success: true, user, token });
 });
 
 // POST /api/auth/logout
@@ -278,9 +269,9 @@ apiRouter.get('/auth/me', (req: AuthenticatedRequest, res: Response) => {
 // ==========================================
 
 // GET /api/admin/stats
-apiRouter.get('/admin/stats', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.get('/admin/stats', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const stats = db.getStats();
+    const stats = await db.getStats();
     res.json({ stats });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch admin stats' });
@@ -288,9 +279,9 @@ apiRouter.get('/admin/stats', requireAdminAuth, (req: AuthenticatedRequest, res:
 });
 
 // GET /api/admin/products - full list with exact stock & inactive items
-apiRouter.get('/admin/products', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.get('/admin/products', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const products = db.getProducts({ includeInactive: true });
+    const products = await db.getProducts({ includeInactive: true });
     res.json({ products });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch admin products' });
@@ -298,7 +289,7 @@ apiRouter.get('/admin/products', requireAdminAuth, (req: AuthenticatedRequest, r
 });
 
 // POST /api/admin/products - create product
-apiRouter.post('/admin/products', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/admin/products', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = productSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -306,7 +297,7 @@ apiRouter.post('/admin/products', requireAdminAuth, (req: AuthenticatedRequest, 
     }
 
     // Check slug uniqueness
-    const existing = db.getProductBySlug(parsed.data.slug);
+    const existing = await db.getProductBySlug(parsed.data.slug);
     if (existing) {
       return res.status(409).json({ error: 'A product with this slug already exists. Please choose a unique slug.' });
     }
@@ -318,9 +309,9 @@ apiRouter.post('/admin/products', requireAdminAuth, (req: AuthenticatedRequest, 
       updatedAt: new Date().toISOString()
     };
 
-    const created = db.createProduct(newProduct);
+    const created = await db.createProduct(newProduct);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'PRODUCT_CREATED',
       entity: 'PRODUCT',
@@ -335,7 +326,7 @@ apiRouter.post('/admin/products', requireAdminAuth, (req: AuthenticatedRequest, 
 });
 
 // PUT /api/admin/products/:id - update product
-apiRouter.put('/admin/products/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/admin/products/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const parsed = productSchema.safeParse(req.body);
@@ -344,17 +335,17 @@ apiRouter.put('/admin/products/:id', requireAdminAuth, (req: AuthenticatedReques
     }
 
     // Check if slug is taken by another product
-    const existingSlug = db.getProductBySlug(parsed.data.slug);
+    const existingSlug = await db.getProductBySlug(parsed.data.slug);
     if (existingSlug && existingSlug.id !== id) {
       return res.status(409).json({ error: 'A product with this slug already exists.' });
     }
 
-    const updated = db.updateProduct(id, parsed.data as any);
+    const updated = await db.updateProduct(id, parsed.data as any);
     if (!updated) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'PRODUCT_UPDATED',
       entity: 'PRODUCT',
@@ -369,7 +360,7 @@ apiRouter.put('/admin/products/:id', requireAdminAuth, (req: AuthenticatedReques
 });
 
 // PATCH /api/admin/products/:id/stock - quick stock updater
-apiRouter.patch('/admin/products/:id/stock', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.patch('/admin/products/:id/stock', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const parsed = stockUpdateSchema.safeParse(req.body);
@@ -378,12 +369,12 @@ apiRouter.patch('/admin/products/:id/stock', requireAdminAuth, (req: Authenticat
     }
 
     const { stock, isRestockMark } = parsed.data;
-    const updated = db.updateStock(id, stock, isRestockMark);
+    const updated = await db.updateStock(id, stock, isRestockMark);
     if (!updated) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'STOCK_ADJUSTED',
       entity: 'PRODUCT',
@@ -398,20 +389,20 @@ apiRouter.patch('/admin/products/:id/stock', requireAdminAuth, (req: Authenticat
 });
 
 // DELETE /api/admin/products/:id
-apiRouter.delete('/admin/products/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.delete('/admin/products/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { hard } = req.query;
-    const target = db.getProductById(id);
+    const target = await db.getProductById(id);
 
     if (!target) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
     const isHardDelete = hard === 'true';
-    db.deleteProduct(id, isHardDelete);
+    await db.deleteProduct(id, isHardDelete);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: isHardDelete ? 'PRODUCT_HARD_DELETED' : 'PRODUCT_ARCHIVED',
       entity: 'PRODUCT',
@@ -426,18 +417,22 @@ apiRouter.delete('/admin/products/:id', requireAdminAuth, (req: AuthenticatedReq
 });
 
 // CATEGORY MANAGEMENT
-apiRouter.get('/admin/categories', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  res.json({ categories: db.getCategories(true) });
+apiRouter.get('/admin/categories', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    res.json({ categories: await db.getCategories(true) });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
 });
 
-apiRouter.post('/admin/categories', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/admin/categories', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = categorySchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: 'Validation failed', details: parsed.error.format() });
     }
 
-    const existing = db.getCategoryBySlug(parsed.data.slug);
+    const existing = await db.getCategoryBySlug(parsed.data.slug);
     if (existing) {
       return res.status(409).json({ error: 'Category with this slug already exists.' });
     }
@@ -449,9 +444,9 @@ apiRouter.post('/admin/categories', requireAdminAuth, (req: AuthenticatedRequest
       updatedAt: new Date().toISOString()
     };
 
-    const created = db.createCategory(newCategory);
+    const created = await db.createCategory(newCategory);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'CATEGORY_CREATED',
       entity: 'CATEGORY',
@@ -465,7 +460,7 @@ apiRouter.post('/admin/categories', requireAdminAuth, (req: AuthenticatedRequest
   }
 });
 
-apiRouter.put('/admin/categories/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/admin/categories/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const parsed = categorySchema.safeParse(req.body);
@@ -473,12 +468,12 @@ apiRouter.put('/admin/categories/:id', requireAdminAuth, (req: AuthenticatedRequ
       return res.status(400).json({ error: 'Validation failed', details: parsed.error.format() });
     }
 
-    const updated = db.updateCategory(id, parsed.data);
+    const updated = await db.updateCategory(id, parsed.data);
     if (!updated) {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'CATEGORY_UPDATED',
       entity: 'CATEGORY',
@@ -492,17 +487,17 @@ apiRouter.put('/admin/categories/:id', requireAdminAuth, (req: AuthenticatedRequ
   }
 });
 
-apiRouter.delete('/admin/categories/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.delete('/admin/categories/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const category = db.getCategoryById(id);
+    const category = await db.getCategoryById(id);
     if (!category) {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    db.deleteCategory(id, false);
+    await db.deleteCategory(id, false);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'CATEGORY_ARCHIVED',
       entity: 'CATEGORY',
@@ -517,11 +512,15 @@ apiRouter.delete('/admin/categories/:id', requireAdminAuth, (req: AuthenticatedR
 });
 
 // OFFERS MANAGEMENT
-apiRouter.get('/admin/offers', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  res.json({ offers: db.getOffers(true) });
+apiRouter.get('/admin/offers', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    res.json({ offers: await db.getOffers(true) });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch offers' });
+  }
 });
 
-apiRouter.post('/admin/offers', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.post('/admin/offers', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = offerSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -535,9 +534,9 @@ apiRouter.post('/admin/offers', requireAdminAuth, (req: AuthenticatedRequest, re
       updatedAt: new Date().toISOString()
     };
 
-    const created = db.createOffer(newOffer);
+    const created = await db.createOffer(newOffer);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'OFFER_CREATED',
       entity: 'OFFER',
@@ -551,7 +550,7 @@ apiRouter.post('/admin/offers', requireAdminAuth, (req: AuthenticatedRequest, re
   }
 });
 
-apiRouter.put('/admin/offers/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/admin/offers/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const parsed = offerSchema.safeParse(req.body);
@@ -559,12 +558,12 @@ apiRouter.put('/admin/offers/:id', requireAdminAuth, (req: AuthenticatedRequest,
       return res.status(400).json({ error: 'Validation failed', details: parsed.error.format() });
     }
 
-    const updated = db.updateOffer(id, parsed.data);
+    const updated = await db.updateOffer(id, parsed.data);
     if (!updated) {
       return res.status(404).json({ error: 'Offer not found' });
     }
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'OFFER_UPDATED',
       entity: 'OFFER',
@@ -578,12 +577,12 @@ apiRouter.put('/admin/offers/:id', requireAdminAuth, (req: AuthenticatedRequest,
   }
 });
 
-apiRouter.delete('/admin/offers/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.delete('/admin/offers/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    db.deleteOffer(id);
+    await db.deleteOffer(id);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'OFFER_DELETED',
       entity: 'OFFER',
@@ -598,20 +597,24 @@ apiRouter.delete('/admin/offers/:id', requireAdminAuth, (req: AuthenticatedReque
 });
 
 // SETTINGS MANAGEMENT
-apiRouter.get('/admin/settings', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  res.json({ settings: db.getSettings() });
+apiRouter.get('/admin/settings', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    res.json({ settings: await db.getSettings() });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
 });
 
-apiRouter.put('/admin/settings', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
+apiRouter.put('/admin/settings', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const parsed = settingsSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({ error: 'Validation failed', details: parsed.error.format() });
     }
 
-    const updated = db.updateSettings(parsed.data);
+    const updated = await db.updateSettings(parsed.data);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'SETTINGS_UPDATED',
       entity: 'SETTINGS',
@@ -625,22 +628,34 @@ apiRouter.put('/admin/settings', requireAdminAuth, (req: AuthenticatedRequest, r
 });
 
 // AUDIT LOGS
-apiRouter.get('/admin/audit-logs', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  const limit = req.query.limit ? Number(req.query.limit) : 50;
-  res.json({ auditLogs: db.getAuditLogs(limit) });
+apiRouter.get('/admin/audit-logs', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : 50;
+    res.json({ auditLogs: await db.getAuditLogs(limit) });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch audit logs' });
+  }
 });
 
 // INQUIRIES
-apiRouter.get('/admin/inquiries', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  res.json({ inquiries: db.getInquiries() });
+apiRouter.get('/admin/inquiries', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    res.json({ inquiries: await db.getInquiries() });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch inquiries' });
+  }
 });
 
-apiRouter.patch('/admin/inquiries/:id', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body;
-  const ok = db.updateInquiryStatus(id, status);
-  if (!ok) return res.status(404).json({ error: 'Inquiry not found' });
-  res.json({ success: true });
+apiRouter.patch('/admin/inquiries/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const ok = await db.updateInquiryStatus(id, status);
+    if (!ok) return res.status(404).json({ error: 'Inquiry not found' });
+    res.json({ success: true });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to update inquiry' });
+  }
 });
 
 // MEDIA & CLOUDINARY UPLOAD HANDLER
@@ -692,9 +707,9 @@ apiRouter.post('/admin/media/upload', requireAdminAuth, async (req: Authenticate
           createdAt: new Date().toISOString()
         };
 
-    db.addMediaAsset(asset);
+    await db.addMediaAsset(asset);
 
-    db.addAuditLog({
+    await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
       action: 'MEDIA_UPLOADED',
       entity: 'MEDIA',
@@ -716,12 +731,19 @@ apiRouter.post('/admin/media/upload', requireAdminAuth, async (req: Authenticate
   }
 });
 
-apiRouter.get('/admin/media', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
-  res.json({ media: db.getMediaAssets() });
+apiRouter.get('/admin/media', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    res.json({ media: await db.getMediaAssets() });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to fetch media' });
+  }
 });
 
 // ==========================================
-// 8. SUPABASE CLOUD DATABASE INTEGRATION
+// 8. SUPABASE CONNECTION STATUS
+// Data is always read from and written to Supabase directly in this
+// deployment, so there is no "local store" left to sync — these endpoints
+// exist only to power the admin panel's connection status card.
 // ==========================================
 
 apiRouter.get('/admin/supabase/status', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
@@ -732,7 +754,9 @@ apiRouter.get('/admin/supabase/status', requireAdminAuth, (req: AuthenticatedReq
     configured: isConfigured,
     supabaseUrl: supabaseUrl ? supabaseUrl.replace(/https?:\/\//, '').split('.')[0] + '...' : null,
     schemaFile: 'supabase-schema.sql',
-    instructions: 'Add SUPABASE_URL and SUPABASE_KEY to environment variables to sync your product catalogue and inquiries.'
+    instructions: isConfigured
+      ? 'Connected. All catalogue and order data reads and writes directly through this Supabase project.'
+      : 'Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to environment variables — this app requires Supabase to store data.'
   });
 });
 
@@ -742,26 +766,8 @@ apiRouter.post('/admin/supabase/test', requireAdminAuth, async (req: Authenticat
 });
 
 apiRouter.post('/admin/supabase/sync', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const result = await syncLocalStoreToSupabase({
-      categories: db.getCategories(),
-      products: db.getProducts(),
-      offers: db.getOffers(),
-      settings: db.getSettings()
-    });
-
-    if (result.success) {
-      db.addAuditLog({
-        adminEmail: req.admin?.email || 'admin',
-        action: 'SUPABASE_SYNC',
-        entity: 'DATABASE',
-        details: `Synchronized ${result.counts?.products || 0} products and ${result.counts?.categories || 0} categories to Supabase.`
-      });
-    }
-
-    res.json(result);
-  } catch (err: any) {
-    res.status(500).json({ success: false, message: err.message });
-  }
+  res.json({
+    success: true,
+    message: 'No sync needed — this deployment reads and writes Supabase directly, there is no separate local store.'
+  });
 });
-

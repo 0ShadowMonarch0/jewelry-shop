@@ -1,5 +1,4 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import type { Category, Product, Offer, SiteSettings } from '../src/types';
 
 let supabaseInstance: SupabaseClient | null = null;
 
@@ -74,104 +73,6 @@ export async function testSupabaseConnection(): Promise<{ success: boolean; mess
     return {
       success: false,
       message: `Connection test failed: ${err.message}`
-    };
-  }
-}
-
-/**
- * Sync local store records to Supabase tables.
- */
-export async function syncLocalStoreToSupabase(data: {
-  categories: Category[];
-  products: Product[];
-  offers: Offer[];
-  settings: SiteSettings;
-}): Promise<{ success: boolean; message: string; counts?: { categories: number; products: number; offers: number } }> {
-  const client = getSupabase();
-  if (!client) {
-    return { success: false, message: 'Supabase is not configured in environment variables.' };
-  }
-
-  try {
-    // 1. Sync Categories
-    if (data.categories.length > 0) {
-      const catRows = data.categories.map(c => ({
-        id: c.id,
-        name: c.name,
-        slug: c.slug,
-        description: c.description,
-        image_url: c.imageUrl,
-        is_active: c.isActive,
-        sort_order: c.sortOrder,
-        created_at: c.createdAt,
-        updated_at: c.updatedAt
-      }));
-      await client.from('categories').upsert(catRows, { onConflict: 'id' });
-    }
-
-    // 2. Sync Products
-    if (data.products.length > 0) {
-      const prodRows = data.products.map(p => ({
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        description: p.description,
-        price: p.price,
-        original_price: p.originalPrice || null,
-        category_id: p.categoryId,
-        category_name: p.categoryName || null,
-        sku: p.sku,
-        stock: p.stock,
-        is_active: p.isActive,
-        is_hot: p.isHot,
-        is_new_drop: p.isNewDrop,
-        is_featured: p.isFeatured,
-        restocked_at: p.restockedAt || null,
-        material: p.material || null,
-        color: p.color || null,
-        size: p.size || null,
-        weight: p.weight || null,
-        tags: p.tags || [],
-        specifications: p.specifications || {},
-        images: p.images || [],
-        created_at: p.createdAt,
-        updated_at: p.updatedAt
-      }));
-      await client.from('products').upsert(prodRows, { onConflict: 'id' });
-    }
-
-    // 3. Sync Offers
-    if (data.offers.length > 0) {
-      const offerRows = data.offers.map(o => ({
-        id: o.id,
-        title: o.title,
-        description: o.description,
-        code: o.code || null,
-        discount_type: o.discountType,
-        discount_value: o.discountValue,
-        image_url: o.imageUrl,
-        is_active: o.isActive,
-        start_date: o.startDate,
-        end_date: o.endDate || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }));
-      await client.from('offers').upsert(offerRows, { onConflict: 'id' });
-    }
-
-    return {
-      success: true,
-      message: 'Local catalogue successfully synced to Supabase.',
-      counts: {
-        categories: data.categories.length,
-        products: data.products.length,
-        offers: data.offers.length
-      }
-    };
-  } catch (err: any) {
-    return {
-      success: false,
-      message: `Failed to sync records to Supabase: ${err.message}`
     };
   }
 }
