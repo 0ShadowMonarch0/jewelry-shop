@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { createApp } from '../server/app';
+import { createApp } from '../server/app.js';
 
 // Vercel's Node runtime accepts a default-exported (req, res) handler —
 // an Express app is exactly that, so it can be exported directly with no

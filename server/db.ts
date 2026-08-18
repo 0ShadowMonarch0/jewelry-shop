@@ -1,4 +1,4 @@
-import { getSupabase } from './supabase';
+import { getSupabase } from './supabase.js';
 import type {
   Product,
   Category,
@@ -7,7 +7,7 @@ import type {
   AdminAuditLog,
   CustomerInquiry,
   AdminStats,
-} from '../src/types';
+} from '../src/types.js';
 
 function client() {
   const c = getSupabase();
