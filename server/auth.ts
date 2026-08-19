@@ -2,8 +2,8 @@ import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
 import type { AdminUser } from '../src/types.js';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'aura_jewelry_super_secret_jwt_key_2026';
-const SESSION_COOKIE_NAME = 'aura_admin_session';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'mini2k_super_secret_jwt_key_2026';
+const SESSION_COOKIE_NAME = 'mini2k_admin_session';
 
 // In-memory rate limiting map for login attempts
 const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();

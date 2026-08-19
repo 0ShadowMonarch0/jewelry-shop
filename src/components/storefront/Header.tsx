@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Instagram, Menu, X, ChevronDown } from 'lucide-react';
+import { Search, Instagram, Menu, ChevronDown } from 'lucide-react';
 import type { Category, SiteSettings } from '../../types';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
 
 interface HeaderProps {
   settings: SiteSettings | null;
@@ -24,7 +25,17 @@ export const Header: React.FC<HeaderProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<Set<string>>(new Set());
   const categoryMenuRef = useRef<HTMLDivElement>(null);
+
+  const toggleCategoryExpanded = (id: string) => {
+    setExpandedCategoryIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,10 +56,12 @@ export const Header: React.FC<HeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [categoryMenuOpen]);
 
-  const storeName = settings?.storeName || 'AURELIA';
-  const instagramHandle = settings?.instagramHandle || 'aurelia_jewelry';
+  const storeName = settings?.storeName || 'mini2k';
+  const instagramHandle = settings?.instagramHandle || 'mini2k.np';
   const tagline = settings?.tagline || 'Fine Jewelry';
   const activeCategoryName = activeCategory ? categories.find(c => c.id === activeCategory)?.name : null;
+  const topLevelCategories = categories.filter(c => !c.parentId);
+  const childCategoriesOf = (parentId: string) => categories.filter(c => c.parentId === parentId);
 
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
@@ -72,10 +85,12 @@ export const Header: React.FC<HeaderProps> = ({
             className="group flex items-center gap-2 sm:gap-2.5 min-w-0"
           >
             {settings?.logoUrl ? (
+              // The logo artwork is a wide wordmark lockup, not an icon — render it at
+              // its natural aspect ratio instead of cropping it into a small circle.
               <img
                 src={settings.logoUrl}
                 alt={storeName}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full object-cover border border-[#E5E3DB] flex-shrink-0"
+                className="h-8 sm:h-10 w-auto object-contain flex-shrink-0"
               />
             ) : (
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1C1C1C] border border-[#C5A059]/50 group-hover:border-[#C5A059] flex items-center justify-center text-[#C5A059] font-serif italic font-bold text-sm transition-colors flex-shrink-0">
@@ -83,9 +98,11 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
             <div className="flex flex-col leading-none min-w-0">
-              <span className="font-serif text-base sm:text-lg italic font-bold text-[#1C1C1C] uppercase tracking-tight truncate group-hover:text-[#C5A059] transition-colors">
-                {storeName}
-              </span>
+              {!settings?.logoUrl && (
+                <span className="font-serif text-base sm:text-lg italic font-bold text-[#1C1C1C] uppercase tracking-tight truncate group-hover:text-[#C5A059] transition-colors">
+                  {storeName}
+                </span>
+              )}
               <span className="text-[7px] tracking-[0.25em] text-[#999] uppercase font-sans hidden sm:block truncate">
                 {tagline}
               </span>
@@ -120,21 +137,62 @@ export const Header: React.FC<HeaderProps> = ({
                   >
                     All Atelier
                   </button>
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        onSelectCategory(cat.id);
-                        onSelectFilter('category');
-                        setCategoryMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2 text-xs transition-colors hover:bg-[#F0EFEC] ${
-                        activeCategory === cat.id ? 'text-[#C5A059] font-semibold' : 'text-[#1C1C1C]'
-                      }`}
-                    >
-                      {cat.name}
-                    </button>
-                  ))}
+                  {topLevelCategories.map((cat) => {
+                    const children = childCategoriesOf(cat.id);
+                    const hasChildren = children.length > 0;
+                    const isExpanded = expandedCategoryIds.has(cat.id);
+                    return (
+                      <div key={cat.id}>
+                        <div
+                          className={`flex items-center justify-between transition-colors hover:bg-[#F0EFEC] ${
+                            activeCategory === cat.id ? 'text-[#C5A059] font-semibold' : 'text-[#1C1C1C]'
+                          }`}
+                        >
+                          <button
+                            onClick={() => {
+                              onSelectCategory(cat.id);
+                              onSelectFilter('category');
+                              setCategoryMenuOpen(false);
+                            }}
+                            className="flex-1 text-left pl-4 pr-2 py-2 text-xs"
+                          >
+                            {cat.name}
+                          </button>
+                          {hasChildren && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleCategoryExpanded(cat.id);
+                              }}
+                              aria-label={isExpanded ? `Collapse ${cat.name}` : `Expand ${cat.name}`}
+                              className="px-3 py-2 hover:text-[#C5A059]"
+                            >
+                              <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                            </button>
+                          )}
+                        </div>
+                        {hasChildren && isExpanded && (
+                          <div className="bg-[#FAF9F6]">
+                            {children.map((child) => (
+                              <button
+                                key={child.id}
+                                onClick={() => {
+                                  onSelectCategory(child.id);
+                                  onSelectFilter('category');
+                                  setCategoryMenuOpen(false);
+                                }}
+                                className={`w-full text-left pl-8 pr-4 py-2 text-xs transition-colors hover:bg-[#F0EFEC] ${
+                                  activeCategory === child.id ? 'text-[#C5A059] font-semibold' : 'text-[#615C52]'
+                                }`}
+                              >
+                                {child.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -210,53 +268,98 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
               <button
                 id="mobile-menu-toggle-btn"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => setMobileMenuOpen(true)}
                 className="p-1.5 rounded-full text-[#1C1C1C] hover:bg-[#F0EFEC] transition-colors"
-                aria-label="Toggle navigation menu"
+                aria-label="Open navigation menu"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                <Menu className="w-5 h-5" />
               </button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Dropdown Menu Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-[#E5E3DB] bg-[#FAF9F6] px-6 py-6 space-y-4 shadow-lg animate-in slide-in-from-top-2 duration-200">
+      {/* Mobile Navigation Sheet */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="right" className="overflow-y-auto p-0">
+          <SheetHeader className="border-b border-[#E5E3DB] pb-4">
+            <SheetTitle>{storeName}</SheetTitle>
+            <SheetDescription>{tagline}</SheetDescription>
+          </SheetHeader>
+
+          <div className="px-6 py-6 space-y-4">
             <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#C5A059] mb-2 flex items-center gap-2">
               <div className="h-[1px] w-8 bg-[#C5A059]"></div>
               <span>Curated Collections</span>
             </div>
-            
-            <div className="grid grid-cols-2 gap-2 text-xs">
+
+            <div className="text-xs">
               <button
                 onClick={() => {
                   onSelectCategory(null);
                   onSelectFilter('all');
                   setMobileMenuOpen(false);
                 }}
-                className={`text-left py-2.5 px-3.5 rounded-xl font-medium uppercase tracking-wider ${
-                  !activeCategory && activeFilter === 'all' ? 'bg-[#1C1C1C] text-white' : 'bg-[#F0EFEC] text-[#1C1C1C]'
+                className={`w-full text-left py-3 border-b border-[#E5E3DB] font-bold uppercase tracking-wider ${
+                  !activeCategory && activeFilter === 'all' ? 'text-[#C5A059]' : 'text-[#1C1C1C]'
                 }`}
               >
                 All Curations
               </button>
 
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    onSelectCategory(cat.id);
-                    onSelectFilter('category');
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`text-left py-2.5 px-3.5 rounded-xl font-medium uppercase tracking-wider truncate ${
-                    activeCategory === cat.id ? 'bg-[#1C1C1C] text-white' : 'bg-[#F0EFEC] text-[#1C1C1C]'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
+              {topLevelCategories.map((cat) => {
+                const children = childCategoriesOf(cat.id);
+                const hasChildren = children.length > 0;
+                const isExpanded = expandedCategoryIds.has(cat.id);
+                return (
+                  <div key={cat.id} className="border-b border-[#E5E3DB]">
+                    <div className="flex items-center justify-between gap-2">
+                      <button
+                        onClick={() => {
+                          onSelectCategory(cat.id);
+                          onSelectFilter('category');
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`flex-1 text-left py-3 font-bold uppercase tracking-wider ${
+                          activeCategory === cat.id ? 'text-[#C5A059]' : 'text-[#1C1C1C]'
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                      {hasChildren && (
+                        <button
+                          onClick={() => toggleCategoryExpanded(cat.id)}
+                          aria-label={isExpanded ? `Collapse ${cat.name}` : `Expand ${cat.name}`}
+                          className={`flex-shrink-0 p-2 rounded-full transition-colors ${
+                            isExpanded ? 'bg-[#1C1C1C] text-white' : 'bg-[#F0EFEC] text-[#1C1C1C]'
+                          }`}
+                        >
+                          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                      )}
+                    </div>
+                    {hasChildren && isExpanded && (
+                      <div className="pb-2 space-y-0.5">
+                        {children.map((child) => (
+                          <button
+                            key={child.id}
+                            onClick={() => {
+                              onSelectCategory(child.id);
+                              onSelectFilter('category');
+                              setMobileMenuOpen(false);
+                            }}
+                            className={`w-full text-left py-2 pl-4 uppercase tracking-wider ${
+                              activeCategory === child.id ? 'text-[#C5A059] font-semibold' : 'text-[#615C52] font-medium'
+                            }`}
+                          >
+                            {child.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             <div className="pt-3 border-t border-[#E5E3DB] flex flex-col gap-2">
@@ -282,8 +385,8 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </SheetContent>
+      </Sheet>
     </header>
   );
 };

@@ -1,5 +1,5 @@
 -- ==============================================================================
--- AURELIA JEWELRY - SUPABASE POSTGRESQL DATABASE SCHEMA
+-- MINI2K - SUPABASE POSTGRESQL DATABASE SCHEMA
 -- Execute this script in your Supabase SQL Editor (https://supabase.com/dashboard)
 -- ==============================================================================
 
@@ -15,9 +15,11 @@ CREATE TABLE IF NOT EXISTS categories (
   image_url TEXT NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT true,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  parent_id TEXT REFERENCES categories(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+ALTER TABLE categories ADD COLUMN IF NOT EXISTS parent_id TEXT REFERENCES categories(id) ON DELETE SET NULL;
 
 -- 2. PRODUCTS TABLE
 CREATE TABLE IF NOT EXISTS products (
@@ -74,16 +76,16 @@ ALTER TABLE offers ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 
 -- 4. SITE SETTINGS TABLE
 CREATE TABLE IF NOT EXISTS site_settings (
   id TEXT PRIMARY KEY DEFAULT 'default',
-  store_name TEXT NOT NULL DEFAULT 'AURELIA Fine Jewelry',
+  store_name TEXT NOT NULL DEFAULT 'mini2k',
   tagline TEXT NOT NULL DEFAULT 'Sculptural luxury fine jewelry handcrafted for everyday elevation.',
   logo_url TEXT,
-  instagram_handle TEXT NOT NULL DEFAULT 'aurelia_jewelry',
-  custom_order_message_template TEXT NOT NULL DEFAULT 'Hi, I''m interested in ordering the {product_name} (SKU: {product_sku}, Price: ${product_price}). URL: {product_url}',
-  currency_symbol TEXT NOT NULL DEFAULT '$',
+  instagram_handle TEXT NOT NULL DEFAULT 'mini2k.np',
+  custom_order_message_template TEXT NOT NULL DEFAULT 'Hi, I''m interested in ordering the {product_name} (SKU: {product_sku}, Price: NPR {product_price}). URL: {product_url}',
+  currency_symbol TEXT NOT NULL DEFAULT 'NPR ',
   announcement_enabled BOOLEAN NOT NULL DEFAULT false,
   announcement_text TEXT DEFAULT '',
   announcement_link TEXT,
-  contact_email TEXT NOT NULL DEFAULT 'concierge@aurelia-atelier.com',
+  contact_email TEXT NOT NULL DEFAULT 'concierge@mini2k.com',
   contact_phone TEXT,
   atelier_address TEXT DEFAULT '14 Place Vendôme, 75001 Paris',
   hero_headline TEXT NOT NULL DEFAULT 'Adorn the Unseen.',
@@ -91,7 +93,7 @@ CREATE TABLE IF NOT EXISTS site_settings (
   hero_image_url TEXT NOT NULL DEFAULT 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=2000',
   hero_cta_text TEXT NOT NULL DEFAULT 'Explore Catalogue',
   hero_cta_link TEXT NOT NULL DEFAULT '#catalog',
-  default_seo_title TEXT NOT NULL DEFAULT 'AURELIA Fine Jewelry',
+  default_seo_title TEXT NOT NULL DEFAULT 'mini2k',
   default_seo_description TEXT NOT NULL DEFAULT 'Sculptural luxury fine jewelry handcrafted for everyday elevation.',
   default_seo_keywords TEXT,
   about_text TEXT,
@@ -115,12 +117,12 @@ CREATE TABLE IF NOT EXISTS site_settings (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS logo_url TEXT;
-ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS custom_order_message_template TEXT NOT NULL DEFAULT 'Hi, I''m interested in ordering the {product_name} (SKU: {product_sku}, Price: ${product_price}). URL: {product_url}';
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS custom_order_message_template TEXT NOT NULL DEFAULT 'Hi, I''m interested in ordering the {product_name} (SKU: {product_sku}, Price: NPR {product_price}). URL: {product_url}';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS announcement_link TEXT;
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS contact_phone TEXT;
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS hero_cta_text TEXT NOT NULL DEFAULT 'Explore Catalogue';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS hero_cta_link TEXT NOT NULL DEFAULT '#catalog';
-ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS default_seo_title TEXT NOT NULL DEFAULT 'AURELIA Fine Jewelry';
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS default_seo_title TEXT NOT NULL DEFAULT 'mini2k';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS default_seo_description TEXT NOT NULL DEFAULT 'Sculptural luxury fine jewelry handcrafted for everyday elevation.';
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS default_seo_keywords TEXT;
 ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS about_text TEXT;

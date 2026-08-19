@@ -14,15 +14,15 @@ let authToken: string | null = null;
 export function setAuthToken(token: string | null) {
   authToken = token;
   if (token) {
-    sessionStorage.setItem('aura_token', token);
+    sessionStorage.setItem('mini2k_token', token);
   } else {
-    sessionStorage.removeItem('aura_token');
+    sessionStorage.removeItem('mini2k_token');
   }
 }
 
 export function getStoredAuthToken(): string | null {
   if (typeof window !== 'undefined' && !authToken) {
-    authToken = sessionStorage.getItem('aura_token');
+    authToken = sessionStorage.getItem('mini2k_token');
   }
   return authToken;
 }

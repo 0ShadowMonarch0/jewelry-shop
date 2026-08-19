@@ -13,12 +13,12 @@ export const Footer: React.FC<FooterProps> = ({
   categories,
   onSelectCategory
 }) => {
-  const storeName = settings?.storeName || 'AURELIA';
-  const instagramHandle = settings?.instagramHandle || 'aurelia_jewelry';
-  const contactEmail = settings?.contactEmail || 'concierge@aureliajewelry.com';
+  const storeName = settings?.storeName || 'mini2k';
+  const instagramHandle = settings?.instagramHandle || 'mini2k.np';
+  const contactEmail = settings?.contactEmail || 'concierge@mini2k.com';
   const contactPhone = settings?.contactPhone || '+1 (555) 234-8900';
   const atelierAddress = settings?.atelierAddress || 'Via del Corso, Florence & SoHo, New York';
-  const aboutText = settings?.aboutText || 'Aurelia Fine Jewelry was founded on the philosophy that fine jewelry should be intimate, timeless, and sculpturally distinct. Handcrafted in limited micro-batches in our atelier.';
+  const aboutText = settings?.aboutText || 'mini2k was founded on the philosophy that fine jewelry should be intimate, timeless, and sculpturally distinct. Handcrafted in limited micro-batches in our atelier.';
   const philosophyEyebrow = settings?.footerPhilosophyEyebrow || 'Atelier Philosophy';
   const collectionsHeading = settings?.footerCollectionsHeading || 'Collections';
   const orderingHeading = settings?.footerOrderingHeading || 'Instagram Ordering';

@@ -17,7 +17,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   categories,
   products,
   onSelectProduct,
-  currencySymbol = '$'
+  currencySymbol = 'NPR '
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
