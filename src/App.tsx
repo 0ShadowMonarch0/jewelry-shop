@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { api, setAuthToken } from './lib/api';
 import type { Product, Category, Offer, SiteSettings, AdminUser } from './types';
 
@@ -55,6 +55,33 @@ export default function App() {
   const [activeProductModal, setActiveProductModal] = useState<Product | null>(null);
   const [activeInstagramOrderProduct, setActiveInstagramOrderProduct] = useState<Product | null>(null);
 
+  // Kept in sync with `products` via the effect below so the popstate
+  // handler (registered once, on mount) can always resolve the latest list
+  // without needing to re-subscribe every time products changes.
+  const productsRef = useRef<Product[]>([]);
+  useEffect(() => {
+    productsRef.current = products;
+  }, [products]);
+
+  // Open a product's URL as a real path (not a hash) so social-preview
+  // crawlers hitting /product/<slug> can be identified and served correct
+  // per-product meta tags (see middleware.ts + server/productMeta.ts) —
+  // hash fragments never reach the server at all, so that wasn't possible
+  // with the old #product-<slug> links.
+  const openProduct = (product: Product, pushHistory: boolean = true) => {
+    setActiveProductModal(product);
+    if (pushHistory) {
+      window.history.pushState({}, '', `/product/${product.slug}`);
+    }
+  };
+
+  const closeProductModal = () => {
+    setActiveProductModal(null);
+    if (window.location.pathname.startsWith('/product/')) {
+      window.history.pushState({}, '', '/');
+    }
+  };
+
   // Initial load & URL routing check
   useEffect(() => {
     if (window.location.pathname === '/admin' || window.location.hash === '#admin') {
@@ -64,13 +91,18 @@ export default function App() {
     const handleHashChange = () => {
       if (window.location.hash === '#admin') {
         setViewMode('admin');
-      } else if (window.location.hash.startsWith('#product-')) {
-        const slug = window.location.hash.replace('#product-', '');
-        const found = products.find(p => p.slug === slug);
-        if (found) setActiveProductModal(found);
       }
     };
     window.addEventListener('hashchange', handleHashChange);
+
+    // Browser back/forward should open or close the product modal to match
+    // whatever /product/<slug> (or lack thereof) it navigates to.
+    const handlePopState = () => {
+      const match = window.location.pathname.match(/^\/product\/([^/]+)\/?$/);
+      const found = match ? productsRef.current.find(p => p.slug === match[1]) : null;
+      setActiveProductModal(found || null);
+    };
+    window.addEventListener('popstate', handlePopState);
 
     // Initial check for existing admin session
     api.getMe()
@@ -85,23 +117,46 @@ export default function App() {
 
     loadStorefrontData();
 
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
+
+  // Once products have loaded, open the product modal if the page was
+  // loaded directly on a /product/<slug> URL (e.g. a shared link).
+  useEffect(() => {
+    if (products.length === 0) return;
+    const match = window.location.pathname.match(/^\/product\/([^/]+)\/?$/);
+    if (!match) return;
+    const found = products.find(p => p.slug === match[1]);
+    if (found) openProduct(found, false);
+  }, [products]);
 
   // Push admin-configured page content (title, meta description, keywords,
   // Open Graph tags) into the live document whenever settings load or change.
   useEffect(() => {
     if (!settings) return;
 
-    document.title = settings.defaultSeoTitle || settings.storeName;
-    setMetaTag('name', 'description', settings.defaultSeoDescription || settings.tagline);
+    const seoTitle = settings.defaultSeoTitle || settings.storeName;
+    const seoDescription = settings.defaultSeoDescription || settings.tagline;
+
+    document.title = seoTitle;
+    setMetaTag('name', 'description', seoDescription);
     if (settings.defaultSeoKeywords) {
       setMetaTag('name', 'keywords', settings.defaultSeoKeywords);
     }
-    setMetaTag('property', 'og:title', settings.defaultSeoTitle || settings.storeName);
-    setMetaTag('property', 'og:description', settings.defaultSeoDescription || settings.tagline);
+
+    setMetaTag('property', 'og:site_name', settings.storeName);
+    setMetaTag('property', 'og:title', seoTitle);
+    setMetaTag('property', 'og:description', seoDescription);
+    setMetaTag('property', 'og:url', window.location.href);
+    setMetaTag('name', 'twitter:title', seoTitle);
+    setMetaTag('name', 'twitter:description', seoDescription);
     if (settings.heroImageUrl) {
       setMetaTag('property', 'og:image', settings.heroImageUrl);
+      setMetaTag('property', 'og:image:alt', `${settings.storeName} — ${settings.tagline}`);
+      setMetaTag('name', 'twitter:image', settings.heroImageUrl);
     }
   }, [settings]);
 
@@ -417,7 +472,7 @@ export default function App() {
             products={displayedProducts}
             loading={loading}
             currencySymbol={currencySymbol}
-            onQuickView={(product) => setActiveProductModal(product)}
+            onQuickView={(product) => openProduct(product)}
             onOrderInstagram={(product) => setActiveInstagramOrderProduct(product)}
           />
 
@@ -443,13 +498,13 @@ export default function App() {
           relatedProducts={relatedProducts}
           settings={settings}
           currencySymbol={currencySymbol}
-          onClose={() => setActiveProductModal(null)}
+          onClose={closeProductModal}
           onOrderInstagram={(prod) => {
-            setActiveProductModal(null);
+            closeProductModal();
             setActiveInstagramOrderProduct(prod);
           }}
           onSelectRelated={(prod) => {
-            setActiveProductModal(prod);
+            openProduct(prod);
           }}
         />
       )}
@@ -472,7 +527,7 @@ export default function App() {
         products={products}
         currencySymbol={currencySymbol}
         onSelectProduct={(prod) => {
-          setActiveProductModal(prod);
+          openProduct(prod);
         }}
       />
 

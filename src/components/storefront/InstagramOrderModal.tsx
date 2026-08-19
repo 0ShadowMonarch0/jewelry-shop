@@ -24,7 +24,7 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
   const primaryImg = product.images.find(i => i.isPrimary) || product.images[0];
 
   // Generate standardized message
-  const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/#product-${product.slug}` : '';
+  const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/product/${product.slug}` : '';
   
   const generateMessage = () => {
     let msg = `Hi @${instagramHandle}, I'm interested in ordering the ${product.name} (SKU: ${product.sku}, Price: ${currencySymbol}${product.price}).`;

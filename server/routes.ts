@@ -22,6 +22,7 @@ import {
 } from './validation.js';
 import { generateCloudinarySignature, getOptimizedImageUrl, uploadToCloudinary } from './cloudinary.js';
 import { testSupabaseConnection, isSupabaseConnected } from './supabase.js';
+import { renderProductMetaHtml } from './productMeta.js';
 import type { Product, Category, Offer } from '../src/types.js';
 
 export const apiRouter = Router();
@@ -129,6 +130,26 @@ apiRouter.get('/products/:slug', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to fetch product', details: err.message });
+  }
+});
+
+// GET /api/product-meta/:slug - minimal HTML with correct per-product Open
+// Graph / Twitter Card tags, for social-preview crawlers. On Vercel this is
+// only ever reached via a bot-triggered rewrite from middleware.ts (real
+// visitors keep hitting the normal SPA); self-hosted/dev reach the same
+// content through the direct '/product/:slug' route in server/app.ts.
+apiRouter.get('/product-meta/:slug', async (req: Request, res: Response) => {
+  try {
+    const product = await db.getProductBySlug(req.params.slug);
+    if (!product || !product.isActive) {
+      return res.status(404).send('Not found');
+    }
+    const settings = await db.getSettings();
+    const canonicalUrl = `${req.protocol}://${req.get('host')}/product/${product.slug}`;
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(renderProductMetaHtml(product, settings, canonicalUrl));
+  } catch (err: any) {
+    res.status(500).send('Error generating preview');
   }
 });
 
