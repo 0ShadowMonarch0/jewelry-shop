@@ -22,6 +22,7 @@ export interface Category {
   imageUrl: string;
   isActive: boolean;
   sortOrder: number;
+  parentId?: string | null;
   productCount?: number;
   createdAt: string;
   updatedAt: string;

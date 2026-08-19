@@ -88,6 +88,7 @@ function rowToCategory(r: any): Category {
     imageUrl: r.image_url,
     isActive: r.is_active,
     sortOrder: r.sort_order,
+    parentId: r.parent_id || null,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
   };
@@ -102,6 +103,7 @@ function categoryToRow(c: Partial<Category>): Record<string, any> {
   if (c.imageUrl !== undefined) row.image_url = c.imageUrl;
   if (c.isActive !== undefined) row.is_active = c.isActive;
   if (c.sortOrder !== undefined) row.sort_order = c.sortOrder;
+  if (c.parentId !== undefined) row.parent_id = c.parentId;
   if (c.createdAt !== undefined) row.created_at = c.createdAt;
   if (c.updatedAt !== undefined) row.updated_at = c.updatedAt;
   return row;
@@ -265,13 +267,13 @@ function rowToAuditLog(r: any): AdminAuditLog {
 }
 
 const DEFAULT_SETTINGS: SiteSettings = {
-  storeName: 'AURA Fine Jewelry',
+  storeName: 'mini2k',
   tagline: 'Handcrafted Solid Gold, Pearls & Precious Stones',
-  instagramHandle: 'aurafinejewelry',
+  instagramHandle: 'mini2k.np',
   customOrderMessageTemplate:
-    "Hi AURA Atelier, I'm interested in ordering the {product_name} (SKU: {product_sku}, Price: ${product_price}). URL: {product_url}",
-  currencySymbol: '$',
-  contactEmail: 'concierge@aurajewelry.com',
+    "Hi mini2k, I'm interested in ordering the {product_name} (SKU: {product_sku}, Price: NPR {product_price}). URL: {product_url}",
+  currencySymbol: 'NPR ',
+  contactEmail: 'concierge@mini2k.com',
   announcementText: 'Complimentary insured worldwide shipping on all atelier drops',
   announcementEnabled: true,
   heroHeadline: 'Sculptural Elegance for the Modern Collector',
@@ -279,7 +281,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroImageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=85&w=1600',
   heroCtaText: 'Explore New Drop',
   heroCtaLink: '#catalog',
-  defaultSeoTitle: 'AURA Fine Jewelry',
+  defaultSeoTitle: 'mini2k',
   defaultSeoDescription: 'Handcrafted luxury jewelry catalogue with direct Instagram ordering.',
 };
 

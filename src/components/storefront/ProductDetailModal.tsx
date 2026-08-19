@@ -27,7 +27,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
   relatedProducts,
   settings,
-  currencySymbol = '$',
+  currencySymbol = 'NPR ',
   onClose,
   onOrderInstagram,
   onSelectRelated
@@ -55,7 +55,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
       try {
         await navigator.share({
           title: product.name,
-          text: `Discover ${product.name} at Aurelia Fine Jewelry Atelier.`,
+          text: `Discover ${product.name} at mini2k.`,
           url: window.location.href
         });
         return;
@@ -227,14 +227,16 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
               </div>
 
               {/* Description */}
-              <div className="space-y-2 border-t border-[#E5E3DB] pt-4">
-                <h4 className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#1C1C1C]">
-                  Atelier Notes & Craftsmanship
-                </h4>
-                <p className="text-sm text-[#555] leading-relaxed font-light">
-                  {product.description}
-                </p>
-              </div>
+              {product.description && (
+                <div className="space-y-2 border-t border-[#E5E3DB] pt-4">
+                  <h4 className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#1C1C1C]">
+                    Atelier Notes & Craftsmanship
+                  </h4>
+                  <p className="text-sm text-[#555] leading-relaxed font-light">
+                    {product.description}
+                  </p>
+                </div>
+              )}
 
               {/* Specifications Matrix */}
               {product.specifications && Object.keys(product.specifications).length > 0 && (

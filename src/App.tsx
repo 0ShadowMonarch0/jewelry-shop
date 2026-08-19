@@ -17,6 +17,7 @@ import { Footer } from './components/storefront/Footer';
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
 import { Sparkles, Flame } from 'lucide-react';
+import { Slider } from './components/ui/slider';
 
 // Creates or updates a <meta> tag identified by name/property, and returns
 // nothing — used to push admin-configured SEO content into the live <head>.
@@ -46,6 +47,8 @@ export default function App() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'all' | 'newDrop' | 'hot' | 'inStock'>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'priceAsc' | 'priceDesc' | 'newest'>('featured');
+  // null = no manual price filter applied yet (defaults to the full catalogue range)
+  const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
 
   // Interactive Overlays & Modals
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -123,6 +126,20 @@ export default function App() {
     }
   };
 
+  // Full catalogue price bounds, used as the slider's min/max and as the
+  // "no filter applied" default range.
+  const priceBounds = useMemo<[number, number]>(() => {
+    if (products.length === 0) return [0, 1000];
+    const prices = products.map(p => p.price);
+    const min = Math.floor(Math.min(...prices));
+    const max = Math.ceil(Math.max(...prices));
+    return min === max ? [min, max + 1] : [min, max];
+  }, [products]);
+
+  const priceStep = Math.max(1, Math.round((priceBounds[1] - priceBounds[0]) / 100));
+  const effectivePriceRange = priceRange ?? priceBounds;
+  const isPriceFiltered = priceRange !== null && (priceRange[0] > priceBounds[0] || priceRange[1] < priceBounds[1]);
+
   // Filter & sort products
   const displayedProducts = useMemo(() => {
     let result = [...products];
@@ -139,6 +156,11 @@ export default function App() {
       result = result.filter(p => p.isHot);
     } else if (activeFilter === 'inStock') {
       result = result.filter(p => p.stock > 0);
+    }
+
+    // Price range filter
+    if (priceRange) {
+      result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
     }
 
     // Sorting
@@ -158,7 +180,7 @@ export default function App() {
     }
 
     return result;
-  }, [products, selectedCategoryId, activeFilter, sortBy]);
+  }, [products, selectedCategoryId, activeFilter, priceRange, sortBy]);
 
   // Related products for detail modal
   const relatedProducts = useMemo(() => {
@@ -199,6 +221,8 @@ export default function App() {
   }
 
   // STOREFRONT VIEW
+  const currencySymbol = settings?.currencySymbol || 'NPR ';
+
   return (
     <div className="min-h-screen bg-[#FAF9F6] text-[#1C1C1C] flex flex-col font-sans selection:bg-[#C5A059]/30">
       
@@ -329,9 +353,43 @@ export default function App() {
 
           </div>
 
+          {/* Price Range Filter */}
+          {priceBounds[0] < priceBounds[1] && (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 bg-white border border-[#E5E3DB] rounded-2xl px-4 sm:px-5 py-3.5">
+              <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1C1C] flex-shrink-0 sm:w-24">
+                Price Range
+              </span>
+              <div className="flex-1 flex items-center gap-3 sm:gap-4">
+                <span className="text-xs font-semibold text-[#1C1C1C] whitespace-nowrap">
+                  {currencySymbol}{effectivePriceRange[0].toLocaleString()}
+                </span>
+                <Slider
+                  min={priceBounds[0]}
+                  max={priceBounds[1]}
+                  step={priceStep}
+                  minStepsBetweenThumbs={1}
+                  value={effectivePriceRange}
+                  onValueChange={(v) => setPriceRange([v[0], v[1]])}
+                  className="flex-1"
+                />
+                <span className="text-xs font-semibold text-[#1C1C1C] whitespace-nowrap">
+                  {currencySymbol}{effectivePriceRange[1].toLocaleString()}
+                </span>
+              </div>
+              {isPriceFiltered && (
+                <button
+                  onClick={() => setPriceRange(null)}
+                  className="text-[10px] uppercase tracking-widest font-bold text-[#C5A059] hover:underline flex-shrink-0 self-end sm:self-auto"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Active Filter Indicators */}
-          {(selectedCategoryId || activeFilter !== 'all') && (
-            <div className="flex items-center gap-2 text-xs text-[#777]">
+          {(selectedCategoryId || activeFilter !== 'all' || isPriceFiltered) && (
+            <div className="flex items-center gap-2 text-xs text-[#777] flex-wrap">
               <span className="text-[10px] uppercase tracking-widest font-semibold">Active filter:</span>
               {selectedCategoryId && (
                 <span className="bg-[#F0EFEC] px-3 py-1 rounded-full text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#E5E3DB]">
@@ -345,6 +403,12 @@ export default function App() {
                   <button onClick={() => setActiveFilter('all')} className="hover:text-[#C5A059] font-bold">×</button>
                 </span>
               )}
+              {isPriceFiltered && (
+                <span className="bg-[#F0EFEC] px-3 py-1 rounded-full text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#E5E3DB]">
+                  {currencySymbol}{effectivePriceRange[0].toLocaleString()} – {currencySymbol}{effectivePriceRange[1].toLocaleString()}
+                  <button onClick={() => setPriceRange(null)} className="hover:text-[#C5A059] font-bold">×</button>
+                </span>
+              )}
             </div>
           )}
 
@@ -352,7 +416,7 @@ export default function App() {
           <MasonryGrid
             products={displayedProducts}
             loading={loading}
-            currencySymbol={settings?.currencySymbol || '$'}
+            currencySymbol={currencySymbol}
             onQuickView={(product) => setActiveProductModal(product)}
             onOrderInstagram={(product) => setActiveInstagramOrderProduct(product)}
           />
@@ -378,7 +442,7 @@ export default function App() {
           product={activeProductModal}
           relatedProducts={relatedProducts}
           settings={settings}
-          currencySymbol={settings?.currencySymbol || '$'}
+          currencySymbol={currencySymbol}
           onClose={() => setActiveProductModal(null)}
           onOrderInstagram={(prod) => {
             setActiveProductModal(null);
@@ -395,7 +459,7 @@ export default function App() {
         <InstagramOrderModal
           product={activeInstagramOrderProduct}
           settings={settings}
-          currencySymbol={settings?.currencySymbol || '$'}
+          currencySymbol={currencySymbol}
           onClose={() => setActiveInstagramOrderProduct(null)}
         />
       )}
@@ -406,7 +470,7 @@ export default function App() {
         onClose={() => setIsSearchOpen(false)}
         categories={categories}
         products={products}
-        currencySymbol={settings?.currencySymbol || '$'}
+        currencySymbol={currencySymbol}
         onSelectProduct={(prod) => {
           setActiveProductModal(prod);
         }}

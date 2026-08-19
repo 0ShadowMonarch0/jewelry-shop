@@ -26,7 +26,7 @@ import type { Product, Category, Offer } from '../src/types.js';
 
 export const apiRouter = Router();
 
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@aurajewelry.com').toLowerCase();
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@mini2k.com').toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
 
 // ==========================================

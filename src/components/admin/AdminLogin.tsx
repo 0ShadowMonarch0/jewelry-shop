@@ -9,7 +9,7 @@ interface AdminLoginProps {
 }
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore }) => {
-  const [email, setEmail] = useState('admin@aurajewelry.com');
+  const [email, setEmail] = useState('admin@mini2k.com');
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
             Atelier Portal
           </h2>
           <p className="text-[10px] uppercase tracking-[0.25em] text-[#999]">
-            AURELIA Store & Inventory Suite
+            mini2k Store & Inventory Suite
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@aurajewelry.com"
+                placeholder="admin@mini2k.com"
                 className="w-full pl-10 pr-4 py-3 bg-[#1C1C1C] border border-[#3D3D3D] rounded-xl text-sm text-[#FAF9F6] placeholder-[#666] focus:outline-none focus:border-[#C5A059] transition-colors"
               />
             </div>
@@ -125,7 +125,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
         {/* Demo Credentials Box */}
         <div className="p-4 rounded-xl bg-[#1C1C1C] border border-[#3D3D3D] text-[11px] text-[#999] space-y-1">
           <div className="text-[#C5A059] font-semibold uppercase tracking-wider">Default Seed Credentials:</div>
-          <div>Email: <code className="text-[#FAF9F6]">admin@aurajewelry.com</code></div>
+          <div>Email: <code className="text-[#FAF9F6]">admin@mini2k.com</code></div>
           <div>Password: <code className="text-[#FAF9F6]">admin123</code></div>
         </div>
 

@@ -13,14 +13,14 @@ interface InstagramOrderModalProps {
 export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
   product,
   settings,
-  currencySymbol = '$',
+  currencySymbol = 'NPR ',
   onClose
 }) => {
   const [copied, setCopied] = useState(false);
   const [customNote, setCustomNote] = useState('');
   const [inquirySaved, setInquirySaved] = useState(false);
 
-  const instagramHandle = settings?.instagramHandle || 'aurelia_jewelry';
+  const instagramHandle = settings?.instagramHandle || 'mini2k.np';
   const primaryImg = product.images.find(i => i.isPrimary) || product.images[0];
 
   // Generate standardized message

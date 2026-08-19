@@ -27,7 +27,7 @@ export function createApp() {
 
   // Health check endpoint
   app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', service: 'AURA Jewelry Atelier API', timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', service: 'mini2k API', timestamp: new Date().toISOString() });
   });
 
   return app;

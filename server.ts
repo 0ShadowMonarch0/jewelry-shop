@@ -27,7 +27,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✨ AURA Fine Jewelry Server running on http://0.0.0.0:${PORT}`);
+    console.log(`✨ mini2k Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

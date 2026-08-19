@@ -20,7 +20,7 @@ export const productImageSchema = z.object({
 export const productSchema = z.object({
   name: z.string().min(2, 'Product name must be at least 2 characters').max(120),
   slug: z.string().min(2).max(150).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
-  description: z.string().min(10, 'Description must be at least 10 characters'),
+  description: z.string().default(''),
   price: z.number().positive('Price must be greater than zero'),
   originalPrice: z.number().positive().optional().nullable(),
   categoryId: z.string().min(1, 'Category is required'),
@@ -46,7 +46,8 @@ export const categorySchema = z.object({
   description: z.string().default(''),
   imageUrl: z.string().url('Category image must be a valid URL'),
   isActive: z.boolean().default(true),
-  sortOrder: z.number().int().default(0)
+  sortOrder: z.number().int().default(0),
+  parentId: z.string().nullable().optional()
 });
 
 export const offerSchema = z.object({
