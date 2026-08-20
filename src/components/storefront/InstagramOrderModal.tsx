@@ -7,6 +7,9 @@ interface InstagramOrderModalProps {
   product: Product;
   settings: SiteSettings | null;
   currencySymbol?: string;
+  quantity?: number;
+  selectedColor?: string;
+  selectedSize?: string;
   onClose: () => void;
 }
 
@@ -14,6 +17,9 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
   product,
   settings,
   currencySymbol = 'NPR ',
+  quantity = 1,
+  selectedColor,
+  selectedSize,
   onClose
 }) => {
   const [copied, setCopied] = useState(false);
@@ -25,9 +31,11 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
 
   // Generate standardized message
   const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/product/${product.slug}` : '';
-  
+
   const generateMessage = () => {
-    let msg = `Hi @${instagramHandle}, I'm interested in ordering the ${product.name} (SKU: ${product.sku}, Price: ${currencySymbol}${product.price}).`;
+    let msg = `Hi @${instagramHandle}, I'm interested in ordering the ${product.name} (SKU: ${product.sku}, Qty: ${quantity}, Price: ${currencySymbol}${product.price}).`;
+    if (selectedColor) msg += ` Color: ${selectedColor}.`;
+    if (selectedSize) msg += ` Size: ${selectedSize}.`;
     if (customNote.trim()) {
       msg += ` Note: ${customNote.trim()}`;
     }

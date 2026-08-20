@@ -507,7 +507,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {products
                   .filter(p => {
-                    if (selectedCatFilter !== 'all' && p.categoryId !== selectedCatFilter) return false;
+                    if (selectedCatFilter !== 'all' && !p.categoryIds.includes(selectedCatFilter)) return false;
                     if (productSearch) {
                       const q = productSearch.toLowerCase();
                       return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
@@ -953,7 +953,12 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [description, setDescription] = useState(product?.description || '');
   const [price, setPrice] = useState<number>(product?.price || 450);
   const [originalPrice, setOriginalPrice] = useState<number | undefined>(product?.originalPrice || undefined);
-  const [categoryId, setCategoryId] = useState(product?.categoryId || (categories[0]?.id || ''));
+  const [categoryIds, setCategoryIds] = useState<string[]>(
+    product?.categoryIds && product.categoryIds.length > 0 ? product.categoryIds : (categories[0]?.id ? [categories[0].id] : [])
+  );
+  const toggleCategoryId = (id: string) => {
+    setCategoryIds(prev => (prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]));
+  };
   const [sku, setSku] = useState(product?.sku || `M2K-${Math.floor(100 + Math.random() * 900)}`);
   const [stock, setStock] = useState<number>(product?.stock !== undefined ? product.stock : 5);
   const [material, setMaterial] = useState(product?.material || '18K Solid Yellow Gold');
@@ -1026,6 +1031,10 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       alert('Please upload or select at least one product photo.');
       return;
     }
+    if (categoryIds.length === 0) {
+      alert('Please select at least one category.');
+      return;
+    }
     setLoading(true);
     try {
       await onSave({
@@ -1034,7 +1043,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         description,
         price: Number(price),
         originalPrice: originalPrice ? Number(originalPrice) : undefined,
-        categoryId,
+        categoryIds,
         sku,
         stock: Number(stock),
         material,
@@ -1172,19 +1181,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Category *</label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-medium"
-              >
-                {orderCategoriesByHierarchy(categories).map(c => (
-                  <option key={c.id} value={c.id}>{c.parentId ? `— ${c.name}` : c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
               <label className="font-semibold text-[#181816]">SKU Number *</label>
               <input
                 type="text"
@@ -1193,6 +1189,29 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 onChange={(e) => setSku(e.target.value)}
                 className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono"
               />
+            </div>
+          </div>
+
+          {/* Categories (a product can belong to more than one) */}
+          <div className="space-y-1">
+            <label className="font-semibold text-[#181816]">Categories * ({categoryIds.length} selected)</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl max-h-48 overflow-y-auto">
+              {orderCategoriesByHierarchy(categories).map(c => (
+                <label
+                  key={c.id}
+                  className={`flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer text-[11px] font-medium transition-colors ${
+                    categoryIds.includes(c.id) ? 'bg-[#181816] text-white' : 'bg-white text-[#181816] hover:bg-[#F0EFEC]'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={categoryIds.includes(c.id)}
+                    onChange={() => toggleCategoryId(c.id)}
+                    className="accent-[#937438]"
+                  />
+                  <span className="truncate">{c.parentId ? `— ${c.name}` : c.name}</span>
+                </label>
+              ))}
             </div>
           </div>
 

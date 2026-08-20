@@ -23,7 +23,7 @@ export const productSchema = z.object({
   description: z.string().default(''),
   price: z.number().positive('Price must be greater than zero'),
   originalPrice: z.number().positive().optional().nullable(),
-  categoryId: z.string().min(1, 'Category is required'),
+  categoryIds: z.array(z.string()).min(1, 'Select at least one category'),
   sku: z.string().min(2, 'SKU is required').max(50),
   stock: z.number().int('Stock must be an integer').min(0, 'Stock cannot be negative'),
   isActive: z.boolean().default(true),

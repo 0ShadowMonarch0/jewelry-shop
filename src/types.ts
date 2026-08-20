@@ -35,8 +35,8 @@ export interface Product {
   description: string;
   price: number;
   originalPrice?: number;
-  categoryId: string;
-  categoryName?: string;
+  categoryIds: string[];
+  categoryNames?: string[];
   sku: string;
   stock: number;
   isActive: boolean;

@@ -118,9 +118,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       {/* Product Details Block */}
       <div className="p-4 sm:p-5 lg:p-6 flex flex-col justify-between flex-1 space-y-3 sm:space-y-4">
         <div className="space-y-1.5 min-w-0">
-          {product.categoryName && (
+          {product.categoryNames && product.categoryNames.length > 0 && (
             <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-[#777]">
-              {product.categoryName}
+              {product.categoryNames.join(' · ')}
             </span>
           )}
 
