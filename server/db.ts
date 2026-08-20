@@ -29,8 +29,8 @@ function rowToProduct(r: any): Product {
     description: r.description,
     price: Number(r.price),
     originalPrice: r.original_price != null ? Number(r.original_price) : undefined,
-    categoryId: r.category_id,
-    categoryName: r.category_name || undefined,
+    categoryIds: r.category_ids || [],
+    categoryNames: r.category_names || [],
     sku: r.sku,
     stock: r.stock,
     isActive: r.is_active,
@@ -58,8 +58,8 @@ function productToRow(p: Partial<Product>): Record<string, any> {
   if (p.description !== undefined) row.description = p.description;
   if (p.price !== undefined) row.price = p.price;
   if (p.originalPrice !== undefined) row.original_price = p.originalPrice ?? null;
-  if (p.categoryId !== undefined) row.category_id = p.categoryId;
-  if (p.categoryName !== undefined) row.category_name = p.categoryName;
+  if (p.categoryIds !== undefined) row.category_ids = p.categoryIds;
+  if (p.categoryNames !== undefined) row.category_names = p.categoryNames;
   if (p.sku !== undefined) row.sku = p.sku;
   if (p.stock !== undefined) row.stock = p.stock;
   if (p.isActive !== undefined) row.is_active = p.isActive;
@@ -285,6 +285,14 @@ const DEFAULT_SETTINGS: SiteSettings = {
   defaultSeoDescription: 'Handcrafted luxury jewelry catalogue with direct Instagram ordering.',
 };
 
+async function resolveCategoryNames(ids: string[]): Promise<string[]> {
+  if (!ids || ids.length === 0) return [];
+  const { data, error } = await client().from('categories').select('id, name').in('id', ids);
+  if (error) throw error;
+  const nameById = new Map((data || []).map((c: any) => [c.id, c.name as string]));
+  return ids.map(id => nameById.get(id)).filter((n): n is string => !!n);
+}
+
 export const db = {
   // --- PRODUCTS ---
   async getProducts(filter?: {
@@ -298,7 +306,7 @@ export const db = {
   }): Promise<Product[]> {
     let q = client().from('products').select('*');
     if (!filter?.includeInactive) q = q.eq('is_active', true);
-    if (filter?.categoryId) q = q.eq('category_id', filter.categoryId);
+    if (filter?.categoryId) q = q.contains('category_ids', [filter.categoryId]);
     if (filter?.isHot) q = q.eq('is_hot', true);
     if (filter?.isNewDrop) q = q.eq('is_new_drop', true);
     if (filter?.isFeatured) q = q.eq('is_featured', true);
@@ -306,7 +314,7 @@ export const db = {
     if (filter?.search) {
       const term = filter.search.trim().replace(/[%,]/g, '');
       if (term) {
-        q = q.or(`name.ilike.%${term}%,description.ilike.%${term}%,sku.ilike.%${term}%,category_name.ilike.%${term}%`);
+        q = q.or(`name.ilike.%${term}%,description.ilike.%${term}%,sku.ilike.%${term}%`);
       }
     }
     const { data, error } = await q.order('created_at', { ascending: false });
@@ -327,17 +335,15 @@ export const db = {
   },
 
   async createProduct(product: Product): Promise<Product> {
-    const category = await this.getCategoryById(product.categoryId);
-    if (category) product.categoryName = category.name;
+    product.categoryNames = await resolveCategoryNames(product.categoryIds);
     const { data, error } = await client().from('products').insert(productToRow(product)).select().single();
     if (error) throw error;
     return rowToProduct(data);
   },
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
-    if (updates.categoryId) {
-      const category = await this.getCategoryById(updates.categoryId);
-      if (category) updates.categoryName = category.name;
+    if (updates.categoryIds) {
+      updates.categoryNames = await resolveCategoryNames(updates.categoryIds);
     }
     const row = productToRow({ ...updates, updatedAt: new Date().toISOString() });
     const { data, error } = await client().from('products').update(row).eq('id', id).select().maybeSingle();
@@ -387,12 +393,12 @@ export const db = {
     if (error) throw error;
     const cats = (data || []).map(rowToCategory);
 
-    const { data: prodRows, error: prodErr } = await client().from('products').select('category_id, is_active');
+    const { data: prodRows, error: prodErr } = await client().from('products').select('category_ids, is_active');
     if (prodErr) throw prodErr;
 
     return cats.map(cat => ({
       ...cat,
-      productCount: (prodRows || []).filter((p: any) => p.category_id === cat.id && p.is_active).length,
+      productCount: (prodRows || []).filter((p: any) => (p.category_ids || []).includes(cat.id) && p.is_active).length,
     }));
   },
 
@@ -421,7 +427,21 @@ export const db = {
     if (!data) return null;
 
     if (updates.name) {
-      await client().from('products').update({ category_name: updates.name }).eq('category_id', id);
+      // A product's category_names is denormalized for cheap reads, so a
+      // rename has to be pushed out to every product that references this
+      // category — there's no single-column array patch in PostgREST, so
+      // each affected row's full categoryNames array is recomputed and
+      // rewritten individually.
+      const { data: affected, error: affectedErr } = await client()
+        .from('products')
+        .select('id, category_ids')
+        .contains('category_ids', [id]);
+      if (affectedErr) throw affectedErr;
+
+      for (const row of affected || []) {
+        const categoryNames = await resolveCategoryNames(row.category_ids || []);
+        await client().from('products').update({ category_names: categoryNames }).eq('id', row.id);
+      }
     }
 
     return rowToCategory(data);

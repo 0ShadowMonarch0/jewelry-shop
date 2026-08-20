@@ -8,7 +8,7 @@ import { Hero } from './components/storefront/Hero';
 import { CategoryPills } from './components/storefront/CategoryPills';
 import { MasonryGrid } from './components/storefront/MasonryGrid';
 import { OffersBanner } from './components/storefront/OffersBanner';
-import { ProductDetailModal } from './components/storefront/ProductDetailModal';
+import { ProductPage } from './components/storefront/ProductPage';
 import { InstagramOrderModal } from './components/storefront/InstagramOrderModal';
 import { SearchOverlay } from './components/storefront/SearchOverlay';
 import { Footer } from './components/storefront/Footer';
@@ -54,6 +54,16 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeProductModal, setActiveProductModal] = useState<Product | null>(null);
   const [activeInstagramOrderProduct, setActiveInstagramOrderProduct] = useState<Product | null>(null);
+  const [instagramOrderQuantity, setInstagramOrderQuantity] = useState(1);
+  const [instagramOrderColor, setInstagramOrderColor] = useState<string | undefined>(undefined);
+  const [instagramOrderSize, setInstagramOrderSize] = useState<string | undefined>(undefined);
+
+  const openInstagramOrder = (product: Product, quantity: number = 1, color?: string, size?: string) => {
+    setActiveInstagramOrderProduct(product);
+    setInstagramOrderQuantity(quantity);
+    setInstagramOrderColor(color);
+    setInstagramOrderSize(size);
+  };
 
   // Kept in sync with `products` via the effect below so the popstate
   // handler (registered once, on mount) can always resolve the latest list
@@ -201,7 +211,7 @@ export default function App() {
 
     // Category filter
     if (selectedCategoryId) {
-      result = result.filter(p => p.categoryId === selectedCategoryId);
+      result = result.filter(p => p.categoryIds.includes(selectedCategoryId));
     }
 
     // Quick tab filters
@@ -236,12 +246,6 @@ export default function App() {
 
     return result;
   }, [products, selectedCategoryId, activeFilter, priceRange, sortBy]);
-
-  // Related products for detail modal
-  const relatedProducts = useMemo(() => {
-    if (!activeProductModal) return [];
-    return products.filter(p => p.id !== activeProductModal.id && p.categoryId === activeProductModal.categoryId);
-  }, [products, activeProductModal]);
 
   // If Admin view is active
   if (viewMode === 'admin') {
@@ -288,11 +292,13 @@ export default function App() {
         activeCategory={selectedCategoryId}
         activeFilter={activeFilter}
         onSelectCategory={(id) => {
+          closeProductModal();
           setSelectedCategoryId(id);
           const el = document.getElementById('catalogue-section');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onSelectFilter={(f) => {
+          closeProductModal();
           setActiveFilter(f as any);
           const el = document.getElementById('catalogue-section');
           el?.scrollIntoView({ behavior: 'smooth' });
@@ -300,6 +306,16 @@ export default function App() {
         onOpenSearch={() => setIsSearchOpen(true)}
       />
 
+      {activeProductModal ? (
+        <ProductPage
+          product={activeProductModal}
+          settings={settings}
+          currencySymbol={currencySymbol}
+          onBack={closeProductModal}
+          onOrderInstagram={openInstagramOrder}
+        />
+      ) : (
+      <>
       {/* 2. Hero Section */}
       <Hero
         settings={settings}
@@ -316,7 +332,7 @@ export default function App() {
 
       {/* 3. Main Body Container */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 w-full py-6 space-y-8">
-        
+
         {/* Category Visual Stories */}
         <CategoryPills
           categories={categories}
@@ -473,48 +489,36 @@ export default function App() {
             loading={loading}
             currencySymbol={currencySymbol}
             onQuickView={(product) => openProduct(product)}
-            onOrderInstagram={(product) => setActiveInstagramOrderProduct(product)}
+            onOrderInstagram={(product) => openInstagramOrder(product)}
           />
 
         </section>
 
       </main>
+      </>
+      )}
 
       {/* 6. Footer (Brand story, contact, Instagram direct, Admin link) */}
       <Footer
         settings={settings}
         categories={categories}
         onSelectCategory={(catId) => {
+          closeProductModal();
           setSelectedCategoryId(catId);
           const el = document.getElementById('catalogue-section');
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
       />
 
-      {/* 7. Atelier Product Detail Modal */}
-      {activeProductModal && (
-        <ProductDetailModal
-          product={activeProductModal}
-          relatedProducts={relatedProducts}
-          settings={settings}
-          currencySymbol={currencySymbol}
-          onClose={closeProductModal}
-          onOrderInstagram={(prod) => {
-            closeProductModal();
-            setActiveInstagramOrderProduct(prod);
-          }}
-          onSelectRelated={(prod) => {
-            openProduct(prod);
-          }}
-        />
-      )}
-
-      {/* 8. Instagram Order & Direct Message Generator Modal */}
+      {/* 7. Instagram Order & Direct Message Generator Modal */}
       {activeInstagramOrderProduct && (
         <InstagramOrderModal
           product={activeInstagramOrderProduct}
           settings={settings}
           currencySymbol={currencySymbol}
+          quantity={instagramOrderQuantity}
+          selectedColor={instagramOrderColor}
+          selectedSize={instagramOrderSize}
           onClose={() => setActiveInstagramOrderProduct(null)}
         />
       )}

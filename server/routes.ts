@@ -117,8 +117,10 @@ apiRouter.get('/products/:slug', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    // Find related products in the same category
-    const relatedRaw = await db.getProducts({ categoryId: product.categoryId, includeInactive: false });
+    // Find related products sharing the product's primary category
+    const relatedRaw = product.categoryIds[0]
+      ? await db.getProducts({ categoryId: product.categoryIds[0], includeInactive: false })
+      : [];
     const related = relatedRaw
       .filter(p => p.id !== product.id)
       .slice(0, 4)

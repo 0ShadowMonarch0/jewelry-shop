@@ -29,8 +29,10 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   price NUMERIC(10, 2) NOT NULL,
   original_price NUMERIC(10, 2),
-  category_id TEXT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+  category_id TEXT REFERENCES categories(id) ON DELETE CASCADE,
   category_name TEXT,
+  category_ids TEXT[] NOT NULL DEFAULT '{}',
+  category_names TEXT[] NOT NULL DEFAULT '{}',
   sku TEXT NOT NULL,
   stock INTEGER NOT NULL DEFAULT 10,
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -48,6 +50,20 @@ CREATE TABLE IF NOT EXISTS products (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- A product can now belong to multiple categories via category_ids; the
+-- original singular category_id/category_name columns are kept (unused by
+-- the app going forward) rather than dropped, so this migration is
+-- non-destructive. New rows never populate them, so category_id's NOT NULL
+-- constraint has to go — NULL is fine there since nothing reads it anymore.
+ALTER TABLE products ALTER COLUMN category_id DROP NOT NULL;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS category_ids TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS category_names TEXT[] NOT NULL DEFAULT '{}';
+-- Backfill: carry every existing product's single category into the new
+-- array columns. Safe to re-run — only touches rows that haven't been
+-- migrated yet (empty category_ids).
+UPDATE products
+SET category_ids = ARRAY[category_id], category_names = ARRAY[category_name]
+WHERE (category_ids IS NULL OR category_ids = '{}') AND category_id IS NOT NULL;
 
 -- 3. OFFERS TABLE
 CREATE TABLE IF NOT EXISTS offers (
