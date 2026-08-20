@@ -269,6 +269,15 @@ export default function App() {
     return result;
   }, [products, selectedCategoryId, activeFilter, priceRange, sortBy]);
 
+  // Other products sharing any of the active product's categories, for the
+  // "Related Products" section on the product page.
+  const relatedProducts = useMemo(() => {
+    if (!activeProductModal) return [];
+    return products.filter(
+      p => p.id !== activeProductModal.id && p.categoryIds.some(id => activeProductModal.categoryIds.includes(id))
+    );
+  }, [products, activeProductModal]);
+
   // If Admin view is active
   if (viewMode === 'admin') {
     if (!adminUser) {
@@ -331,10 +340,12 @@ export default function App() {
       {activeProductModal ? (
         <ProductPage
           product={activeProductModal}
+          relatedProducts={relatedProducts}
           settings={settings}
           currencySymbol={currencySymbol}
           onBack={closeProductModal}
           onOrderInstagram={openInstagramOrder}
+          onSelectRelated={(prod) => openProduct(prod)}
         />
       ) : (
       <>
