@@ -7,27 +7,35 @@ interface InstagramOrderModalProps {
   product: Product;
   settings: SiteSettings | null;
   currencySymbol?: string;
+  quantity?: number;
+  selectedColor?: string;
+  selectedSize?: string;
   onClose: () => void;
 }
 
 export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
   product,
   settings,
-  currencySymbol = '$',
+  currencySymbol = 'NPR ',
+  quantity = 1,
+  selectedColor,
+  selectedSize,
   onClose
 }) => {
   const [copied, setCopied] = useState(false);
   const [customNote, setCustomNote] = useState('');
   const [inquirySaved, setInquirySaved] = useState(false);
 
-  const instagramHandle = settings?.instagramHandle || 'aurelia_jewelry';
+  const instagramHandle = settings?.instagramHandle || 'mini2k.np';
   const primaryImg = product.images.find(i => i.isPrimary) || product.images[0];
 
   // Generate standardized message
-  const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/#product-${product.slug}` : '';
-  
+  const productUrl = typeof window !== 'undefined' ? `${window.location.origin}/product/${product.slug}` : '';
+
   const generateMessage = () => {
-    let msg = `Hi @${instagramHandle}, I'm interested in ordering the ${product.name} (SKU: ${product.sku}, Price: ${currencySymbol}${product.price}).`;
+    let msg = `Hi @${instagramHandle}, I'm interested in ordering the ${product.name} (SKU: ${product.sku}, Qty: ${quantity}, Price: ${currencySymbol}${product.price}).`;
+    if (selectedColor) msg += ` Color: ${selectedColor}.`;
+    if (selectedSize) msg += ` Size: ${selectedSize}.`;
     if (customNote.trim()) {
       msg += ` Note: ${customNote.trim()}`;
     }
@@ -67,7 +75,18 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
     }
   };
 
-  const handleDirectInstagramOpen = () => {
+  const handleDirectInstagramOpen = async () => {
+    // Instagram has no equivalent of WhatsApp's wa.me "?text=" pre-fill — a DM
+    // link can only open the thread, never insert message text. Copying it to
+    // the clipboard first is the closest thing to a one-tap flow: the customer
+    // still has to paste, but they don't have to hunt for the Copy button too.
+    try {
+      await navigator.clipboard.writeText(messageText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
     recordInquiry();
     const igUrl = `https://ig.me/m/${instagramHandle}`;
     window.open(igUrl, '_blank', 'noopener,noreferrer');
@@ -157,6 +176,9 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
               <span>Open Instagram & Send DM</span>
               <ExternalLink className="w-3.5 h-3.5 text-white/70" />
             </button>
+            <p className="text-center text-[10px] text-[#999]">
+              Instagram can't auto-fill your message — we copy it for you, just paste it into the DM.
+            </p>
 
             <button
               id="copy-inquiry-msg-btn"

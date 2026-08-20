@@ -17,7 +17,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   categories,
   products,
   onSelectProduct,
-  currencySymbol = '$'
+  currencySymbol = 'NPR '
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -51,7 +51,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   if (!isOpen) return null;
 
   const filteredProducts = products.filter((p) => {
-    if (selectedCategory !== 'all' && p.categoryId !== selectedCategory) return false;
+    if (selectedCategory !== 'all' && !p.categoryIds.includes(selectedCategory)) return false;
     if (inStockOnly && p.stock === 0) return false;
     if (!searchTerm.trim()) return true;
 
@@ -164,7 +164,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
                     </div>
                     <div className="flex-1 min-w-0">
                       <span className="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#777]">
-                        {p.categoryName || 'Atelier'}
+                        {p.categoryNames && p.categoryNames.length > 0 ? p.categoryNames.join(' · ') : 'Atelier'}
                       </span>
                       <h5 className="font-serif text-sm font-normal text-[#1C1C1C] truncate group-hover:text-[#C5A059]">
                         {p.name}

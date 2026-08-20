@@ -11,7 +11,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  currencySymbol = '$',
+  currencySymbol = 'NPR ',
   onQuickView,
   onOrderInstagram
 }) => {
@@ -112,17 +112,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Product Details Block */}
-      <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 space-y-4">
-        <div className="space-y-1.5">
-          {product.categoryName && (
+      <div className="p-4 sm:p-5 lg:p-6 flex flex-col justify-between flex-1 space-y-3 sm:space-y-4">
+        <div className="space-y-1.5 min-w-0">
+          {product.categoryNames && product.categoryNames.length > 0 && (
             <span className="text-[9px] uppercase tracking-[0.25em] font-semibold text-[#777]">
-              {product.categoryName}
+              {product.categoryNames.join(' · ')}
             </span>
           )}
-          
-          <h3 
+
+          <h3
             onClick={() => onQuickView(product)}
-            className="font-serif text-lg sm:text-xl font-normal text-[#1C1C1C] hover:text-[#C5A059] cursor-pointer transition-colors leading-snug line-clamp-2"
+            className="font-serif text-base sm:text-lg lg:text-xl font-normal text-[#1C1C1C] hover:text-[#C5A059] cursor-pointer transition-colors leading-snug line-clamp-2"
           >
             {product.name}
           </h3>
@@ -135,13 +135,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
 
         {/* Price & Order CTA Row */}
-        <div className="pt-3 border-t border-[#E5E3DB] flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-base font-semibold text-[#1C1C1C]">
+        <div className="pt-3 border-t border-[#E5E3DB] flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
+          <div className="flex items-baseline gap-1.5 sm:gap-2 min-w-0">
+            <span className="text-sm sm:text-base font-semibold text-[#1C1C1C] whitespace-nowrap">
               {currencySymbol}{product.price.toLocaleString()}
             </span>
             {product.originalPrice && (
-              <span className="text-xs text-[#999] line-through">
+              <span className="text-[11px] sm:text-xs text-[#999] line-through whitespace-nowrap">
                 {currencySymbol}{product.originalPrice.toLocaleString()}
               </span>
             )}
@@ -155,7 +155,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               onOrderInstagram(product);
             }}
             disabled={isOutOfStock}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-semibold tracking-wider uppercase transition-all ${
+            className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-1.5 rounded-full text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase transition-all whitespace-nowrap flex-shrink-0 ${
               isOutOfStock
                 ? 'bg-[#F0EFEC] text-[#999] cursor-not-allowed border border-[#E5E3DB]'
                 : 'bg-[#FAF9F6] hover:bg-[#C5A059] text-[#1C1C1C] hover:text-white border border-[#E5E3DB] hover:border-[#C5A059] active:scale-95 shadow-xs'

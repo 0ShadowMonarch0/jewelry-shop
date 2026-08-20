@@ -1,5 +1,5 @@
 {
-  "name": "AURA Fine Jewelry",
+  "name": "mini2k",
   "description": "Pinterest-inspired editorial jewelry catalogue & full-stack storefront with Instagram ordering, mobile admin suite, and Cloudinary media management.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -42,6 +42,40 @@ import type {
   ProductImage 
 } from '../../types';
 
+// Sanitizers for numeric text inputs. Plain `type="number"` inputs bound to a
+// numeric React state don't reliably clear a leading zero while typing (React
+// skips the DOM sync in that case), so these fields use `type="text"` with a
+// numeric inputMode instead, sanitizing here on every keystroke.
+function sanitizeIntegerInput(value: string): string {
+  return value.replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '');
+}
+
+// Orders categories parent-first with each parent's children immediately
+// following it, so a flat grid still reads as a hierarchy.
+function orderCategoriesByHierarchy(categories: Category[]): Category[] {
+  const topLevel = categories.filter(c => !c.parentId).sort((a, b) => a.sortOrder - b.sortOrder);
+  const result: Category[] = [];
+  topLevel.forEach(parent => {
+    result.push(parent);
+    categories
+      .filter(c => c.parentId === parent.id)
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .forEach(child => result.push(child));
+  });
+  const includedIds = new Set(result.map(c => c.id));
+  categories.forEach(c => {
+    if (!includedIds.has(c.id)) result.push(c);
+  });
+  return result;
+}
+
+function sanitizeDecimalInput(value: string): string {
+  let v = value.replace(/[^\d.]/g, '');
+  const dot = v.indexOf('.');
+  if (dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '');
+  return v.replace(/^0+(?=\d)/, '');
+}
+
 interface AdminDashboardProps {
   user: AdminUser;
   onLogout: () => void;
@@ -169,7 +203,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
           <div>
             <h1 className="font-serif text-lg font-semibold tracking-wider">
-              AURA Atelier Manager
+              mini2k Atelier Manager
             </h1>
             <span className="text-[10px] text-[#C5A880] uppercase tracking-widest block -mt-1 font-mono">
               Admin Suite • {user.email}
@@ -463,8 +497,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   className="text-xs bg-[#FAF8F5] border border-[#E5DFD7] rounded-xl px-3 py-2 font-medium"
                 >
                   <option value="all">All Categories</option>
-                  {categories.map(c => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
+                  {orderCategoriesByHierarchy(categories).map(c => (
+                    <option key={c.id} value={c.id}>{c.parentId ? `— ${c.name}` : c.name}</option>
                   ))}
                 </select>
               </div>
@@ -473,7 +507,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {products
                   .filter(p => {
-                    if (selectedCatFilter !== 'all' && p.categoryId !== selectedCatFilter) return false;
+                    if (selectedCatFilter !== 'all' && !p.categoryIds.includes(selectedCatFilter)) return false;
                     if (productSearch) {
                       const q = productSearch.toLowerCase();
                       return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
@@ -498,7 +532,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {product.name}
                             </h4>
                             <div className="text-sm font-bold text-[#181816]">
-                              ${product.price.toLocaleString()}
+                              NPR {product.price.toLocaleString()}
                             </div>
                             <div className="text-xs text-[#7A756B] flex items-center gap-2 mt-1">
                               <span className={`inline-block w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
@@ -565,7 +599,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </div>
                         <div>
                           <div className="font-serif text-sm font-semibold text-[#181816]">{p.name}</div>
-                          <div className="text-[11px] text-[#7A756B] font-mono">SKU: {p.sku} • ${p.price}</div>
+                          <div className="text-[11px] text-[#7A756B] font-mono">SKU: {p.sku} • NPR {p.price}</div>
                         </div>
                       </div>
 
@@ -624,29 +658,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categories.map((cat) => (
-                  <div key={cat.id} className="bg-white rounded-2xl border border-[#E5DFD7] overflow-hidden p-4 space-y-3 shadow-xs">
-                    <div className="aspect-[16/9] rounded-xl overflow-hidden bg-[#FAF8F5]">
-                      <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
+                {orderCategoriesByHierarchy(categories).map((cat) => {
+                  const parent = cat.parentId ? categories.find(c => c.id === cat.parentId) : null;
+                  return (
+                    <div
+                      key={cat.id}
+                      className={`bg-white rounded-2xl border overflow-hidden p-4 space-y-3 shadow-xs ${
+                        parent ? 'border-[#E5DFD7] ml-0 sm:ml-4 border-l-4 border-l-[#C5A880]' : 'border-[#E5DFD7]'
+                      }`}
+                    >
+                      <div className="aspect-[16/9] rounded-xl overflow-hidden bg-[#FAF8F5]">
+                        <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        {parent && (
+                          <div className="text-[10px] uppercase tracking-wider font-bold text-[#937438] mb-0.5">
+                            ↳ Sub-category of {parent.name}
+                          </div>
+                        )}
+                        <h4 className="font-serif text-lg font-semibold text-[#181816]">{cat.name}</h4>
+                        <p className="text-xs text-[#7A756B] line-clamp-2">{cat.description}</p>
+                      </div>
+                      <div className="pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-xs">
+                        <span className="text-[#7A756B]">{cat.productCount || 0} active pieces</span>
+                        <button
+                          onClick={() => {
+                            setEditingCategory(cat);
+                            setIsCategoryModalOpen(true);
+                          }}
+                          className="text-xs font-semibold text-[#937438] hover:underline"
+                        >
+                          Edit Category
+                        </button>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-serif text-lg font-semibold text-[#181816]">{cat.name}</h4>
-                      <p className="text-xs text-[#7A756B] line-clamp-2">{cat.description}</p>
-                    </div>
-                    <div className="pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-xs">
-                      <span className="text-[#7A756B]">{cat.productCount || 0} active pieces</span>
-                      <button
-                        onClick={() => {
-                          setEditingCategory(cat);
-                          setIsCategoryModalOpen(true);
-                        }}
-                        className="text-xs font-semibold text-[#937438] hover:underline"
-                      >
-                        Edit Category
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -679,7 +726,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="bg-[#C5A880]/20 text-[#937438] font-bold text-xs px-2.5 py-0.5 rounded-full">
-                          {offer.discountValue}{offer.discountType === 'PERCENTAGE' ? '%' : '$'} OFF
+                          {offer.discountValue}{offer.discountType === 'PERCENTAGE' ? '%' : ' NPR'} OFF
                         </span>
                         <span className="text-xs text-[#7A756B] font-mono">Code: {offer.code || 'N/A'}</span>
                       </div>
@@ -836,6 +883,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {isCategoryModalOpen && (
         <CategoryFormModal
           category={editingCategory}
+          categories={categories}
           onClose={() => setIsCategoryModalOpen(false)}
           onSave={async (catData) => {
             try {
@@ -905,8 +953,13 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [description, setDescription] = useState(product?.description || '');
   const [price, setPrice] = useState<number>(product?.price || 450);
   const [originalPrice, setOriginalPrice] = useState<number | undefined>(product?.originalPrice || undefined);
-  const [categoryId, setCategoryId] = useState(product?.categoryId || (categories[0]?.id || ''));
-  const [sku, setSku] = useState(product?.sku || `AUR-${Math.floor(100 + Math.random() * 900)}`);
+  const [categoryIds, setCategoryIds] = useState<string[]>(
+    product?.categoryIds && product.categoryIds.length > 0 ? product.categoryIds : (categories[0]?.id ? [categories[0].id] : [])
+  );
+  const toggleCategoryId = (id: string) => {
+    setCategoryIds(prev => (prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]));
+  };
+  const [sku, setSku] = useState(product?.sku || `M2K-${Math.floor(100 + Math.random() * 900)}`);
   const [stock, setStock] = useState<number>(product?.stock !== undefined ? product.stock : 5);
   const [material, setMaterial] = useState(product?.material || '18K Solid Yellow Gold');
   const [color, setColor] = useState(product?.color || 'Yellow Gold');
@@ -963,7 +1016,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
     const newImg: ProductImage = {
       id: 'img-' + Date.now(),
       productId: product?.id || '',
-      cloudinaryPublicId: `aura/sample/${Date.now()}`,
+      cloudinaryPublicId: `mini2k/sample/${Date.now()}`,
       secureUrl: url,
       sortOrder: images.length + 1,
       isPrimary: images.length === 0,
@@ -978,6 +1031,10 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
       alert('Please upload or select at least one product photo.');
       return;
     }
+    if (categoryIds.length === 0) {
+      alert('Please select at least one category.');
+      return;
+    }
     setLoading(true);
     try {
       await onSave({
@@ -986,7 +1043,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         description,
         price: Number(price),
         originalPrice: originalPrice ? Number(originalPrice) : undefined,
-        categoryId,
+        categoryIds,
         sku,
         stock: Number(stock),
         material,
@@ -1124,19 +1181,6 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Category *</label>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-medium"
-              >
-                {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
               <label className="font-semibold text-[#181816]">SKU Number *</label>
               <input
                 type="text"
@@ -1148,16 +1192,42 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
           </div>
 
+          {/* Categories (a product can belong to more than one) */}
+          <div className="space-y-1">
+            <label className="font-semibold text-[#181816]">Categories * ({categoryIds.length} selected)</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl max-h-48 overflow-y-auto">
+              {orderCategoriesByHierarchy(categories).map(c => (
+                <label
+                  key={c.id}
+                  className={`flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer text-[11px] font-medium transition-colors ${
+                    categoryIds.includes(c.id) ? 'bg-[#181816] text-white' : 'bg-white text-[#181816] hover:bg-[#F0EFEC]'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={categoryIds.includes(c.id)}
+                    onChange={() => toggleCategoryId(c.id)}
+                    className="accent-[#937438]"
+                  />
+                  <span className="truncate">{c.parentId ? `— ${c.name}` : c.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Pricing & Stock */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Price ($ USD) *</label>
+              <label className="font-semibold text-[#181816]">Price (NPR) *</label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 required
-                min={1}
                 value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
+                onChange={(e) => {
+                  const v = sanitizeDecimalInput(e.target.value);
+                  setPrice(v === '' || v === '.' ? 0 : Number(v));
+                }}
                 className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-semibold"
               />
             </div>
@@ -1165,9 +1235,13 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <div className="space-y-1">
               <label className="font-semibold text-[#7A756B]">Original Price (Optional)</label>
               <input
-                type="number"
-                value={originalPrice || ''}
-                onChange={(e) => setOriginalPrice(e.target.value ? Number(e.target.value) : undefined)}
+                type="text"
+                inputMode="decimal"
+                value={originalPrice ?? ''}
+                onChange={(e) => {
+                  const v = sanitizeDecimalInput(e.target.value);
+                  setOriginalPrice(v === '' || v === '.' ? undefined : Number(v));
+                }}
                 placeholder="e.g. 520"
                 className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
               />
@@ -1176,11 +1250,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <div className="space-y-1">
               <label className="font-semibold text-[#181816]">Current Stock Units *</label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 required
-                min={0}
                 value={stock}
-                onChange={(e) => setStock(Number(e.target.value))}
+                onChange={(e) => {
+                  const v = sanitizeIntegerInput(e.target.value);
+                  setStock(v === '' ? 0 : Number(v));
+                }}
                 className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono font-bold"
               />
             </div>
@@ -1188,9 +1265,8 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="font-semibold text-[#181816]">Atelier Craftsmanship Notes *</label>
+            <label className="font-semibold text-[#7A756B]">Atelier Craftsmanship Notes (Optional)</label>
             <textarea
-              required
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -1289,12 +1365,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 // ==========================================
 interface CategoryFormModalProps {
   category: Category | null;
+  categories: Category[];
   onClose: () => void;
   onSave: (data: Partial<Category>) => Promise<void>;
 }
 
 const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   category,
+  categories,
   onClose,
   onSave
 }) => {
@@ -1302,13 +1380,18 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
   const [slug, setSlug] = useState(category?.slug || '');
   const [description, setDescription] = useState(category?.description || '');
   const [imageUrl, setImageUrl] = useState(category?.imageUrl || 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=1000');
+  const [parentId, setParentId] = useState<string>(category?.parentId || '');
   const [loading, setLoading] = useState(false);
+
+  // Keep the hierarchy 2 levels deep: only top-level categories can be picked
+  // as a parent, and a category can never be parented to itself.
+  const parentOptions = categories.filter(c => !c.parentId && c.id !== category?.id);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await onSave({ name, slug, description, imageUrl, isActive: true });
+      await onSave({ name, slug, description, imageUrl, isActive: true, parentId: parentId || null });
     } finally {
       setLoading(false);
     }
@@ -1363,6 +1446,22 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
             />
+          </div>
+          <div>
+            <label className="font-semibold block mb-1">Parent Category</label>
+            <select
+              value={parentId}
+              onChange={(e) => setParentId(e.target.value)}
+              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+            >
+              <option value="">— None (Top Level) —</option>
+              {parentOptions.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+            <p className="text-[10px] text-[#7A756B] mt-1">
+              Make this a sub-category nested under one of your top-level categories.
+            </p>
           </div>
           <button
             type="submit"
@@ -1452,16 +1551,20 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
                 className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
-                <option value="FIXED">Fixed Amount ($)</option>
+                <option value="FIXED">Fixed Amount (NPR)</option>
               </select>
             </div>
             <div>
               <label className="font-semibold block mb-1">Value</label>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 required
                 value={discountValue}
-                onChange={(e) => setDiscountValue(Number(e.target.value))}
+                onChange={(e) => {
+                  const v = sanitizeDecimalInput(e.target.value);
+                  setDiscountValue(v === '' || v === '.' ? 0 : Number(v));
+                }}
                 className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-bold"
               />
             </div>
@@ -1584,6 +1687,22 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
         </div>
 
         <div>
+          <label className="font-semibold block mb-1">Logo URL</label>
+          <div className="flex items-center gap-3">
+            {formData.logoUrl && (
+              <img src={formData.logoUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-[#E5DFD7] flex-shrink-0 bg-[#FAF8F5]" />
+            )}
+            <input
+              type="url"
+              value={formData.logoUrl || ''}
+              onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
+              placeholder="https://... (leave blank to use the initial-letter badge)"
+              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono text-[11px]"
+            />
+          </div>
+        </div>
+
+        <div>
           <label className="font-semibold block mb-1">Tagline (Subtitle)</label>
           <input
             type="text"
@@ -1620,7 +1739,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="text"
               value={formData.defaultSeoTitle}
               onChange={(e) => setFormData({ ...formData, defaultSeoTitle: e.target.value })}
-              placeholder="e.g. AURA Fine Jewelry | Editorial Atelier"
+              placeholder="e.g. mini2k | Editorial Atelier"
               className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
             />
           </div>
@@ -1963,7 +2082,7 @@ const SupabaseIntegrationCard: React.FC = () => {
   };
 
   const copySqlToClipboard = () => {
-    const sqlText = `-- AURELIA JEWELRY - SUPABASE SCHEMA
+    const sqlText = `-- MINI2K - SUPABASE SCHEMA
 CREATE TABLE IF NOT EXISTS categories (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,

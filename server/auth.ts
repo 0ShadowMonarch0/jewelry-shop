@@ -1,22 +1,12 @@
 import crypto from 'crypto';
 import type { Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcryptjs';
-import { db } from './db';
-import type { AdminUser } from '../src/types';
+import type { AdminUser } from '../src/types.js';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'aura_jewelry_super_secret_jwt_key_2026';
-const SESSION_COOKIE_NAME = 'aura_admin_session';
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'mini2k_super_secret_jwt_key_2026';
+const SESSION_COOKIE_NAME = 'mini2k_admin_session';
 
 // In-memory rate limiting map for login attempts
 const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
-
-export function hashPassword(plainText: string): Promise<string> {
-  return bcrypt.hash(plainText, 10);
-}
-
-export function comparePassword(plainText: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(plainText, hash);
-}
 
 export function generateSessionToken(user: AdminUser): string {
   const payload = {

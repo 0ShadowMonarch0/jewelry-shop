@@ -17,6 +17,9 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
   const heading = settings?.categoriesHeading || 'Curated Categories';
   const showAllText = settings?.categoriesShowAllText || 'Show All Curations';
   const allPillLabel = settings?.categoriesAllPillLabel || 'All Atelier';
+  // Sub-categories are browsable from the header's Collections menu; this
+  // row stays to top-level categories only so it doesn't get overcrowded.
+  const topLevelCategories = categories.filter(c => !c.parentId);
 
   return (
     <div className="w-full py-4">
@@ -37,8 +40,9 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
         )}
       </div>
 
-      {/* Horizontal Scrollable Visual Categories (Pinterest style) */}
-      <div className="flex items-center gap-3 sm:gap-4 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+      {/* Horizontal scroll on mobile (swipeable pill row); wraps to multiple
+          lines from sm+ so pills never get clipped at the viewport edge. */}
+      <div className="flex items-center sm:flex-wrap gap-3 sm:gap-4 overflow-x-auto sm:overflow-visible no-scrollbar pb-2 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
         
         {/* 'All' Visual Pill */}
         <button
@@ -58,7 +62,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
         </button>
 
         {/* Dynamic Categories */}
-        {categories.map((cat) => {
+        {topLevelCategories.map((cat) => {
           const isSelected = activeCategoryId === cat.id;
           return (
             <button

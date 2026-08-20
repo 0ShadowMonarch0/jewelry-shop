@@ -15,7 +15,7 @@ interface MasonryGridProps {
 
 export const MasonryGrid: React.FC<MasonryGridProps> = ({
   products,
-  currencySymbol = '$',
+  currencySymbol = 'NPR ',
   onQuickView,
   onOrderInstagram,
   loading = false,

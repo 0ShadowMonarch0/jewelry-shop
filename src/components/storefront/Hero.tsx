@@ -11,7 +11,7 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter }) => {
   const headline = settings?.heroHeadline || 'Adorn the Unseen';
   const subhead = settings?.heroSubhead || 'Discover artisanal jewelry curated for the modern minimalist. Each piece tells a story of elegance, sculptural craftsmanship, and visual discovery.';
-  const instagramHandle = settings?.instagramHandle || 'aurelia_jewelry';
+  const instagramHandle = settings?.instagramHandle || 'mini2k.np';
   const eyebrowText = settings?.heroEyebrowText || 'Editorial 2026';
   const currentDropLabel = settings?.heroCurrentDropLabel || 'Current Atelier Drop';
   const currentDropText = settings?.heroCurrentDropText || 'Celestial 18K Solid Gold & Baroque Series';
@@ -20,6 +20,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
   const inquiryCardTitle = settings?.heroInquiryCardTitle || 'Instagram Inquiry';
   const inquiryCardSubtitle = settings?.heroInquiryCardSubtitle || 'Atelier Concierge';
   const inquiryCardText = settings?.heroInquiryCardText || 'Select any piece from our catalogue to message us directly for bespoke ring sizing and insured global dispatch.';
+  const currencySymbol = settings?.currencySymbol || 'NPR ';
 
   // Italicize the last word for the same editorial flourish as the original
   // static headline, while staying dynamic for any admin-provided text.
@@ -134,7 +135,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 bg-gradient-to-t from-black/60 via-black/20 to-transparent">
                   <div className="text-white font-serif italic text-sm sm:text-base">Baroque Helios Choker</div>
-                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">$540.00</div>
+                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">{currencySymbol}540.00</div>
                 </div>
               </div>
 
@@ -152,7 +153,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
                   <div className="text-white font-serif italic text-sm">Solstice Molten Ring</div>
-                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">$680.00</div>
+                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">{currencySymbol}680.00</div>
                 </div>
               </div>
             </div>
@@ -173,7 +174,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
                   <div className="text-white font-serif italic text-sm">Aethel Pavé Cuff</div>
-                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">$820.00</div>
+                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">{currencySymbol}820.00</div>
                 </div>
               </div>
 
@@ -188,7 +189,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 />
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/60 to-transparent">
                   <div className="text-white font-serif italic text-sm">Elysian Teardrop Drops</div>
-                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">$390.00</div>
+                  <div className="text-white/80 text-[10px] uppercase tracking-wider font-semibold">{currencySymbol}390.00</div>
                 </div>
               </div>
             </div>

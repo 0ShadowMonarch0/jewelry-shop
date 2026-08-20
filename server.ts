@@ -1,40 +1,17 @@
 import 'dotenv/config';
-import express from 'express';
-import cookieParser from 'cookie-parser';
 import path from 'path';
+import express from 'express';
 import { createServer as createViteServer } from 'vite';
-import { apiRouter } from './server/routes';
+import { createApp } from './server/app.js';
 
 async function startServer() {
-  const app = express();
+  const app = createApp();
   const PORT = 3000;
 
-  // Middleware for parsing JSON with support for base64 images (10mb limit)
-  app.use(express.json({ limit: '12mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '12mb' }));
-  app.use(cookieParser());
-
-  // Security Headers
-  app.use((req, res, next) => {
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    // For admin routes, prevent indexing
-    if (req.path.startsWith('/admin') || req.path.startsWith('/api/admin')) {
-      res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
-    }
-    next();
-  });
-
-  // Mount API router
-  app.use('/api', apiRouter);
-
-  // Health check endpoint
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', service: 'AURA Jewelry Atelier API', timestamp: new Date().toISOString() });
-  });
-
-  // Vite middleware in development vs static file serving in production
+  // Vite middleware in development vs static file serving in production.
+  // (Only used for local/self-hosted Node runs — the Vercel deployment
+  // serves the built dist/ assets directly and only calls into this app
+  // via api/index.ts for /api/* requests.)
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -50,7 +27,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`✨ AURA Fine Jewelry Server running on http://0.0.0.0:${PORT}`);
+    console.log(`✨ mini2k Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

@@ -1,613 +1,301 @@
-import fs from 'fs';
-import path from 'path';
-import type { 
-  Product, 
-  Category, 
-  Offer, 
-  SiteSettings, 
-  AdminAuditLog, 
-  CustomerInquiry, 
-  AdminUser,
+import { getSupabase } from './supabase.js';
+import type {
+  Product,
+  Category,
+  Offer,
+  SiteSettings,
+  AdminAuditLog,
+  CustomerInquiry,
   AdminStats,
-  ProductImage 
-} from '../src/types';
+} from '../src/types.js';
 
-interface DatabaseSchema {
-  users: (AdminUser & { passwordHash: string })[];
-  categories: Category[];
-  products: Product[];
-  offers: Offer[];
-  settings: SiteSettings;
-  auditLogs: AdminAuditLog[];
-  inquiries: CustomerInquiry[];
-  mediaAssets: {
-    id: string;
-    publicId: string;
-    secureUrl: string;
-    format: string;
-    width: number;
-    height: number;
-    createdAt: string;
-  }[];
+function client() {
+  const c = getSupabase();
+  if (!c) {
+    throw new Error('Supabase is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_KEY).');
+  }
+  return c;
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'store.json');
+// ==========================================
+// ROW <-> APP TYPE MAPPERS
+// ==========================================
 
-// Default initial high-fashion editorial seed data
-const initialCategories: Category[] = [
-  {
-    id: 'cat-rings',
-    name: 'Rings & Solitaires',
-    slug: 'rings',
-    description: 'Sculptural silhouettes in 18K recycled gold, pavé diamonds, and bezel-set solitaires.',
-    imageUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=1000',
-    isActive: true,
-    sortOrder: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-necklaces',
-    name: 'Necklaces & Chains',
-    slug: 'necklaces',
-    description: 'Heirloom herringbone chains, freshwater baroque pearl pendants, and celestial medallions.',
-    imageUrl: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=1000',
-    isActive: true,
-    sortOrder: 2,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-bracelets',
-    name: 'Bracelets & Cuffs',
-    slug: 'bracelets',
-    description: 'Chunky tennis bracelets, textured solid gold cuffs, and delicate layered chain links.',
-    imageUrl: 'https://images.unsplash.com/photo-1611591475883-8a306c59b666?auto=format&fit=crop&q=80&w=1000',
-    isActive: true,
-    sortOrder: 3,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-earrings',
-    name: 'Earrings & Huggies',
-    slug: 'earrings',
-    description: 'Modern organic hoops, pearl drops, and everyday molten huggies designed for stacking.',
-    imageUrl: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=80&w=1000',
-    isActive: true,
-    sortOrder: 4,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: 'cat-pearls',
-    name: 'Pearl Atelier',
-    slug: 'pearls',
-    description: 'Luminous organic Keshi and South Sea baroque pearls curated for effortless modern luxury.',
-    imageUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=1000',
-    isActive: true,
-    sortOrder: 5,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-];
+function rowToProduct(r: any): Product {
+  return {
+    id: r.id,
+    name: r.name,
+    slug: r.slug,
+    description: r.description,
+    price: Number(r.price),
+    originalPrice: r.original_price != null ? Number(r.original_price) : undefined,
+    categoryIds: r.category_ids || [],
+    categoryNames: r.category_names || [],
+    sku: r.sku,
+    stock: r.stock,
+    isActive: r.is_active,
+    isHot: r.is_hot,
+    isNewDrop: r.is_new_drop,
+    isFeatured: r.is_featured,
+    restockedAt: r.restocked_at,
+    material: r.material || undefined,
+    color: r.color || undefined,
+    size: r.size || undefined,
+    weight: r.weight || undefined,
+    tags: r.tags || [],
+    specifications: r.specifications || {},
+    images: r.images || [],
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
 
-const initialProducts: Product[] = [
-  {
-    id: 'prod-1',
-    name: 'Solstice 18K Molten Signet Ring',
-    slug: 'solstice-18k-molten-signet-ring',
-    description: 'Hand-carved in our atelier with an organic molten surface texture. Cast in solid 18K yellow gold with a bezel-set flush brilliant diamond center.',
-    price: 680,
-    originalPrice: 750,
-    categoryId: 'cat-rings',
-    categoryName: 'Rings & Solitaires',
-    sku: 'AUR-RNG-001',
-    stock: 7,
-    isActive: true,
-    isHot: true,
-    isNewDrop: false,
-    isFeatured: true,
-    restockedAt: '2026-08-10T12:00:00Z',
-    material: '18K Solid Yellow Gold',
-    color: 'Warm Gold',
-    size: 'US 6, 7, 8 available',
-    weight: '6.4g',
-    tags: ['Best Seller', 'Gold', 'Signature', 'Diamond'],
-    specifications: {
-      'Metal': '18 Karat Solid Gold (Hallmarked)',
-      'Stone': '0.08ct F-VS Natural Brilliant Diamond',
-      'Band Width': '3.2mm tapering to 8.5mm face',
-      'Finish': 'Satin Brushed with Polished Rim',
-      'Origin': 'Handcrafted in Atelier'
-    },
-    images: [
-      {
-        id: 'img-1-1',
-        productId: 'prod-1',
-        cloudinaryPublicId: 'aura/products/solstice-ring-1',
-        secureUrl: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'img-1-2',
-        productId: 'prod-1',
-        cloudinaryPublicId: 'aura/products/solstice-ring-2',
-        secureUrl: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 2,
-        isPrimary: false,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-07-15T10:00:00Z',
-    updatedAt: '2026-08-15T10:00:00Z',
-  },
-  {
-    id: 'prod-2',
-    name: 'Helios Baroque Pearl Lariat Necklace',
-    slug: 'helios-baroque-pearl-lariat-necklace',
-    description: 'An asymmetrical masterpiece featuring a one-of-a-kind organic Japanese freshwater baroque pearl dangling from a delicate 18K solid gold paperclip chain.',
-    price: 490,
-    originalPrice: 520,
-    categoryId: 'cat-necklaces',
-    categoryName: 'Necklaces & Chains',
-    sku: 'AUR-NCK-002',
-    stock: 4,
-    isActive: true,
-    isHot: true,
-    isNewDrop: true,
-    isFeatured: true,
-    restockedAt: null,
-    material: '18K Yellow Gold & AA Baroque Pearl',
-    color: 'Lustrous White / Gold',
-    size: '18 inch adjustable',
-    weight: '8.1g',
-    tags: ['New Drop', 'Pearl', 'Editorial', 'Layering'],
-    specifications: {
-      'Chain': '18K Solid Gold 1.8mm Paperclip link',
-      'Pearl': 'Grade AA 14-16mm Freshwater Baroque Pearl',
-      'Clasp': 'Custom Atelier Lobster lock',
-      'Length': '18" chain with 2" drop'
-    },
-    images: [
-      {
-        id: 'img-2-1',
-        productId: 'prod-2',
-        cloudinaryPublicId: 'aura/products/helios-necklace-1',
-        secureUrl: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'img-2-2',
-        productId: 'prod-2',
-        cloudinaryPublicId: 'aura/products/helios-necklace-2',
-        secureUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 2,
-        isPrimary: false,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-08-01T08:00:00Z',
-    updatedAt: '2026-08-16T12:00:00Z',
-  },
-  {
-    id: 'prod-3',
-    name: 'Aethel Tennis Chain Bracelet',
-    slug: 'aethel-tennis-chain-bracelet',
-    description: 'Timeless luxury reimagined. Four-prong set lab-created brilliant diamonds seamlessly connected along an ultra-flexible 18K white gold track with double security safety clasp.',
-    price: 1250,
-    categoryId: 'cat-bracelets',
-    categoryName: 'Bracelets & Cuffs',
-    sku: 'AUR-BRC-003',
-    stock: 2,
-    isActive: true,
-    isHot: true,
-    isNewDrop: false,
-    isFeatured: true,
-    restockedAt: '2026-08-14T09:00:00Z',
-    material: '18K White Gold & VVS Diamonds',
-    color: 'White Gold / Clear',
-    size: '6.75 inch',
-    weight: '11.2g',
-    tags: ['Fine Diamond', 'Heirloom', 'Restocked'],
-    specifications: {
-      'Carat Weight': '2.40 ctw VVS-VS Clarity, Color E-F',
-      'Metal': '18K Solid White Gold',
-      'Width': '2.6mm',
-      'Clasp': 'Integrated Box Clasp with Dual Safety Latches'
-    },
-    images: [
-      {
-        id: 'img-3-1',
-        productId: 'prod-3',
-        cloudinaryPublicId: 'aura/products/aethel-bracelet-1',
-        secureUrl: 'https://images.unsplash.com/photo-1611591475883-8a306c59b666?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-06-20T11:00:00Z',
-    updatedAt: '2026-08-14T09:00:00Z',
-  },
-  {
-    id: 'prod-4',
-    name: 'Aurelia Organic Molten Gold Hoops',
-    slug: 'aurelia-organic-molten-gold-hoops',
-    description: 'Cast in lightweight hollowed 18K gold to ensure day-to-night comfort. Features soft rippled contours that catch the light from every angle.',
-    price: 340,
-    originalPrice: 380,
-    categoryId: 'cat-earrings',
-    categoryName: 'Earrings & Huggies',
-    sku: 'AUR-EAR-004',
-    stock: 9,
-    isActive: true,
-    isHot: false,
-    isNewDrop: true,
-    isFeatured: true,
-    restockedAt: null,
-    material: '18K Solid Gold',
-    color: 'Yellow Gold',
-    size: '22mm diameter',
-    weight: '4.8g per pair',
-    tags: ['Everyday', 'Statement', 'New Drop'],
-    specifications: {
-      'Diameter': '22mm outer diameter',
-      'Thickness': '4.5mm at thickest wave',
-      'Post': 'Hypoallergenic 18K Gold Post with Comfort Backs',
-      'Weight': 'Featherlight comfortable feel'
-    },
-    images: [
-      {
-        id: 'img-4-1',
-        productId: 'prod-4',
-        cloudinaryPublicId: 'aura/products/aurelia-hoops-1',
-        secureUrl: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      },
-      {
-        id: 'img-4-2',
-        productId: 'prod-4',
-        cloudinaryPublicId: 'aura/products/aurelia-hoops-2',
-        secureUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 2,
-        isPrimary: false,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-08-05T14:00:00Z',
-    updatedAt: '2026-08-17T09:00:00Z',
-  },
-  {
-    id: 'prod-5',
-    name: 'Siren Keshi Pearl Strand Choker',
-    slug: 'siren-keshi-pearl-strand-choker',
-    description: 'Individually hand-knotted on pure silk thread with rare petal-shaped natural Keshi pearls. Secured with an engraved 18K gold ball clasp.',
-    price: 560,
-    categoryId: 'cat-pearls',
-    categoryName: 'Pearl Atelier',
-    sku: 'AUR-PRL-005',
-    stock: 0, // OUT OF STOCK test case
-    isActive: true,
-    isHot: true,
-    isNewDrop: false,
-    isFeatured: true,
-    restockedAt: null,
-    material: 'Natural Keshi Pearls & 18K Gold',
-    color: 'Iridescent Pearl Ivory',
-    size: '15.5 inch choker',
-    weight: '14.5g',
-    tags: ['Atelier Special', 'Pearls', 'Sold Out'],
-    specifications: {
-      'Pearl Grade': 'AAA Natural Iridescent Luster',
-      'Thread': 'Japanese White Silk (Hand-Knotted)',
-      'Clasp': '18K Solid Gold Satin Round Lock',
-      'Care': 'Avoid direct perfumes and store in silk pouch'
-    },
-    images: [
-      {
-        id: 'img-5-1',
-        productId: 'prod-5',
-        cloudinaryPublicId: 'aura/products/siren-keshi-1',
-        secureUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-05-10T12:00:00Z',
-    updatedAt: '2026-08-12T16:00:00Z',
-  },
-  {
-    id: 'prod-6',
-    name: 'Celeste Sapphire Celestial Ring',
-    slug: 'celeste-sapphire-celestial-ring',
-    description: 'Deep royal blue Australian oval sapphire flanked by two tapered baguette diamonds in an architectural 18K yellow gold knife-edge band.',
-    price: 890,
-    originalPrice: 980,
-    categoryId: 'cat-rings',
-    categoryName: 'Rings & Solitaires',
-    sku: 'AUR-RNG-006',
-    stock: 5,
-    isActive: true,
-    isHot: false,
-    isNewDrop: true,
-    isFeatured: true,
-    restockedAt: '2026-08-16T15:30:00Z',
-    material: '18K Yellow Gold & Natural Sapphire',
-    color: 'Deep Midnight Blue / Gold',
-    size: 'US 5, 6, 7',
-    weight: '5.2g',
-    tags: ['Gemstone', 'Sapphire', 'New Drop', 'Restocked'],
-    specifications: {
-      'Center Stone': '1.20ct Natural Untreated Royal Blue Sapphire',
-      'Side Diamonds': '0.18ctw Tapered VS Baguettes',
-      'Profile': 'Low profile comfort prong setting',
-      'Metal': '18K Yellow Gold'
-    },
-    images: [
-      {
-        id: 'img-6-1',
-        productId: 'prod-6',
-        cloudinaryPublicId: 'aura/products/celeste-sapphire-1',
-        secureUrl: 'https://images.unsplash.com/photo-1603561591411-07134e71a2a9?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-08-08T11:00:00Z',
-    updatedAt: '2026-08-16T15:30:00Z',
-  },
-  {
-    id: 'prod-7',
-    name: 'Vermeil Sculptural Chunky Cuff',
-    slug: 'vermeil-sculptural-chunky-cuff',
-    description: 'Architectural statement piece inspired by Brutalist bronze sculptures. Ergonomically contoured to sit flush against the wrist.',
-    price: 420,
-    categoryId: 'cat-bracelets',
-    categoryName: 'Bracelets & Cuffs',
-    sku: 'AUR-BRC-007',
-    stock: 8,
-    isActive: true,
-    isHot: false,
-    isNewDrop: false,
-    isFeatured: false,
-    restockedAt: '2026-08-11T10:00:00Z',
-    material: 'Heavy 18K Gold Vermeil over Sterling Silver',
-    color: 'Polished Gold',
-    size: 'Medium (Fits wrists 6.0" - 7.0")',
-    weight: '28.0g',
-    tags: ['Sculptural', 'Statement', 'Cuff'],
-    specifications: {
-      'Plating': '5 Microns 18K Solid Gold over 925 Silver',
-      'Gap Width': '1.2 inches for easy on/off wear',
-      'Finish': 'Mirror Polish Exterior with Brushed Inner'
-    },
-    images: [
-      {
-        id: 'img-7-1',
-        productId: 'prod-7',
-        cloudinaryPublicId: 'aura/products/vermeil-cuff-1',
-        secureUrl: 'https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-07-20T09:00:00Z',
-    updatedAt: '2026-08-11T10:00:00Z',
-  },
-  {
-    id: 'prod-8',
-    name: 'Astrid Emerald Cut Pendant Chain',
-    slug: 'astrid-emerald-cut-pendant-chain',
-    description: 'Vintage-inspired Colombian emerald green quartz stone framed by micro-pavé accents on an Italian cable chain.',
-    price: 360,
-    originalPrice: 410,
-    categoryId: 'cat-necklaces',
-    categoryName: 'Necklaces & Chains',
-    sku: 'AUR-NCK-008',
-    stock: 6,
-    isActive: true,
-    isHot: true,
-    isNewDrop: false,
-    isFeatured: true,
-    restockedAt: null,
-    material: '18K Yellow Gold Vermeil',
-    color: 'Emerald Green / Gold',
-    size: '16-18 inch adjustable',
-    weight: '5.5g',
-    tags: ['Emerald', 'Pendant', 'Vintage'],
-    specifications: {
-      'Stone': '2.0ct Emerald-cut Fine Hydrothermal Quartz',
-      'Chain Style': 'Diamond-cut Italian cable chain',
-      'Pendant Dimensions': '12mm x 9mm'
-    },
-    images: [
-      {
-        id: 'img-8-1',
-        productId: 'prod-8',
-        cloudinaryPublicId: 'aura/products/astrid-emerald-1',
-        secureUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=85&w=1200',
-        sortOrder: 1,
-        isPrimary: true,
-        createdAt: new Date().toISOString()
-      }
-    ],
-    createdAt: '2026-07-28T14:00:00Z',
-    updatedAt: '2026-08-15T08:00:00Z',
-  }
-];
+function productToRow(p: Partial<Product>): Record<string, any> {
+  const row: Record<string, any> = {};
+  if (p.id !== undefined) row.id = p.id;
+  if (p.name !== undefined) row.name = p.name;
+  if (p.slug !== undefined) row.slug = p.slug;
+  if (p.description !== undefined) row.description = p.description;
+  if (p.price !== undefined) row.price = p.price;
+  if (p.originalPrice !== undefined) row.original_price = p.originalPrice ?? null;
+  if (p.categoryIds !== undefined) row.category_ids = p.categoryIds;
+  if (p.categoryNames !== undefined) row.category_names = p.categoryNames;
+  if (p.sku !== undefined) row.sku = p.sku;
+  if (p.stock !== undefined) row.stock = p.stock;
+  if (p.isActive !== undefined) row.is_active = p.isActive;
+  if (p.isHot !== undefined) row.is_hot = p.isHot;
+  if (p.isNewDrop !== undefined) row.is_new_drop = p.isNewDrop;
+  if (p.isFeatured !== undefined) row.is_featured = p.isFeatured;
+  if (p.restockedAt !== undefined) row.restocked_at = p.restockedAt;
+  if (p.material !== undefined) row.material = p.material;
+  if (p.color !== undefined) row.color = p.color;
+  if (p.size !== undefined) row.size = p.size;
+  if (p.weight !== undefined) row.weight = p.weight;
+  if (p.tags !== undefined) row.tags = p.tags;
+  if (p.specifications !== undefined) row.specifications = p.specifications;
+  if (p.images !== undefined) row.images = p.images;
+  if (p.createdAt !== undefined) row.created_at = p.createdAt;
+  if (p.updatedAt !== undefined) row.updated_at = p.updatedAt;
+  return row;
+}
 
-const initialOffers: Offer[] = [
-  {
-    id: 'offer-1',
-    title: 'Maison Spring Atelier Special',
-    tagline: 'Complimentary 18K Polish Cloth & Silk Travel Case with every order',
-    description: 'Take 15% off any curated Solid Gold and Pearl combination when you order this week.',
-    imageUrl: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=1200',
-    discountType: 'PERCENTAGE',
-    discountValue: 15,
-    code: 'ATELIER15',
-    startDate: '2026-08-01T00:00:00Z',
-    endDate: '2026-09-30T23:59:59Z',
-    isActive: true,
-    associatedProductIds: ['prod-1', 'prod-2', 'prod-4'],
-    associatedCategoryIds: ['cat-rings', 'cat-necklaces', 'cat-pearls'],
-    sortOrder: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }
-];
+function rowToCategory(r: any): Category {
+  return {
+    id: r.id,
+    name: r.name,
+    slug: r.slug,
+    description: r.description || '',
+    imageUrl: r.image_url,
+    isActive: r.is_active,
+    sortOrder: r.sort_order,
+    parentId: r.parent_id || null,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
 
-const initialSettings: SiteSettings = {
-  storeName: 'AURA Fine Jewelry',
+function categoryToRow(c: Partial<Category>): Record<string, any> {
+  const row: Record<string, any> = {};
+  if (c.id !== undefined) row.id = c.id;
+  if (c.name !== undefined) row.name = c.name;
+  if (c.slug !== undefined) row.slug = c.slug;
+  if (c.description !== undefined) row.description = c.description;
+  if (c.imageUrl !== undefined) row.image_url = c.imageUrl;
+  if (c.isActive !== undefined) row.is_active = c.isActive;
+  if (c.sortOrder !== undefined) row.sort_order = c.sortOrder;
+  if (c.parentId !== undefined) row.parent_id = c.parentId;
+  if (c.createdAt !== undefined) row.created_at = c.createdAt;
+  if (c.updatedAt !== undefined) row.updated_at = c.updatedAt;
+  return row;
+}
+
+function rowToOffer(r: any): Offer {
+  return {
+    id: r.id,
+    title: r.title,
+    tagline: r.tagline || undefined,
+    description: r.description,
+    imageUrl: r.image_url,
+    discountType: r.discount_type,
+    discountValue: Number(r.discount_value),
+    code: r.code || undefined,
+    startDate: r.start_date,
+    endDate: r.end_date,
+    isActive: r.is_active,
+    associatedProductIds: r.associated_product_ids || [],
+    associatedCategoryIds: r.associated_category_ids || [],
+    sortOrder: r.sort_order,
+    createdAt: r.created_at,
+    updatedAt: r.updated_at,
+  };
+}
+
+function offerToRow(o: Partial<Offer>): Record<string, any> {
+  const row: Record<string, any> = {};
+  if (o.id !== undefined) row.id = o.id;
+  if (o.title !== undefined) row.title = o.title;
+  if (o.tagline !== undefined) row.tagline = o.tagline;
+  if (o.description !== undefined) row.description = o.description;
+  if (o.imageUrl !== undefined) row.image_url = o.imageUrl;
+  if (o.discountType !== undefined) row.discount_type = o.discountType;
+  if (o.discountValue !== undefined) row.discount_value = o.discountValue;
+  if (o.code !== undefined) row.code = o.code;
+  if (o.startDate !== undefined) row.start_date = o.startDate;
+  if (o.endDate !== undefined) row.end_date = o.endDate;
+  if (o.isActive !== undefined) row.is_active = o.isActive;
+  if (o.associatedProductIds !== undefined) row.associated_product_ids = o.associatedProductIds;
+  if (o.associatedCategoryIds !== undefined) row.associated_category_ids = o.associatedCategoryIds;
+  if (o.sortOrder !== undefined) row.sort_order = o.sortOrder;
+  if (o.createdAt !== undefined) row.created_at = o.createdAt;
+  if (o.updatedAt !== undefined) row.updated_at = o.updatedAt;
+  return row;
+}
+
+function rowToSettings(r: any): SiteSettings {
+  return {
+    storeName: r.store_name,
+    tagline: r.tagline,
+    logoUrl: r.logo_url || undefined,
+    instagramHandle: r.instagram_handle,
+    customOrderMessageTemplate: r.custom_order_message_template,
+    currencySymbol: r.currency_symbol,
+    contactEmail: r.contact_email,
+    contactPhone: r.contact_phone || undefined,
+    announcementText: r.announcement_text || '',
+    announcementEnabled: r.announcement_enabled,
+    announcementLink: r.announcement_link || undefined,
+    heroHeadline: r.hero_headline,
+    heroSubhead: r.hero_subhead,
+    heroImageUrl: r.hero_image_url,
+    heroCtaText: r.hero_cta_text,
+    heroCtaLink: r.hero_cta_link,
+    defaultSeoTitle: r.default_seo_title,
+    defaultSeoDescription: r.default_seo_description,
+    defaultSeoKeywords: r.default_seo_keywords || undefined,
+    aboutText: r.about_text || undefined,
+    atelierAddress: r.atelier_address || undefined,
+    heroEyebrowText: r.hero_eyebrow_text || undefined,
+    heroCurrentDropLabel: r.hero_current_drop_label || undefined,
+    heroCurrentDropText: r.hero_current_drop_text || undefined,
+    heroSecondaryCtaText: r.hero_secondary_cta_text || undefined,
+    heroInquiryCardTitle: r.hero_inquiry_card_title || undefined,
+    heroInquiryCardSubtitle: r.hero_inquiry_card_subtitle || undefined,
+    heroInquiryCardText: r.hero_inquiry_card_text || undefined,
+    categoriesHeading: r.categories_heading || undefined,
+    categoriesShowAllText: r.categories_show_all_text || undefined,
+    categoriesAllPillLabel: r.categories_all_pill_label || undefined,
+    offersEyebrowText: r.offers_eyebrow_text || undefined,
+    offersCodeLabel: r.offers_code_label || undefined,
+    footerPhilosophyEyebrow: r.footer_philosophy_eyebrow || undefined,
+    footerCollectionsHeading: r.footer_collections_heading || undefined,
+    footerOrderingHeading: r.footer_ordering_heading || undefined,
+    footerOrderingText: r.footer_ordering_text || undefined,
+    footerBottomTagline: r.footer_bottom_tagline || undefined,
+  };
+}
+
+function settingsToRow(s: Partial<SiteSettings>): Record<string, any> {
+  const row: Record<string, any> = {};
+  if (s.storeName !== undefined) row.store_name = s.storeName;
+  if (s.tagline !== undefined) row.tagline = s.tagline;
+  if (s.logoUrl !== undefined) row.logo_url = s.logoUrl;
+  if (s.instagramHandle !== undefined) row.instagram_handle = s.instagramHandle;
+  if (s.customOrderMessageTemplate !== undefined) row.custom_order_message_template = s.customOrderMessageTemplate;
+  if (s.currencySymbol !== undefined) row.currency_symbol = s.currencySymbol;
+  if (s.contactEmail !== undefined) row.contact_email = s.contactEmail;
+  if (s.contactPhone !== undefined) row.contact_phone = s.contactPhone;
+  if (s.announcementText !== undefined) row.announcement_text = s.announcementText;
+  if (s.announcementEnabled !== undefined) row.announcement_enabled = s.announcementEnabled;
+  if (s.announcementLink !== undefined) row.announcement_link = s.announcementLink;
+  if (s.heroHeadline !== undefined) row.hero_headline = s.heroHeadline;
+  if (s.heroSubhead !== undefined) row.hero_subhead = s.heroSubhead;
+  if (s.heroImageUrl !== undefined) row.hero_image_url = s.heroImageUrl;
+  if (s.heroCtaText !== undefined) row.hero_cta_text = s.heroCtaText;
+  if (s.heroCtaLink !== undefined) row.hero_cta_link = s.heroCtaLink;
+  if (s.defaultSeoTitle !== undefined) row.default_seo_title = s.defaultSeoTitle;
+  if (s.defaultSeoDescription !== undefined) row.default_seo_description = s.defaultSeoDescription;
+  if (s.defaultSeoKeywords !== undefined) row.default_seo_keywords = s.defaultSeoKeywords;
+  if (s.aboutText !== undefined) row.about_text = s.aboutText;
+  if (s.atelierAddress !== undefined) row.atelier_address = s.atelierAddress;
+  if (s.heroEyebrowText !== undefined) row.hero_eyebrow_text = s.heroEyebrowText;
+  if (s.heroCurrentDropLabel !== undefined) row.hero_current_drop_label = s.heroCurrentDropLabel;
+  if (s.heroCurrentDropText !== undefined) row.hero_current_drop_text = s.heroCurrentDropText;
+  if (s.heroSecondaryCtaText !== undefined) row.hero_secondary_cta_text = s.heroSecondaryCtaText;
+  if (s.heroInquiryCardTitle !== undefined) row.hero_inquiry_card_title = s.heroInquiryCardTitle;
+  if (s.heroInquiryCardSubtitle !== undefined) row.hero_inquiry_card_subtitle = s.heroInquiryCardSubtitle;
+  if (s.heroInquiryCardText !== undefined) row.hero_inquiry_card_text = s.heroInquiryCardText;
+  if (s.categoriesHeading !== undefined) row.categories_heading = s.categoriesHeading;
+  if (s.categoriesShowAllText !== undefined) row.categories_show_all_text = s.categoriesShowAllText;
+  if (s.categoriesAllPillLabel !== undefined) row.categories_all_pill_label = s.categoriesAllPillLabel;
+  if (s.offersEyebrowText !== undefined) row.offers_eyebrow_text = s.offersEyebrowText;
+  if (s.offersCodeLabel !== undefined) row.offers_code_label = s.offersCodeLabel;
+  if (s.footerPhilosophyEyebrow !== undefined) row.footer_philosophy_eyebrow = s.footerPhilosophyEyebrow;
+  if (s.footerCollectionsHeading !== undefined) row.footer_collections_heading = s.footerCollectionsHeading;
+  if (s.footerOrderingHeading !== undefined) row.footer_ordering_heading = s.footerOrderingHeading;
+  if (s.footerOrderingText !== undefined) row.footer_ordering_text = s.footerOrderingText;
+  if (s.footerBottomTagline !== undefined) row.footer_bottom_tagline = s.footerBottomTagline;
+  return row;
+}
+
+function rowToInquiry(r: any): CustomerInquiry {
+  return {
+    id: r.id,
+    productId: r.product_id,
+    productName: r.product_name,
+    productSku: r.product_sku,
+    productPrice: r.product_price != null ? Number(r.product_price) : 0,
+    productSlug: r.product_slug,
+    productImage: r.product_image || undefined,
+    instagramHandle: r.instagram_handle,
+    customerNote: r.customer_note || undefined,
+    createdAt: r.created_at,
+    status: r.status,
+  };
+}
+
+function rowToAuditLog(r: any): AdminAuditLog {
+  return {
+    id: r.id,
+    adminEmail: r.admin_email,
+    action: r.action,
+    entity: r.entity,
+    entityId: r.entity_id || undefined,
+    details: r.details,
+    ipAddress: r.ip_address || undefined,
+    timestamp: r.timestamp,
+  };
+}
+
+const DEFAULT_SETTINGS: SiteSettings = {
+  storeName: 'mini2k',
   tagline: 'Handcrafted Solid Gold, Pearls & Precious Stones',
-  logoUrl: '',
-  instagramHandle: 'aurafinejewelry',
-  customOrderMessageTemplate: "Hi AURA Atelier, I'm interested in ordering the {product_name} (SKU: {product_sku}, Price: ${product_price}). URL: {product_url}",
-  currencySymbol: '$',
-  contactEmail: 'concierge@aurajewelry.com',
-  contactPhone: '+1 (555) 234-8900',
-  announcementText: 'Complimentary insured worldwide shipping on all atelier drops | DM on Instagram for bespoke sizing',
+  instagramHandle: 'mini2k.np',
+  customOrderMessageTemplate:
+    "Hi mini2k, I'm interested in ordering the {product_name} (SKU: {product_sku}, Price: NPR {product_price}). URL: {product_url}",
+  currencySymbol: 'NPR ',
+  contactEmail: 'concierge@mini2k.com',
+  announcementText: 'Complimentary insured worldwide shipping on all atelier drops',
   announcementEnabled: true,
-  announcementLink: '/offers',
   heroHeadline: 'Sculptural Elegance for the Modern Collector',
-  heroSubhead: 'Ethically crafted in 18K recycled solid gold and handpicked baroque pearls. Browse our curated catalogue and claim your piece directly via Instagram.',
+  heroSubhead: 'Ethically crafted in 18K recycled solid gold and handpicked baroque pearls.',
   heroImageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=85&w=1600',
   heroCtaText: 'Explore New Drop',
   heroCtaLink: '#catalog',
-  defaultSeoTitle: 'AURA Fine Jewelry | Pinterest-Inspired Atelier',
-  defaultSeoDescription: 'Browse the handcrafted luxury jewelry catalogue from AURA. Order seamlessly via Instagram messaging.',
-  defaultSeoKeywords: 'fine jewelry, 18k gold, natural pearls, engagement rings, handcrafted jewelry',
-  aboutText: 'AURA Atelier was founded on the philosophy that fine jewelry should be intimate, tactile, and sculpturally distinct. Each item is produced in limited micro-batches in our studio.',
-  atelierAddress: 'SoHo Design District, New York & Paris',
-  // Page Content (Hero / Categories / Offers / Footer copy)
-  heroEyebrowText: 'Editorial 2026',
-  heroCurrentDropLabel: 'Current Atelier Drop',
-  heroCurrentDropText: 'Celestial 18K Solid Gold & Baroque Series',
-  heroSecondaryCtaText: 'New Arrivals',
-  heroInquiryCardTitle: 'Instagram Inquiry',
-  heroInquiryCardSubtitle: 'Atelier Concierge',
-  heroInquiryCardText: 'Select any piece from our catalogue to message us directly for bespoke ring sizing and insured global dispatch.',
-  categoriesHeading: 'Curated Categories',
-  categoriesShowAllText: 'Show All Curations',
-  categoriesAllPillLabel: 'All Atelier',
-  offersEyebrowText: 'Limited Seasonal Atelier Event',
-  offersCodeLabel: 'Mention code:',
-  footerPhilosophyEyebrow: 'Atelier Philosophy',
-  footerCollectionsHeading: 'Collections',
-  footerOrderingHeading: 'Instagram Ordering',
-  footerOrderingText: 'We provide tailored bespoke sizing, custom diamond settings, and insured global delivery. Inquire directly via Instagram messaging.',
-  footerBottomTagline: 'Curated in Florence & New York'
+  defaultSeoTitle: 'mini2k',
+  defaultSeoDescription: 'Handcrafted luxury jewelry catalogue with direct Instagram ordering.',
 };
 
-const initialUsers: (AdminUser & { passwordHash: string })[] = [
-  {
-    id: 'user-admin-1',
-    email: 'admin@aurajewelry.com',
-    name: 'Atelier Director',
-    role: 'SUPER_ADMIN',
-    // Pre-hashed bcrypt for 'admin123'
-    passwordHash: '$2b$10$doAiVy6Ji1ItLhbkVEOc2.XGvIInwxObYAQLS9f1gdfve2eGkosli',
-    lastLogin: new Date().toISOString()
-  }
-];
+async function resolveCategoryNames(ids: string[]): Promise<string[]> {
+  if (!ids || ids.length === 0) return [];
+  const { data, error } = await client().from('categories').select('id, name').in('id', ids);
+  if (error) throw error;
+  const nameById = new Map((data || []).map((c: any) => [c.id, c.name as string]));
+  return ids.map(id => nameById.get(id)).filter((n): n is string => !!n);
+}
 
-export class Database {
-  private data: DatabaseSchema;
-
-  constructor() {
-    this.ensureDataDir();
-    this.data = this.loadData();
-  }
-
-  private ensureDataDir() {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-  }
-
-  private loadData(): DatabaseSchema {
-    if (fs.existsSync(DB_FILE)) {
-      try {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        const parsed = JSON.parse(raw);
-        return {
-          users: parsed.users || initialUsers,
-          categories: parsed.categories || initialCategories,
-          products: parsed.products || initialProducts,
-          offers: parsed.offers || initialOffers,
-          settings: { ...initialSettings, ...(parsed.settings || {}) },
-          auditLogs: parsed.auditLogs || [],
-          inquiries: parsed.inquiries || [],
-          mediaAssets: parsed.mediaAssets || []
-        };
-      } catch (err) {
-        console.error('Error reading database file, using seeds', err);
-      }
-    }
-
-    const defaultData: DatabaseSchema = {
-      users: initialUsers,
-      categories: initialCategories,
-      products: initialProducts,
-      offers: initialOffers,
-      settings: initialSettings,
-      auditLogs: [
-        {
-          id: 'log-seed-1',
-          adminEmail: 'admin@aurajewelry.com',
-          action: 'SYSTEM_INITIALIZATION',
-          entity: 'SYSTEM',
-          details: 'Initialized AURA jewelry catalogue with editorial collections and Pinterest layouts.',
-          timestamp: new Date().toISOString()
-        }
-      ],
-      inquiries: [
-        {
-          id: 'inq-1',
-          productId: 'prod-1',
-          productName: 'Solstice 18K Molten Signet Ring',
-          productSku: 'AUR-RNG-001',
-          productPrice: 680,
-          productSlug: 'solstice-18k-molten-signet-ring',
-          productImage: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=85&w=800',
-          instagramHandle: 'aurafinejewelry',
-          customerNote: 'Customer initiated Instagram inquiry for Size 7.',
-          createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-          status: 'PENDING'
-        }
-      ],
-      mediaAssets: []
-    };
-
-    this.saveData(defaultData);
-    return defaultData;
-  }
-
-  public persist() {
-    this.saveData(this.data);
-  }
-
-  private saveData(data: DatabaseSchema) {
-    try {
-      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-    } catch (err) {
-      console.error('Failed to write database file:', err);
-    }
-  }
-
+export const db = {
   // --- PRODUCTS ---
-  public getProducts(filter?: {
+  async getProducts(filter?: {
     categoryId?: string;
     isHot?: boolean;
     isNewDrop?: boolean;
@@ -615,318 +303,338 @@ export class Database {
     isRestocked?: boolean;
     search?: string;
     includeInactive?: boolean;
-  }): Product[] {
-    let result = this.data.products;
-    if (!filter?.includeInactive) {
-      result = result.filter(p => p.isActive);
-    }
-    if (filter?.categoryId) {
-      result = result.filter(p => p.categoryId === filter.categoryId);
-    }
-    if (filter?.isHot) {
-      result = result.filter(p => p.isHot);
-    }
-    if (filter?.isNewDrop) {
-      result = result.filter(p => p.isNewDrop);
-    }
-    if (filter?.isFeatured) {
-      result = result.filter(p => p.isFeatured);
-    }
-    if (filter?.isRestocked) {
-      result = result.filter(p => !!p.restockedAt);
-    }
+  }): Promise<Product[]> {
+    let q = client().from('products').select('*');
+    if (!filter?.includeInactive) q = q.eq('is_active', true);
+    if (filter?.categoryId) q = q.contains('category_ids', [filter.categoryId]);
+    if (filter?.isHot) q = q.eq('is_hot', true);
+    if (filter?.isNewDrop) q = q.eq('is_new_drop', true);
+    if (filter?.isFeatured) q = q.eq('is_featured', true);
+    if (filter?.isRestocked) q = q.not('restocked_at', 'is', null);
     if (filter?.search) {
-      const q = filter.search.toLowerCase().trim();
-      result = result.filter(p => 
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.sku.toLowerCase().includes(q) ||
-        (p.tags && p.tags.some(t => t.toLowerCase().includes(q))) ||
-        (p.categoryName && p.categoryName.toLowerCase().includes(q))
-      );
+      const term = filter.search.trim().replace(/[%,]/g, '');
+      if (term) {
+        q = q.or(`name.ilike.%${term}%,description.ilike.%${term}%,sku.ilike.%${term}%`);
+      }
     }
-    return result;
-  }
+    const { data, error } = await q.order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map(rowToProduct);
+  },
 
-  public getProductBySlug(slug: string): Product | undefined {
-    return this.data.products.find(p => p.slug === slug);
-  }
+  async getProductBySlug(slug: string): Promise<Product | undefined> {
+    const { data, error } = await client().from('products').select('*').eq('slug', slug).maybeSingle();
+    if (error) throw error;
+    return data ? rowToProduct(data) : undefined;
+  },
 
-  public getProductById(id: string): Product | undefined {
-    return this.data.products.find(p => p.id === id);
-  }
+  async getProductById(id: string): Promise<Product | undefined> {
+    const { data, error } = await client().from('products').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data ? rowToProduct(data) : undefined;
+  },
 
-  public createProduct(product: Product): Product {
-    const category = this.getCategoryById(product.categoryId);
-    if (category) {
-      product.categoryName = category.name;
+  async createProduct(product: Product): Promise<Product> {
+    product.categoryNames = await resolveCategoryNames(product.categoryIds);
+    const { data, error } = await client().from('products').insert(productToRow(product)).select().single();
+    if (error) throw error;
+    return rowToProduct(data);
+  },
+
+  async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
+    if (updates.categoryIds) {
+      updates.categoryNames = await resolveCategoryNames(updates.categoryIds);
     }
-    this.data.products.unshift(product);
-    this.persist();
-    return product;
-  }
+    const row = productToRow({ ...updates, updatedAt: new Date().toISOString() });
+    const { data, error } = await client().from('products').update(row).eq('id', id).select().maybeSingle();
+    if (error) throw error;
+    return data ? rowToProduct(data) : null;
+  },
 
-  public updateProduct(id: string, updates: Partial<Product>): Product | null {
-    const index = this.data.products.findIndex(p => p.id === id);
-    if (index === -1) return null;
+  async updateStock(id: string, stock: number, isRestockMark?: boolean): Promise<Product | null> {
+    const current = await this.getProductById(id);
+    if (!current) return null;
 
-    if (updates.categoryId) {
-      const category = this.getCategoryById(updates.categoryId);
-      if (category) updates.categoryName = category.name;
-    }
-
-    const updated = {
-      ...this.data.products[index],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    this.data.products[index] = updated;
-    this.persist();
-    return updated;
-  }
-
-  public updateStock(id: string, stock: number, isRestockMark?: boolean): Product | null {
-    const index = this.data.products.findIndex(p => p.id === id);
-    if (index === -1) return null;
-
-    const current = this.data.products[index];
-    const prevStock = current.stock;
     const safeStock = Math.max(0, Math.floor(stock));
-    
     let restockedAt = current.restockedAt;
-    if (isRestockMark || (prevStock === 0 && safeStock > 0)) {
+    if (isRestockMark || (current.stock === 0 && safeStock > 0)) {
       restockedAt = new Date().toISOString();
     }
 
-    const updated: Product = {
-      ...current,
-      stock: safeStock,
-      restockedAt,
-      updatedAt: new Date().toISOString()
-    };
-    this.data.products[index] = updated;
-    this.persist();
-    return updated;
-  }
+    const { data, error } = await client()
+      .from('products')
+      .update({ stock: safeStock, restocked_at: restockedAt, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    return data ? rowToProduct(data) : null;
+  },
 
-  public deleteProduct(id: string, hardDelete: boolean = false): boolean {
-    const index = this.data.products.findIndex(p => p.id === id);
-    if (index === -1) return false;
-
+  async deleteProduct(id: string, hardDelete: boolean = false): Promise<boolean> {
     if (hardDelete) {
-      this.data.products.splice(index, 1);
+      const { error } = await client().from('products').delete().eq('id', id);
+      if (error) throw error;
     } else {
-      this.data.products[index].isActive = false;
-      this.data.products[index].updatedAt = new Date().toISOString();
+      const { error } = await client()
+        .from('products')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
     }
-    this.persist();
     return true;
-  }
+  },
 
   // --- CATEGORIES ---
-  public getCategories(includeInactive: boolean = false): Category[] {
-    let cats = this.data.categories;
-    if (!includeInactive) {
-      cats = cats.filter(c => c.isActive);
-    }
+  async getCategories(includeInactive: boolean = false): Promise<Category[]> {
+    let q = client().from('categories').select('*');
+    if (!includeInactive) q = q.eq('is_active', true);
+    const { data, error } = await q.order('sort_order', { ascending: true });
+    if (error) throw error;
+    const cats = (data || []).map(rowToCategory);
+
+    const { data: prodRows, error: prodErr } = await client().from('products').select('category_ids, is_active');
+    if (prodErr) throw prodErr;
+
     return cats.map(cat => ({
       ...cat,
-      productCount: this.data.products.filter(p => p.categoryId === cat.id && p.isActive).length
-    })).sort((a, b) => a.sortOrder - b.sortOrder);
-  }
+      productCount: (prodRows || []).filter((p: any) => (p.category_ids || []).includes(cat.id) && p.is_active).length,
+    }));
+  },
 
-  public getCategoryById(id: string): Category | undefined {
-    return this.data.categories.find(c => c.id === id);
-  }
+  async getCategoryById(id: string): Promise<Category | undefined> {
+    const { data, error } = await client().from('categories').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data ? rowToCategory(data) : undefined;
+  },
 
-  public getCategoryBySlug(slug: string): Category | undefined {
-    return this.data.categories.find(c => c.slug === slug);
-  }
+  async getCategoryBySlug(slug: string): Promise<Category | undefined> {
+    const { data, error } = await client().from('categories').select('*').eq('slug', slug).maybeSingle();
+    if (error) throw error;
+    return data ? rowToCategory(data) : undefined;
+  },
 
-  public createCategory(category: Category): Category {
-    this.data.categories.push(category);
-    this.persist();
-    return category;
-  }
+  async createCategory(category: Category): Promise<Category> {
+    const { data, error } = await client().from('categories').insert(categoryToRow(category)).select().single();
+    if (error) throw error;
+    return rowToCategory(data);
+  },
 
-  public updateCategory(id: string, updates: Partial<Category>): Category | null {
-    const index = this.data.categories.findIndex(c => c.id === id);
-    if (index === -1) return null;
+  async updateCategory(id: string, updates: Partial<Category>): Promise<Category | null> {
+    const row = categoryToRow({ ...updates, updatedAt: new Date().toISOString() });
+    const { data, error } = await client().from('categories').update(row).eq('id', id).select().maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
 
-    const updated = {
-      ...this.data.categories[index],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    this.data.categories[index] = updated;
-
-    // Sync categoryName to products if renamed
     if (updates.name) {
-      this.data.products.forEach(p => {
-        if (p.categoryId === id) {
-          p.categoryName = updates.name;
-        }
-      });
+      // A product's category_names is denormalized for cheap reads, so a
+      // rename has to be pushed out to every product that references this
+      // category — there's no single-column array patch in PostgREST, so
+      // each affected row's full categoryNames array is recomputed and
+      // rewritten individually.
+      const { data: affected, error: affectedErr } = await client()
+        .from('products')
+        .select('id, category_ids')
+        .contains('category_ids', [id]);
+      if (affectedErr) throw affectedErr;
+
+      for (const row of affected || []) {
+        const categoryNames = await resolveCategoryNames(row.category_ids || []);
+        await client().from('products').update({ category_names: categoryNames }).eq('id', row.id);
+      }
     }
 
-    this.persist();
-    return updated;
-  }
+    return rowToCategory(data);
+  },
 
-  public deleteCategory(id: string, hardDelete: boolean = false): boolean {
-    const index = this.data.categories.findIndex(c => c.id === id);
-    if (index === -1) return false;
-
+  async deleteCategory(id: string, hardDelete: boolean = false): Promise<boolean> {
     if (hardDelete) {
-      this.data.categories.splice(index, 1);
+      const { error } = await client().from('categories').delete().eq('id', id);
+      if (error) throw error;
     } else {
-      this.data.categories[index].isActive = false;
-      this.data.categories[index].updatedAt = new Date().toISOString();
+      const { error } = await client()
+        .from('categories')
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
     }
-    this.persist();
     return true;
-  }
+  },
 
   // --- OFFERS ---
-  public getOffers(includeInactive: boolean = false): Offer[] {
-    const now = new Date();
-    let offers = this.data.offers;
+  async getOffers(includeInactive: boolean = false): Promise<Offer[]> {
+    const { data, error } = await client().from('offers').select('*').order('sort_order', { ascending: true });
+    if (error) throw error;
+    let offers = (data || []).map(rowToOffer);
+
     if (!includeInactive) {
-      offers = offers.filter(o => {
-        if (!o.isActive) return false;
-        const start = new Date(o.startDate);
-        const end = new Date(o.endDate);
-        return start <= now && now <= end;
-      });
+      const now = new Date();
+      offers = offers.filter(o => o.isActive && new Date(o.startDate) <= now && now <= new Date(o.endDate));
     }
-    return offers.sort((a, b) => a.sortOrder - b.sortOrder);
-  }
+    return offers;
+  },
 
-  public createOffer(offer: Offer): Offer {
-    this.data.offers.push(offer);
-    this.persist();
-    return offer;
-  }
+  async createOffer(offer: Offer): Promise<Offer> {
+    const { data, error } = await client().from('offers').insert(offerToRow(offer)).select().single();
+    if (error) throw error;
+    return rowToOffer(data);
+  },
 
-  public updateOffer(id: string, updates: Partial<Offer>): Offer | null {
-    const index = this.data.offers.findIndex(o => o.id === id);
-    if (index === -1) return null;
+  async updateOffer(id: string, updates: Partial<Offer>): Promise<Offer | null> {
+    const row = offerToRow({ ...updates, updatedAt: new Date().toISOString() });
+    const { data, error } = await client().from('offers').update(row).eq('id', id).select().maybeSingle();
+    if (error) throw error;
+    return data ? rowToOffer(data) : null;
+  },
 
-    const updated = {
-      ...this.data.offers[index],
-      ...updates,
-      updatedAt: new Date().toISOString()
-    };
-    this.data.offers[index] = updated;
-    this.persist();
-    return updated;
-  }
-
-  public deleteOffer(id: string): boolean {
-    const index = this.data.offers.findIndex(o => o.id === id);
-    if (index === -1) return false;
-    this.data.offers.splice(index, 1);
-    this.persist();
+  async deleteOffer(id: string): Promise<boolean> {
+    const { error } = await client().from('offers').delete().eq('id', id);
+    if (error) throw error;
     return true;
-  }
+  },
 
   // --- SETTINGS ---
-  public getSettings(): SiteSettings {
-    return this.data.settings;
-  }
+  async getSettings(): Promise<SiteSettings> {
+    const { data, error } = await client().from('site_settings').select('*').eq('id', 'default').maybeSingle();
+    if (error) throw error;
 
-  public updateSettings(updates: Partial<SiteSettings>): SiteSettings {
-    this.data.settings = {
-      ...this.data.settings,
-      ...updates
-    };
-    this.persist();
-    return this.data.settings;
-  }
+    if (!data) {
+      const { data: created, error: insertErr } = await client()
+        .from('site_settings')
+        .insert({ id: 'default', ...settingsToRow(DEFAULT_SETTINGS) })
+        .select()
+        .single();
+      if (insertErr) throw insertErr;
+      return rowToSettings(created);
+    }
+    return rowToSettings(data);
+  },
+
+  async updateSettings(updates: Partial<SiteSettings>): Promise<SiteSettings> {
+    const row = { ...settingsToRow(updates), id: 'default', updated_at: new Date().toISOString() };
+    const { data, error } = await client().from('site_settings').upsert(row, { onConflict: 'id' }).select().single();
+    if (error) throw error;
+    return rowToSettings(data);
+  },
 
   // --- AUDIT LOGS ---
-  public addAuditLog(log: Omit<AdminAuditLog, 'id' | 'timestamp'>) {
-    const entry: AdminAuditLog = {
+  async addAuditLog(log: Omit<AdminAuditLog, 'id' | 'timestamp'>): Promise<AdminAuditLog> {
+    const entry = {
       id: 'log-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-      ...log,
-      timestamp: new Date().toISOString()
+      admin_email: log.adminEmail,
+      action: log.action,
+      entity: log.entity,
+      entity_id: log.entityId || null,
+      details: log.details,
+      ip_address: log.ipAddress || null,
+      timestamp: new Date().toISOString(),
     };
-    this.data.auditLogs.unshift(entry);
-    // Keep max 500 logs
-    if (this.data.auditLogs.length > 500) {
-      this.data.auditLogs = this.data.auditLogs.slice(0, 500);
-    }
-    this.persist();
-    return entry;
-  }
+    const { data, error } = await client().from('admin_audit_logs').insert(entry).select().single();
+    if (error) throw error;
+    return rowToAuditLog(data);
+  },
 
-  public getAuditLogs(limit: number = 50): AdminAuditLog[] {
-    return this.data.auditLogs.slice(0, limit);
-  }
+  async getAuditLogs(limit: number = 50): Promise<AdminAuditLog[]> {
+    const { data, error } = await client()
+      .from('admin_audit_logs')
+      .select('*')
+      .order('timestamp', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data || []).map(rowToAuditLog);
+  },
 
   // --- INQUIRIES ---
-  public createInquiry(inquiry: Omit<CustomerInquiry, 'id' | 'createdAt' | 'status'>): CustomerInquiry {
-    const entry: CustomerInquiry = {
+  async createInquiry(inquiry: Omit<CustomerInquiry, 'id' | 'createdAt' | 'status'>): Promise<CustomerInquiry> {
+    const entry = {
       id: 'inq-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-      ...inquiry,
-      createdAt: new Date().toISOString(),
-      status: 'PENDING'
+      product_id: inquiry.productId,
+      product_name: inquiry.productName,
+      product_sku: inquiry.productSku,
+      product_price: inquiry.productPrice,
+      product_slug: inquiry.productSlug,
+      product_image: inquiry.productImage || null,
+      instagram_handle: inquiry.instagramHandle,
+      customer_note: inquiry.customerNote || null,
+      status: 'PENDING',
+      created_at: new Date().toISOString(),
     };
-    this.data.inquiries.unshift(entry);
-    this.persist();
-    return entry;
-  }
+    const { data, error } = await client().from('customer_inquiries').insert(entry).select().single();
+    if (error) throw error;
+    return rowToInquiry(data);
+  },
 
-  public getInquiries(limit: number = 100): CustomerInquiry[] {
-    return this.data.inquiries.slice(0, limit);
-  }
+  async getInquiries(limit: number = 100): Promise<CustomerInquiry[]> {
+    const { data, error } = await client()
+      .from('customer_inquiries')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data || []).map(rowToInquiry);
+  },
 
-  public updateInquiryStatus(id: string, status: CustomerInquiry['status']): boolean {
-    const inq = this.data.inquiries.find(i => i.id === id);
-    if (!inq) return false;
-    inq.status = status;
-    this.persist();
+  async updateInquiryStatus(id: string, status: CustomerInquiry['status']): Promise<boolean> {
+    const { error } = await client().from('customer_inquiries').update({ status }).eq('id', id);
+    if (error) throw error;
     return true;
-  }
-
-  // --- ADMIN USERS & AUTH ---
-  public getUserByEmail(email: string) {
-    return this.data.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  }
-
-  public updateUserLastLogin(id: string) {
-    const user = this.data.users.find(u => u.id === id);
-    if (user) {
-      user.lastLogin = new Date().toISOString();
-      this.persist();
-    }
-  }
+  },
 
   // --- STATS ---
-  public getStats(): AdminStats {
-    const products = this.data.products;
+  async getStats(): Promise<AdminStats> {
+    const [products, categories, offers, inquiries] = await Promise.all([
+      this.getProducts({ includeInactive: true }),
+      this.getCategories(true),
+      this.getOffers(true),
+      this.getInquiries(1000),
+    ]);
+
     const now = new Date();
     return {
       totalProducts: products.length,
       activeProducts: products.filter(p => p.isActive).length,
       outOfStockProducts: products.filter(p => p.isActive && p.stock === 0).length,
       lowStockProducts: products.filter(p => p.isActive && p.stock > 0 && p.stock <= 3).length,
-      totalCategories: this.data.categories.length,
-      activeOffers: this.data.offers.filter(o => o.isActive && new Date(o.startDate) <= now && now <= new Date(o.endDate)).length,
-      totalInquiries: this.data.inquiries.length,
-      recentRestocked: products.filter(p => !!p.restockedAt).length
+      totalCategories: categories.length,
+      activeOffers: offers.filter(o => o.isActive && new Date(o.startDate) <= now && now <= new Date(o.endDate)).length,
+      totalInquiries: inquiries.length,
+      recentRestocked: products.filter(p => !!p.restockedAt).length,
     };
-  }
+  },
 
   // --- MEDIA ---
-  public addMediaAsset(asset: DatabaseSchema['mediaAssets'][0]) {
-    this.data.mediaAssets.unshift(asset);
-    this.persist();
-  }
+  async addMediaAsset(asset: {
+    id: string;
+    publicId: string;
+    secureUrl: string;
+    format: string;
+    width: number;
+    height: number;
+    createdAt: string;
+  }): Promise<void> {
+    const { error } = await client().from('media_assets').insert({
+      id: asset.id,
+      public_id: asset.publicId,
+      secure_url: asset.secureUrl,
+      format: asset.format,
+      width: asset.width,
+      height: asset.height,
+      created_at: asset.createdAt,
+    });
+    if (error) throw error;
+  },
 
-  public getMediaAssets() {
-    return this.data.mediaAssets;
-  }
-}
-
-export const db = new Database();
+  async getMediaAssets() {
+    const { data, error } = await client().from('media_assets').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((r: any) => ({
+      id: r.id,
+      publicId: r.public_id,
+      secureUrl: r.secure_url,
+      format: r.format,
+      width: r.width,
+      height: r.height,
+      createdAt: r.created_at,
+    }));
+  },
+};
