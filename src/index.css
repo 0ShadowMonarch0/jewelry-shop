@@ -23,48 +23,43 @@
   --luxury-stone-2: #E8E7E4;
 }
 
-/* Custom Pinterest Masonry Columns */
+/* Uniform product grid: every card in a row shares the same height
+   (via grid's default row stretch), unlike a Pinterest-style masonry. */
 .masonry-grid {
-  column-count: 1;
-  column-gap: 1rem;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 @media (min-width: 420px) {
   .masonry-grid {
-    column-count: 2;
-    column-gap: 1.25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 
 @media (min-width: 768px) {
   .masonry-grid {
-    column-count: 3;
-    column-gap: 1.5rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
   }
 }
 
 @media (min-width: 1280px) {
   .masonry-grid {
-    column-count: 4;
-    column-gap: 1.75rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.75rem;
   }
 }
 
 @media (min-width: 1600px) {
   .masonry-grid {
-    column-count: 5;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 
 .masonry-item {
-  break-inside: avoid;
-  margin-bottom: 1.25rem;
-}
-
-@media (min-width: 768px) {
-  .masonry-item {
-    margin-bottom: 1.5rem;
-  }
+  height: 100%;
 }
 
 /* Hide scrollbar for clean horizontal pill carousels */

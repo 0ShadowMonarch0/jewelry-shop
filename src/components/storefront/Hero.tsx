@@ -113,12 +113,15 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
             </div>
           </div>
 
-          {/* Right Column: Editorial Pinterest Image Showcase */}
+          {/* Right Column: Editorial Pinterest Image Showcase. Every tile
+              shares one aspect ratio below `sm` so the two visible mobile
+              columns stay evenly matched; the staggered mosaic (varied
+              ratios + column 2 offset) only kicks in from `sm` up. */}
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 items-start">
-            
+
             {/* Column 1 */}
             <div className="flex flex-col gap-4 sm:gap-6">
-              <div 
+              <div
                 onClick={() => onSelectFilter('newDrop')}
                 className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-[4/5] flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
               >
@@ -136,9 +139,9 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 </div>
               </div>
 
-              <div 
+              <div
                 onClick={() => onSelectFilter('hot')}
-                className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-square flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
+                className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-[4/5] sm:aspect-square flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
               >
                 <div className="absolute top-3.5 left-3.5 z-10 bg-[#C5A059] text-white text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest">
                   Hot
@@ -157,9 +160,9 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
 
             {/* Column 2 (Staggered with pt-8 on sm) */}
             <div className="flex flex-col gap-4 sm:gap-6 sm:pt-10">
-              <div 
+              <div
                 onClick={() => onSelectFilter('restocked')}
-                className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-[3/4] flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
+                className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-[4/5] sm:aspect-[3/4] flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
               >
                 <div className="absolute top-3.5 left-3.5 z-10 bg-white text-[#1C1C1C] border border-[#E5E3DB] text-[9px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest">
                   Restocked
@@ -175,7 +178,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 </div>
               </div>
 
-              <div 
+              <div
                 onClick={() => onSelectFilter('all')}
                 className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-[4/5] flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
               >
@@ -193,7 +196,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
 
             {/* Column 3 (Hidden on mobile, visible on sm+) */}
             <div className="hidden sm:flex flex-col gap-4 sm:gap-6">
-              <div 
+              <div
                 onClick={() => onSelectFilter('all')}
                 className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-square flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
               >
@@ -205,7 +208,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
               </div>
 
-              <div 
+              <div
                 onClick={() => onSelectFilter('all')}
                 className="group relative bg-[#F0EFEC] rounded-3xl overflow-hidden aspect-[3/4] flex items-center justify-center border border-[#E5E3DB] cursor-pointer shadow-xs"
               >
@@ -218,7 +221,7 @@ export const Hero: React.FC<HeroProps> = ({ settings, onExplore, onSelectFilter 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute bottom-4 right-4">
-                  <button 
+                  <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onExplore();

@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { api, setAuthToken } from './lib/api';
-import type { Product, Category, Offer, SiteSettings, AdminUser } from './types';
+import type { Product, Category, SiteSettings, AdminUser } from './types';
 
 // Storefront Components
 import { Header } from './components/storefront/Header';
 import { Hero } from './components/storefront/Hero';
 import { CategoryPills } from './components/storefront/CategoryPills';
+import { ProductRail } from './components/storefront/ProductRail';
 import { MasonryGrid } from './components/storefront/MasonryGrid';
-import { OffersBanner } from './components/storefront/OffersBanner';
 import { ProductPage } from './components/storefront/ProductPage';
 import { InstagramOrderModal } from './components/storefront/InstagramOrderModal';
 import { SearchOverlay } from './components/storefront/SearchOverlay';
@@ -16,7 +16,7 @@ import { Footer } from './components/storefront/Footer';
 // Admin Components
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
-import { Sparkles, Flame } from 'lucide-react';
+import { Sparkles, Flame, Tag, RotateCcw } from 'lucide-react';
 import { Slider } from './components/ui/slider';
 
 // Creates or updates a <meta> tag identified by name/property, and returns
@@ -40,12 +40,11 @@ export default function App() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Filtering & Sorting states
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'newDrop' | 'hot' | 'inStock'>('all');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'inStock'>('all');
   const [sortBy, setSortBy] = useState<'featured' | 'priceAsc' | 'priceDesc' | 'newest'>('featured');
   // null = no manual price filter applied yet (defaults to the full catalogue range)
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
@@ -195,17 +194,15 @@ export default function App() {
   const loadStorefrontData = async () => {
     setLoading(true);
     try {
-      const [settRes, catRes, prodRes, offRes] = await Promise.all([
+      const [settRes, catRes, prodRes] = await Promise.all([
         api.getSettings(),
         api.getCategories(),
-        api.getProducts(),
-        api.getOffers()
+        api.getProducts()
       ]);
 
       setSettings(settRes.settings);
       setCategories(catRes.categories);
       setProducts(prodRes.products);
-      setOffers(offRes.offers);
     } catch (err) {
       console.error('Failed to load store data:', err);
     } finally {
@@ -237,11 +234,7 @@ export default function App() {
     }
 
     // Quick tab filters
-    if (activeFilter === 'newDrop') {
-      result = result.filter(p => p.isNewDrop);
-    } else if (activeFilter === 'hot') {
-      result = result.filter(p => p.isHot);
-    } else if (activeFilter === 'inStock') {
+    if (activeFilter === 'inStock') {
       result = result.filter(p => p.stock > 0);
     }
 
@@ -277,6 +270,25 @@ export default function App() {
       p => p.id !== activeProductModal.id && p.categoryIds.some(id => activeProductModal.categoryIds.includes(id))
     );
   }, [products, activeProductModal]);
+
+  // Curated homepage rails — active, in-stock pieces only, capped so each
+  // strip stays a quick horizontal browse rather than the full catalogue.
+  const newDropProducts = useMemo(
+    () => products.filter(p => p.isActive && p.stock > 0 && p.isNewDrop).slice(0, 12),
+    [products]
+  );
+  const mostSellingProducts = useMemo(
+    () => products.filter(p => p.isActive && p.stock > 0 && p.isHot).slice(0, 12),
+    [products]
+  );
+  const offerProducts = useMemo(
+    () => products.filter(p => p.isActive && p.stock > 0 && p.originalPrice && p.originalPrice > p.price).slice(0, 12),
+    [products]
+  );
+  const restockedProducts = useMemo(
+    () => products.filter(p => p.isActive && p.stock > 0 && p.restockedAt).slice(0, 12),
+    [products]
+  );
 
   // If Admin view is active
   if (viewMode === 'admin') {
@@ -357,8 +369,12 @@ export default function App() {
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onSelectFilter={(f) => {
-          setActiveFilter(f as any);
-          const el = document.getElementById('catalogue-section');
+          const railId =
+            f === 'newDrop' ? 'rail-new-drop' :
+            f === 'hot' ? 'rail-most-selling' :
+            f === 'restocked' ? 'rail-restocked' :
+            'catalogue-section';
+          const el = document.getElementById(railId);
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
       />
@@ -374,16 +390,52 @@ export default function App() {
           settings={settings}
         />
 
-        {/* Seasonal Offers Banner */}
-        <OffersBanner
-          offers={offers}
-          settings={settings}
-          onSelectOffer={() => {
-            setActiveFilter('all');
-            const el = document.getElementById('catalogue-section');
-            el?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        />
+        {/* Curated Collection Rails — ordered by what should catch the eye
+            first: fresh arrivals, then proven best-sellers, then live deals,
+            then pieces that just came back into stock. */}
+        <div id="rail-new-drop">
+          <ProductRail
+            title="New Drop"
+            icon={<Sparkles className="w-5 h-5 text-[#C5A059]" />}
+            products={newDropProducts}
+            currencySymbol={currencySymbol}
+            onQuickView={(product) => openProduct(product)}
+            onOrderInstagram={(product) => openInstagramOrder(product)}
+          />
+        </div>
+
+        <div id="rail-most-selling">
+          <ProductRail
+            title="Most Selling"
+            icon={<Flame className="w-5 h-5 text-[#C5A059]" />}
+            products={mostSellingProducts}
+            currencySymbol={currencySymbol}
+            onQuickView={(product) => openProduct(product)}
+            onOrderInstagram={(product) => openInstagramOrder(product)}
+          />
+        </div>
+
+        <div id="rail-offer">
+          <ProductRail
+            title="Offer"
+            icon={<Tag className="w-5 h-5 text-[#C5A059]" />}
+            products={offerProducts}
+            currencySymbol={currencySymbol}
+            onQuickView={(product) => openProduct(product)}
+            onOrderInstagram={(product) => openInstagramOrder(product)}
+          />
+        </div>
+
+        <div id="rail-restocked">
+          <ProductRail
+            title="Restocked"
+            icon={<RotateCcw className="w-5 h-5 text-[#C5A059]" />}
+            products={restockedProducts}
+            currencySymbol={currencySymbol}
+            onQuickView={(product) => openProduct(product)}
+            onOrderInstagram={(product) => openInstagramOrder(product)}
+          />
+        </div>
 
         {/* 4. Filter & Sorting Controls Toolbar */}
         <section id="catalogue-section" className="pt-4 space-y-6">
@@ -400,30 +452,6 @@ export default function App() {
                 }`}
               >
                 All Pieces ({products.length})
-              </button>
-
-              <button
-                onClick={() => setActiveFilter('newDrop')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${
-                  activeFilter === 'newDrop'
-                    ? 'bg-[#1C1C1C] text-white shadow-xs'
-                    : 'bg-white text-[#1C1C1C] border border-[#E5E3DB] hover:border-[#C5A059]'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>New Drops</span>
-              </button>
-
-              <button
-                onClick={() => setActiveFilter('hot')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${
-                  activeFilter === 'hot'
-                    ? 'bg-[#1C1C1C] text-white shadow-xs'
-                    : 'bg-white text-[#1C1C1C] border border-[#E5E3DB] hover:border-[#C5A059]'
-                }`}
-              >
-                <Flame className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>Hot</span>
               </button>
 
               <button
@@ -503,7 +531,7 @@ export default function App() {
               )}
               {activeFilter !== 'all' && (
                 <span className="bg-[#F0EFEC] px-3 py-1 rounded-full text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#E5E3DB]">
-                  {activeFilter === 'newDrop' ? 'New Drops' : activeFilter === 'hot' ? 'Hot Items' : 'In Stock'}
+                  In Stock
                   <button onClick={() => setActiveFilter('all')} className="hover:text-[#C5A059] font-bold">×</button>
                 </span>
               )}

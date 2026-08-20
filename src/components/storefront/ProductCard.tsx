@@ -21,10 +21,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const primaryImg = product.images.find(img => img.isPrimary) || product.images[0];
   const secondaryImg = product.images.length > 1 ? product.images.find(img => !img.isPrimary) : null;
 
-  // Lock the card's aspect ratio to the primary photo so a hover cross-fade
-  // to the secondary photo never changes card height and reflows the masonry grid.
-  const aspectRatio = primaryImg?.width && primaryImg?.height ? primaryImg.width / primaryImg.height : 4 / 5;
-
   // Calculate discount percentage if original price exists
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
   const discountPercent = hasDiscount 
@@ -34,14 +30,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <div
       id={`product-card-${product.slug}`}
-      className="group relative flex flex-col bg-white rounded-3xl overflow-hidden border border-[#E5E3DB] hover:border-[#C5A059] transition-all duration-500 hover:shadow-xl break-inside-avoid mb-6"
+      className="group relative flex flex-col h-full bg-white rounded-3xl overflow-hidden border border-[#E5E3DB] hover:border-[#C5A059] transition-all duration-500 hover:shadow-xl"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image Container with Pinterest Aesthetic Aspect Ratios */}
+      {/* Image container: fixed aspect ratio so every card in the grid is
+          the same height, regardless of each photo's native dimensions. */}
       <div
-        className="relative overflow-hidden bg-[#F0EFEC] cursor-pointer"
-        style={{ aspectRatio }}
+        className="relative aspect-[4/5] overflow-hidden bg-[#F0EFEC] cursor-pointer"
         onClick={() => onQuickView(product)}
       >
         <img
