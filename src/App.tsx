@@ -73,12 +73,19 @@ export default function App() {
     productsRef.current = products;
   }, [products]);
 
+  // Remembers where the user was scrolled in the catalogue so "Back to
+  // Catalogue" can restore it, instead of dumping them back at the top.
+  const catalogScrollY = useRef(0);
+
   // Open a product's URL as a real path (not a hash) so social-preview
   // crawlers hitting /product/<slug> can be identified and served correct
   // per-product meta tags (see middleware.ts + server/productMeta.ts) —
   // hash fragments never reach the server at all, so that wasn't possible
   // with the old #product-<slug> links.
   const openProduct = (product: Product, pushHistory: boolean = true) => {
+    if (!activeProductModal) {
+      catalogScrollY.current = window.scrollY;
+    }
     setActiveProductModal(product);
     if (pushHistory) {
       window.history.pushState({}, '', `/product/${product.slug}`);
@@ -91,6 +98,21 @@ export default function App() {
       window.history.pushState({}, '', '/');
     }
   };
+
+  // Scroll to the top when a product page opens (regardless of whether it was
+  // opened via a click, a direct link, or browser back/forward), and restore
+  // the catalogue's scroll position when returning to it. Deferred a frame so
+  // the catalogue has already re-rendered at full height before we scroll —
+  // otherwise the restore can get clamped to whatever (shorter) height the
+  // page happened to be at mid-transition.
+  useEffect(() => {
+    if (activeProductModal) {
+      window.scrollTo(0, 0);
+    } else {
+      const targetY = catalogScrollY.current;
+      requestAnimationFrame(() => window.scrollTo(0, targetY));
+    }
+  }, [activeProductModal]);
 
   // Initial load & URL routing check
   useEffect(() => {
