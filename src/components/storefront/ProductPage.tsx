@@ -80,9 +80,9 @@ export const ProductPage: React.FC<ProductPageProps> = ({
         <span>Back to Catalogue</span>
       </button>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Gallery Column */}
-        <div className="lg:col-span-7 space-y-4">
+        <div className="md:col-span-7 space-y-4">
           <div className="relative rounded-2xl overflow-hidden aspect-[4/5] bg-[#F0EFEC] border border-[#E5E3DB] shadow-xs">
             <img
               src={currentImage.secureUrl}
@@ -149,7 +149,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({
         </div>
 
         {/* Details Column */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="md:col-span-5 space-y-6">
           <div className="space-y-2">
             <h1 className="font-serif text-3xl sm:text-4xl font-normal text-[#1C1C1C] leading-tight">
               {product.name}
