@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { X, Instagram, Copy, Check, ExternalLink, Shield } from 'lucide-react';
+import { X, Copy, Check, ExternalLink, Shield } from 'lucide-react';
 import type { Product, SiteSettings } from '../../types';
 import { api } from '../../lib/api';
+import { InstagramGlyph } from '../icons/InstagramGlyph';
 
 interface InstagramOrderModalProps {
   product: Product;
@@ -95,20 +96,20 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
       <div 
-        className="relative bg-[#FAF9F6] w-full max-w-lg rounded-3xl shadow-2xl border border-[#E5E3DB] overflow-hidden"
+        className="relative bg-[#F4F4F3] w-full max-w-lg shadow-2xl border border-[#DADADA] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="bg-white px-6 py-4 border-b border-[#E5E3DB] flex items-center justify-between">
+        <div className="bg-white px-6 py-4 border-b border-[#DADADA] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-[#C5A059]"></div>
+            <div className="w-2 h-2 bg-[#8A9099]"></div>
             <span className="font-serif text-lg font-normal text-[#1C1C1C] tracking-wide">
               Instagram Atelier Inquiry
             </span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[#777] hover:text-[#1C1C1C] hover:bg-[#F0EFEC] transition-colors"
+            className="p-1.5 text-[#757575] hover:text-[#1C1C1C] hover:bg-[#ECECEC] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -118,16 +119,16 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
         <div className="p-6 space-y-5">
           
           {/* Selected Product Summary Card */}
-          <div className="flex items-center gap-4 p-4 bg-white rounded-2xl border border-[#E5E3DB] shadow-xs">
+          <div className="flex items-center gap-4 p-4 bg-white border border-[#DADADA] shadow-xs">
             {primaryImg && (
               <img
                 src={primaryImg.secureUrl}
                 alt={product.name}
-                className="w-16 h-16 rounded-xl object-cover border border-[#E5E3DB] bg-[#F0EFEC]"
+                className="w-16 h-16 object-cover border border-[#DADADA] bg-[#ECECEC]"
               />
             )}
             <div className="flex-1 min-w-0">
-              <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#C5A059]">
+              <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-[#8A9099]">
                 {product.sku}
               </span>
               <h4 className="font-serif text-base font-normal text-[#1C1C1C] truncate">
@@ -141,7 +142,7 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
 
           {/* Sizing / Bespoke Note Input */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-bold text-[#777] uppercase tracking-[0.2em]">
+            <label className="text-[10px] font-bold text-[#757575] uppercase tracking-[0.2em]">
               Bespoke sizing or engraving requests (Optional):
             </label>
             <input
@@ -149,18 +150,18 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
               placeholder="e.g., Size 6.5, 18K yellow gold, gift box..."
               value={customNote}
               onChange={(e) => setCustomNote(e.target.value)}
-              className="w-full px-4 py-3 bg-white border border-[#E5E3DB] rounded-xl text-xs text-[#1C1C1C] focus:outline-none focus:border-[#C5A059] transition-colors"
+              className="w-full px-4 py-3 bg-white border border-[#DADADA] text-xs text-[#1C1C1C] focus:outline-none focus:border-[#8A9099] transition-colors"
             />
           </div>
 
           {/* Generated Message Box */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs text-[#777]">
+            <div className="flex items-center justify-between text-xs text-[#757575]">
               <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Standardized Inquiry:</span>
-              <span className="text-[11px] font-mono text-[#C5A059]">@{instagramHandle}</span>
+              <span className="text-[11px] font-mono text-[#8A9099]">@{instagramHandle}</span>
             </div>
             
-            <div className="relative bg-[#F0EFEC] p-4 rounded-2xl border border-[#E5E3DB] text-xs text-[#1C1C1C] font-mono leading-relaxed select-all">
+            <div className="relative bg-[#ECECEC] p-4 border border-[#DADADA] text-xs text-[#1C1C1C] font-mono leading-relaxed select-all">
               {messageText}
             </div>
           </div>
@@ -170,29 +171,29 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
             <button
               id="open-ig-direct-btn"
               onClick={handleDirectInstagramOpen}
-              className="w-full flex items-center justify-center gap-2 bg-[#1C1C1C] hover:bg-[#C5A059] text-white py-3.5 rounded-full text-xs font-semibold uppercase tracking-[0.2em] shadow-md transition-all active:scale-98"
+              className="w-full flex items-center justify-center gap-2 bg-[#1C1C1C] hover:bg-[#8A9099] text-white py-3.5 text-xs font-semibold uppercase tracking-[0.2em] shadow-md transition-all active:scale-98"
             >
-              <Instagram className="w-4 h-4 text-[#FAF9F6]" />
+              <InstagramGlyph className="w-4 h-4" />
               <span>Open Instagram & Send DM</span>
               <ExternalLink className="w-3.5 h-3.5 text-white/70" />
             </button>
-            <p className="text-center text-[10px] text-[#999]">
+            <p className="text-center text-[10px] text-[#8C8C8C]">
               Instagram can't auto-fill your message — we copy it for you, just paste it into the DM.
             </p>
 
             <button
               id="copy-inquiry-msg-btn"
               onClick={handleCopy}
-              className="w-full flex items-center justify-center gap-2 bg-white hover:bg-[#F0EFEC] text-[#1C1C1C] border border-[#E5E3DB] py-3 rounded-full text-xs font-semibold uppercase tracking-wider transition-all"
+              className="w-full flex items-center justify-center gap-2 bg-white hover:bg-[#ECECEC] text-[#1C1C1C] border border-[#DADADA] py-3 text-xs font-semibold uppercase tracking-wider transition-all"
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 text-[#C5A059]" />
-                  <span className="text-[#C5A059] font-bold">Message Copied to Clipboard!</span>
+                  <Check className="w-4 h-4 text-[#8A9099]" />
+                  <span className="text-[#8A9099] font-bold">Message Copied to Clipboard!</span>
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 text-[#777]" />
+                  <Copy className="w-4 h-4 text-[#757575]" />
                   <span>Copy Message Text</span>
                 </>
               )}
@@ -200,8 +201,8 @@ export const InstagramOrderModal: React.FC<InstagramOrderModalProps> = ({
           </div>
 
           {/* Safety & Atelier Process Notice */}
-          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-white text-[11px] text-[#777] border border-[#E5E3DB]">
-            <Shield className="w-4 h-4 text-[#C5A059] flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2.5 p-3 bg-white text-[11px] text-[#757575] border border-[#DADADA]">
+            <Shield className="w-4 h-4 text-[#8A9099] flex-shrink-0 mt-0.5" />
             <span>
               Orders are confirmed personally by our atelier concierge on Instagram. We verify ring sizes, custom engravings, and provide insured courier tracking.
             </span>

@@ -30,17 +30,17 @@ SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 type SheetSide = 'top' | 'bottom' | 'left' | 'right';
 
 const SHEET_BASE_CLASS =
-  'fixed z-50 flex flex-col gap-4 bg-[#FAF9F6] shadow-2xl ' +
+  'fixed z-50 flex flex-col gap-4 bg-[#F4F4F3] shadow-2xl ' +
   'data-[state=open]:animate-in data-[state=closed]:animate-out ' +
   'data-[state=closed]:duration-200 data-[state=open]:duration-300 ease-in-out';
 
 const SHEET_SIDE_CLASSES: Record<SheetSide, string> = {
-  top: 'inset-x-0 top-0 border-b border-[#E5E3DB] data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
+  top: 'inset-x-0 top-0 border-b border-[#DADADA] data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
   bottom:
-    'inset-x-0 bottom-0 border-t border-[#E5E3DB] data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
-  left: 'inset-y-0 left-0 h-full w-3/4 max-w-sm border-r border-[#E5E3DB] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
+    'inset-x-0 bottom-0 border-t border-[#DADADA] data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
+  left: 'inset-y-0 left-0 h-full w-3/4 max-w-sm border-r border-[#DADADA] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left',
   right:
-    'inset-y-0 right-0 h-full w-5/6 max-w-sm border-l border-[#E5E3DB] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right'
+    'inset-y-0 right-0 h-full w-5/6 max-w-sm border-l border-[#DADADA] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right'
 };
 
 interface SheetContentProps extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content> {
@@ -57,7 +57,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         {...props}
       >
         {children}
-        <SheetPrimitive.Close className="absolute right-4 top-4 rounded-full p-1.5 text-[#1C1C1C] opacity-70 transition-opacity hover:opacity-100 hover:bg-[#F0EFEC] focus:outline-none focus:ring-2 focus:ring-[#C5A059]/50 disabled:pointer-events-none">
+        <SheetPrimitive.Close className="absolute right-4 top-4 p-1.5 text-[#1C1C1C] opacity-70 transition-opacity hover:opacity-100 hover:bg-[#ECECEC] focus:outline-none focus:ring-2 focus:ring-[#8A9099]/50 disabled:pointer-events-none">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </SheetPrimitive.Close>
@@ -93,7 +93,7 @@ const SheetDescription = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>
 >(({ className, ...props }, ref) => (
-  <SheetPrimitive.Description ref={ref} className={cn('text-xs text-[#777]', className)} {...props} />
+  <SheetPrimitive.Description ref={ref} className={cn('text-xs text-[#757575]', className)} {...props} />
 ));
 SheetDescription.displayName = SheetPrimitive.Description.displayName;
 

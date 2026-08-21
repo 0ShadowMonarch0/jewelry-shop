@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Instagram, Menu, ChevronDown } from 'lucide-react';
+import { Search, Menu, ChevronDown } from 'lucide-react';
 import type { Category, SiteSettings } from '../../types';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '../ui/sheet';
+import { InstagramGlyph } from '../icons/InstagramGlyph';
 
 interface HeaderProps {
   settings: SiteSettings | null;
@@ -66,11 +67,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
       {/* Main Navigation Bar */}
-      <div className={`transition-all duration-300 backdrop-blur-md border-b border-[#E5E3DB] ${
-        isScrolled 
-          ? 'bg-[#FAF9F6]/95 shadow-xs py-3.5' 
-          : 'bg-[#FAF9F6]/90 py-5'
-      }`}>
+      <div className={`transition-all duration-300 backdrop-blur-md border-b border-[#DADADA] ${ isScrolled ? 'bg-[#F4F4F3]/95 shadow-xs py-3.5' : 'bg-[#F4F4F3]/90 py-5' } `}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-2 sm:gap-4">
 
           {/* Left: Logo + Brand Lockup */}
@@ -93,17 +90,17 @@ export const Header: React.FC<HeaderProps> = ({
                 className="h-8 sm:h-10 w-auto object-contain flex-shrink-0"
               />
             ) : (
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#1C1C1C] border border-[#C5A059]/50 group-hover:border-[#C5A059] flex items-center justify-center text-[#C5A059] font-serif italic font-bold text-sm transition-colors flex-shrink-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-[#1C1C1C] border border-[#8A9099]/50 group-hover:border-[#8A9099] flex items-center justify-center text-[#8A9099] font-serif italic font-bold text-sm transition-colors flex-shrink-0">
                 {storeName.charAt(0)}
               </div>
             )}
             <div className="flex flex-col leading-none min-w-0">
               {!settings?.logoUrl && (
-                <span className="font-serif text-base sm:text-lg italic font-bold text-[#1C1C1C] uppercase tracking-tight truncate group-hover:text-[#C5A059] transition-colors">
+                <span className="font-serif text-base sm:text-lg italic font-bold text-[#1C1C1C] uppercase tracking-tight truncate group-hover:text-[#8A9099] transition-colors">
                   {storeName}
                 </span>
               )}
-              <span className="text-[7px] tracking-[0.25em] text-[#999] uppercase font-sans hidden sm:block truncate">
+              <span className="text-[7px] tracking-[0.25em] text-[#8C8C8C] uppercase font-sans hidden sm:block truncate">
                 {tagline}
               </span>
             </div>
@@ -115,25 +112,21 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="relative" ref={categoryMenuRef}>
               <button
                 onClick={() => setCategoryMenuOpen((o) => !o)}
-                className={`flex items-center gap-1.5 whitespace-nowrap transition-colors hover:text-[#C5A059] pb-0.5 ${
-                  activeCategory || categoryMenuOpen ? 'text-[#C5A059] font-bold' : 'text-[#1C1C1C]'
-                }`}
+                className={`flex items-center gap-1.5 whitespace-nowrap transition-colors hover:text-[#8A9099] pb-0.5 ${ activeCategory || categoryMenuOpen ? 'text-[#8A9099] font-bold' : 'text-[#1C1C1C]' } `}
               >
-                <span>{activeCategoryName || 'Collections'}</span>
-                <ChevronDown className={`w-3 h-3 transition-transform ${categoryMenuOpen ? 'rotate-180' : ''}`} />
+                <span>{activeCategoryName || 'Categories'}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${categoryMenuOpen ? 'rotate-180' : ''} `} />
               </button>
 
               {categoryMenuOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-white border border-[#E5E3DB] rounded-2xl shadow-lg py-2 normal-case tracking-normal max-h-80 overflow-y-auto">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 bg-white border border-[#DADADA] shadow-lg py-2 normal-case tracking-normal max-h-80 overflow-y-auto">
                   <button
                     onClick={() => {
                       onSelectCategory(null);
                       onSelectFilter('all');
                       setCategoryMenuOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2 text-xs transition-colors hover:bg-[#F0EFEC] ${
-                      !activeCategory ? 'text-[#C5A059] font-semibold' : 'text-[#1C1C1C]'
-                    }`}
+                    className={`w-full text-left px-4 py-2 text-xs transition-colors hover:bg-[#ECECEC] ${ !activeCategory ? 'text-[#8A9099] font-semibold' : 'text-[#1C1C1C]' } `}
                   >
                     All Atelier
                   </button>
@@ -144,9 +137,7 @@ export const Header: React.FC<HeaderProps> = ({
                     return (
                       <div key={cat.id}>
                         <div
-                          className={`flex items-center justify-between transition-colors hover:bg-[#F0EFEC] ${
-                            activeCategory === cat.id ? 'text-[#C5A059] font-semibold' : 'text-[#1C1C1C]'
-                          }`}
+                          className={`flex items-center justify-between transition-colors hover:bg-[#ECECEC] ${ activeCategory === cat.id ? 'text-[#8A9099] font-semibold' : 'text-[#1C1C1C]' } `}
                         >
                           <button
                             onClick={() => {
@@ -165,14 +156,14 @@ export const Header: React.FC<HeaderProps> = ({
                                 toggleCategoryExpanded(cat.id);
                               }}
                               aria-label={isExpanded ? `Collapse ${cat.name}` : `Expand ${cat.name}`}
-                              className="px-3 py-2 hover:text-[#C5A059]"
+                              className="px-3 py-2 hover:text-[#8A9099]"
                             >
-                              <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                              <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''} `} />
                             </button>
                           )}
                         </div>
                         {hasChildren && isExpanded && (
-                          <div className="bg-[#FAF9F6]">
+                          <div className="bg-[#F4F4F3]">
                             {children.map((child) => (
                               <button
                                 key={child.id}
@@ -181,9 +172,7 @@ export const Header: React.FC<HeaderProps> = ({
                                   onSelectFilter('category');
                                   setCategoryMenuOpen(false);
                                 }}
-                                className={`w-full text-left pl-8 pr-4 py-2 text-xs transition-colors hover:bg-[#F0EFEC] ${
-                                  activeCategory === child.id ? 'text-[#C5A059] font-semibold' : 'text-[#615C52]'
-                                }`}
+                                className={`w-full text-left pl-8 pr-4 py-2 text-xs transition-colors hover:bg-[#ECECEC] ${ activeCategory === child.id ? 'text-[#8A9099] font-semibold' : 'text-[#6B6B6B]' } `}
                               >
                                 {child.name}
                               </button>
@@ -199,24 +188,23 @@ export const Header: React.FC<HeaderProps> = ({
 
             <button
               onClick={() => onSelectFilter('newDrop')}
-              className={`whitespace-nowrap transition-colors hover:text-[#C5A059] pb-0.5 ${
-                activeFilter === 'newDrop'
-                  ? 'text-[#C5A059] font-bold border-b border-[#C5A059]'
-                  : 'text-[#1C1C1C]'
-              }`}
+              className={`whitespace-nowrap transition-colors hover:text-[#8A9099] pb-0.5 ${ activeFilter === 'newDrop' ? 'text-[#8A9099] font-bold border-b border-[#8A9099]' : 'text-[#1C1C1C]' } `}
             >
               New Drop
             </button>
 
             <button
               onClick={() => onSelectFilter('hot')}
-              className={`hidden lg:inline-block whitespace-nowrap transition-colors hover:text-[#C5A059] pb-0.5 ${
-                activeFilter === 'hot'
-                  ? 'text-[#C5A059] font-bold border-b border-[#C5A059]'
-                  : 'text-[#1C1C1C]'
-              }`}
+              className={`hidden lg:inline-block whitespace-nowrap transition-colors hover:text-[#8A9099] pb-0.5 ${ activeFilter === 'hot' ? 'text-[#8A9099] font-bold border-b border-[#8A9099]' : 'text-[#1C1C1C]' } `}
             >
               Hot
+            </button>
+
+            <button
+              onClick={() => onSelectFilter('offer')}
+              className={`hidden lg:inline-block whitespace-nowrap transition-colors hover:text-[#8A9099] pb-0.5 ${ activeFilter === 'offer' ? 'text-[#8A9099] font-bold border-b border-[#8A9099]' : 'text-[#1C1C1C]' } `}
+            >
+              Offer
             </button>
           </nav>
 
@@ -226,11 +214,9 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="desktop-search-btn"
               onClick={onOpenSearch}
-              className="hidden md:flex items-center gap-2 text-[#1C1C1C] hover:text-[#C5A059] transition-colors cursor-pointer"
+              className="hidden md:flex items-center gap-2 text-[#1C1C1C] hover:text-[#8A9099] transition-colors cursor-pointer"
             >
-              <div className="w-3.5 h-3.5 border border-[#1C1C1C] flex items-center justify-center rounded-full flex-shrink-0">
-                <div className="w-1 h-1 bg-[#1C1C1C] rounded-full"></div>
-              </div>
+              <Search className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="hidden lg:inline whitespace-nowrap">Search</span>
             </button>
 
@@ -240,20 +226,20 @@ export const Header: React.FC<HeaderProps> = ({
               href={`https://instagram.com/${instagramHandle}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex bg-[#1C1C1C] text-white px-4 lg:px-5 py-2 rounded-full hover:bg-[#C5A059] transition-colors items-center gap-1.5 shadow-xs flex-shrink-0"
+              className="hidden sm:flex bg-[#1C1C1C] text-white px-4 lg:px-5 py-2 hover:bg-[#8A9099] transition-colors items-center gap-1.5 shadow-xs flex-shrink-0"
               title="Instagram Atelier Shop"
             >
-              <Instagram className="w-3.5 h-3.5" />
+              <InstagramGlyph className="w-3.5 h-3.5" />
               <span>IG Shop</span>
             </a>
             <a
               href={`https://instagram.com/${instagramHandle}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="sm:hidden p-1.5 rounded-full bg-[#1C1C1C] text-white hover:bg-[#C5A059] transition-colors flex-shrink-0"
+              className="sm:hidden p-1.5 bg-[#1C1C1C] text-white hover:bg-[#8A9099] transition-colors flex-shrink-0"
               aria-label="Instagram Atelier Shop"
             >
-              <Instagram className="w-4 h-4" />
+              <InstagramGlyph className="w-4 h-4" />
             </a>
 
             {/* Mobile Menu & Search Icon */}
@@ -261,7 +247,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="mobile-search-btn"
                 onClick={onOpenSearch}
-                className="p-1.5 rounded-full text-[#1C1C1C] hover:bg-[#F0EFEC] transition-colors"
+                className="p-1.5 text-[#1C1C1C] hover:bg-[#ECECEC] transition-colors"
                 aria-label="Search catalogue"
               >
                 <Search className="w-4 h-4" />
@@ -269,7 +255,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 id="mobile-menu-toggle-btn"
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-1.5 rounded-full text-[#1C1C1C] hover:bg-[#F0EFEC] transition-colors"
+                className="p-1.5 text-[#1C1C1C] hover:bg-[#ECECEC] transition-colors"
                 aria-label="Open navigation menu"
               >
                 <Menu className="w-5 h-5" />
@@ -282,15 +268,15 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Mobile Navigation Sheet */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetContent side="right" className="overflow-y-auto p-0">
-          <SheetHeader className="border-b border-[#E5E3DB] pb-4">
+          <SheetHeader className="border-b border-[#DADADA] pb-4">
             <SheetTitle>{storeName}</SheetTitle>
             <SheetDescription>{tagline}</SheetDescription>
           </SheetHeader>
 
           <div className="px-6 py-6 space-y-4">
-            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#C5A059] mb-2 flex items-center gap-2">
-              <div className="h-[1px] w-8 bg-[#C5A059]"></div>
-              <span>Curated Collections</span>
+            <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#8A9099] mb-2 flex items-center gap-2">
+              <div className="h-[1px] w-8 bg-[#8A9099]"></div>
+              <span>Curated Categories</span>
             </div>
 
             <div className="text-xs">
@@ -300,9 +286,7 @@ export const Header: React.FC<HeaderProps> = ({
                   onSelectFilter('all');
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full text-left py-3 border-b border-[#E5E3DB] font-bold uppercase tracking-wider ${
-                  !activeCategory && activeFilter === 'all' ? 'text-[#C5A059]' : 'text-[#1C1C1C]'
-                }`}
+                className={`w-full text-left py-3 border-b border-[#DADADA] font-bold uppercase tracking-wider ${ !activeCategory && activeFilter === 'all' ? 'text-[#8A9099]' : 'text-[#1C1C1C]' } `}
               >
                 All Curations
               </button>
@@ -312,7 +296,7 @@ export const Header: React.FC<HeaderProps> = ({
                 const hasChildren = children.length > 0;
                 const isExpanded = expandedCategoryIds.has(cat.id);
                 return (
-                  <div key={cat.id} className="border-b border-[#E5E3DB]">
+                  <div key={cat.id} className="border-b border-[#DADADA]">
                     <div className="flex items-center justify-between gap-2">
                       <button
                         onClick={() => {
@@ -320,9 +304,7 @@ export const Header: React.FC<HeaderProps> = ({
                           onSelectFilter('category');
                           setMobileMenuOpen(false);
                         }}
-                        className={`flex-1 text-left py-3 font-bold uppercase tracking-wider ${
-                          activeCategory === cat.id ? 'text-[#C5A059]' : 'text-[#1C1C1C]'
-                        }`}
+                        className={`flex-1 text-left py-3 font-bold uppercase tracking-wider ${ activeCategory === cat.id ? 'text-[#8A9099]' : 'text-[#1C1C1C]' } `}
                       >
                         {cat.name}
                       </button>
@@ -330,11 +312,9 @@ export const Header: React.FC<HeaderProps> = ({
                         <button
                           onClick={() => toggleCategoryExpanded(cat.id)}
                           aria-label={isExpanded ? `Collapse ${cat.name}` : `Expand ${cat.name}`}
-                          className={`flex-shrink-0 p-2 rounded-full transition-colors ${
-                            isExpanded ? 'bg-[#1C1C1C] text-white' : 'bg-[#F0EFEC] text-[#1C1C1C]'
-                          }`}
+                          className={`flex-shrink-0 p-2 transition-colors ${ isExpanded ? 'bg-[#1C1C1C] text-white' : 'bg-[#ECECEC] text-[#1C1C1C]' } `}
                         >
-                          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''} `} />
                         </button>
                       )}
                     </div>
@@ -348,9 +328,7 @@ export const Header: React.FC<HeaderProps> = ({
                               onSelectFilter('category');
                               setMobileMenuOpen(false);
                             }}
-                            className={`w-full text-left py-2 pl-4 uppercase tracking-wider ${
-                              activeCategory === child.id ? 'text-[#C5A059] font-semibold' : 'text-[#615C52] font-medium'
-                            }`}
+                            className={`w-full text-left py-2 pl-4 uppercase tracking-wider ${ activeCategory === child.id ? 'text-[#8A9099] font-semibold' : 'text-[#6B6B6B] font-medium' } `}
                           >
                             {child.name}
                           </button>
@@ -362,26 +340,36 @@ export const Header: React.FC<HeaderProps> = ({
               })}
             </div>
 
-            <div className="pt-3 border-t border-[#E5E3DB] flex flex-col gap-2">
+            <div className="pt-3 border-t border-[#DADADA] flex flex-col gap-2">
               <button
                 onClick={() => {
                   onSelectFilter('hot');
                   setMobileMenuOpen(false);
                 }}
-                className="text-left text-xs py-2 px-3 text-[#1C1C1C] hover:text-[#C5A059] font-semibold flex items-center justify-between uppercase tracking-wider"
+                className="text-left text-xs py-2 px-3 text-[#1C1C1C] hover:text-[#8A9099] font-semibold flex items-center justify-between uppercase tracking-wider"
               >
                 <span>🔥 Hot Atelier Pieces</span>
-                <span className="text-[10px] text-[#C5A059] font-mono">Popular</span>
+                <span className="text-[10px] text-[#8A9099] font-mono">Popular</span>
               </button>
               <button
                 onClick={() => {
                   onSelectFilter('newDrop');
                   setMobileMenuOpen(false);
                 }}
-                className="text-left text-xs py-2 px-3 text-[#1C1C1C] hover:text-[#C5A059] font-semibold flex items-center justify-between uppercase tracking-wider"
+                className="text-left text-xs py-2 px-3 text-[#1C1C1C] hover:text-[#8A9099] font-semibold flex items-center justify-between uppercase tracking-wider"
               >
                 <span>✨ New Drop</span>
-                <span className="text-[10px] text-[#777] font-mono">2026</span>
+                <span className="text-[10px] text-[#757575] font-mono">2026</span>
+              </button>
+              <button
+                onClick={() => {
+                  onSelectFilter('offer');
+                  setMobileMenuOpen(false);
+                }}
+                className="text-left text-xs py-2 px-3 text-[#1C1C1C] hover:text-[#8A9099] font-semibold flex items-center justify-between uppercase tracking-wider"
+              >
+                <span>🏷️ Offer</span>
+                <span className="text-[10px] text-[#8A9099] font-mono">Sale</span>
               </button>
             </div>
           </div>

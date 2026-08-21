@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// Store-configuration copy (settings/page-content) is allowed to be blank —
+// the storefront components all fall back to sensible defaults when a field
+// is empty, so an admin should be able to clear a field without a 400.
+const emptyOr = <T extends z.ZodTypeAny>(schema: T) => z.union([z.literal(''), schema]);
+
 export const loginSchema = z.object({
   email: z.string().email('Valid email is required'),
   password: z.string().min(6, 'Password must be at least 6 characters')
@@ -83,22 +88,22 @@ export const inquirySchema = z.object({
 });
 
 export const settingsSchema = z.object({
-  storeName: z.string().min(2).max(100),
+  storeName: z.string().max(100),
   tagline: z.string().max(150),
   logoUrl: z.string().optional(),
-  instagramHandle: z.string().min(1).max(50),
-  customOrderMessageTemplate: z.string().min(10),
-  currencySymbol: z.string().min(1).max(5),
-  contactEmail: z.string().email(),
+  instagramHandle: z.string().max(50),
+  customOrderMessageTemplate: z.string(),
+  currencySymbol: z.string().max(5),
+  contactEmail: emptyOr(z.string().email()),
   contactPhone: z.string().optional(),
   announcementText: z.string().max(200),
   announcementEnabled: z.boolean(),
   announcementLink: z.string().optional(),
-  heroHeadline: z.string().min(3).max(120),
+  heroHeadline: z.string().max(120),
   heroSubhead: z.string().max(300),
-  heroImageUrl: z.string().url(),
-  heroCtaText: z.string().min(2).max(40),
-  heroCtaLink: z.string().min(1).max(100),
+  heroImageUrl: emptyOr(z.string().url()),
+  heroCtaText: z.string().max(40),
+  heroCtaLink: z.string().max(100),
   defaultSeoTitle: z.string().max(100),
   defaultSeoDescription: z.string().max(200),
   defaultSeoKeywords: z.string().max(300).optional(),
