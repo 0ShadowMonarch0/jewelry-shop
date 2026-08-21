@@ -347,12 +347,13 @@ export const ProductPage: React.FC<ProductPageProps> = ({
             {relatedProducts.slice(0, 8).map((rel) => {
               const relImg = rel.images.find((i) => i.isPrimary) || rel.images[0];
               return (
-                <button
+                <div
                   key={rel.id}
                   onClick={() => onSelectRelated(rel)}
-                  className="group text-left bg-white border border-[#DADADA] hover:border-[#8A9099] overflow-hidden transition-all shadow-xs"
+                  className="group cursor-pointer"
                 >
-                  <div className="aspect-square bg-[#ECECEC] overflow-hidden">
+                  {/* Only the image sits in a bordered box — details below are plain text, matching the main grid's cards */}
+                  <div className="relative aspect-[4/5] bg-[#ECECEC] border border-[#DADADA] overflow-hidden">
                     {relImg && (
                       <img
                         src={relImg.secureUrl}
@@ -361,16 +362,16 @@ export const ProductPage: React.FC<ProductPageProps> = ({
                       />
                     )}
                   </div>
-                  <div className="p-3 space-y-0.5">
-                    <h3 className="font-serif text-sm text-[#1C1C1C] truncate group-hover:text-[#8A9099] transition-colors">
+                  <div className="pt-3 space-y-1">
+                    <h3 className="font-serif text-sm sm:text-base text-[#1C1C1C] truncate group-hover:text-[#6B7076] transition-colors">
                       {rel.name}
                     </h3>
-                    <div className="text-xs font-semibold text-[#1C1C1C]">
+                    <div className="text-xs sm:text-sm font-semibold text-[#1C1C1C]">
                       {currencySymbol}
                       {rel.price.toLocaleString()}
                     </div>
                   </div>
-                </button>
+                </div>
               );
             })}
           </div>
