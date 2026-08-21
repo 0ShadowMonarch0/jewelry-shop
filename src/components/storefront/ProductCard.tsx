@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className="bg-white/95 backdrop-blur-sm text-[#1C1C1C] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-[0.2em] shadow-lg flex items-center gap-2 hover:bg-[#8A9099] hover:text-white transition-all transform translate-y-2 group-hover:translate-y-0"
           >
             <Eye className="w-3.5 h-3.5" />
-            <span>Atelier View</span>
+            <span>View</span>
           </button>
         </div>
       </div>

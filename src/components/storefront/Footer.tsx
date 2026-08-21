@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, MapPin } from 'lucide-react';
 import type { SiteSettings, Category } from '../../types';
 import { InstagramGlyph } from '../icons/InstagramGlyph';
 
@@ -17,7 +17,6 @@ export const Footer: React.FC<FooterProps> = ({
   const storeName = settings?.storeName || 'mini2k';
   const instagramHandle = settings?.instagramHandle || 'mini2k.np';
   const contactEmail = settings?.contactEmail || 'concierge@mini2k.com';
-  const contactPhone = settings?.contactPhone || '+1 (555) 234-8900';
   const atelierAddress = settings?.atelierAddress || 'Via del Corso, Florence & SoHo, New York';
   const aboutText = settings?.aboutText || 'mini2k was founded on the philosophy that fine jewelry should be intimate, timeless, and sculpturally distinct. Handcrafted in limited micro-batches in our atelier.';
   const philosophyEyebrow = settings?.footerPhilosophyEyebrow || 'Atelier Philosophy';
@@ -114,12 +113,6 @@ export const Footer: React.FC<FooterProps> = ({
                   {contactEmail}
                 </a>
               </div>
-              {contactPhone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-[#8A9099] flex-shrink-0" />
-                  <span>{contactPhone}</span>
-                </div>
-              )}
             </div>
           </div>
 
@@ -129,12 +122,6 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[9px] uppercase tracking-[0.2em] text-[#757575]">
           <div>
             © {new Date().getFullYear()} {storeName} Fine Jewelry. All rights reserved.
-          </div>
-
-          <div className="flex gap-6">
-            <span className="hover:text-white transition-colors cursor-pointer">Privacy</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Terms</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Shipping</span>
           </div>
 
           <div>{bottomTagline}</div>
