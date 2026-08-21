@@ -285,7 +285,7 @@ export default function App() {
     [products]
   );
   const offerProducts = useMemo(
-    () => products.filter(p => p.isActive && p.stock > 0 && p.originalPrice && p.originalPrice > p.price).slice(0, 12),
+    () => products.filter(p => p.isActive && p.stock > 0 && (p.isOffer || (p.originalPrice && p.originalPrice > p.price))).slice(0, 12),
     [products]
   );
   const restockedProducts = useMemo(

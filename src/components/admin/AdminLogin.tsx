@@ -54,7 +54,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
             <ShieldCheck className="w-7 h-7" />
           </div>
           <h2 className="font-serif text-3xl font-light italic tracking-tight text-[#F4F4F3]">
-            Atelier Portal
+            Admin Portal
           </h2>
           <p className="text-[10px] uppercase tracking-[0.25em] text-[#8C8C8C]">
             mini2k Store & Inventory Suite
@@ -115,19 +115,12 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onBackToStore
               <span>Authenticating...</span>
             ) : (
               <>
-                <span>Enter Atelier Suite</span>
+                <span>Enter</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
-
-        {/* Demo Credentials Box */}
-        <div className="p-4 bg-[#1C1C1C] border border-[#3D3D3D] text-[11px] text-[#8C8C8C] space-y-1">
-          <div className="text-[#8A9099] font-semibold uppercase tracking-wider">Default Seed Credentials:</div>
-          <div>Email: <code className="text-[#F4F4F3]">admin@mini2k.com</code></div>
-          <div>Password: <code className="text-[#F4F4F3]">admin123</code></div>
-        </div>
 
       </div>
     </div>

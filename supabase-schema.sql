@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS products (
   is_hot BOOLEAN NOT NULL DEFAULT false,
   is_new_drop BOOLEAN NOT NULL DEFAULT false,
   is_featured BOOLEAN NOT NULL DEFAULT false,
+  is_offer BOOLEAN NOT NULL DEFAULT false,
   restocked_at TIMESTAMPTZ,
   material TEXT,
   color TEXT,
@@ -58,6 +59,9 @@ CREATE TABLE IF NOT EXISTS products (
 ALTER TABLE products ALTER COLUMN category_id DROP NOT NULL;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS category_ids TEXT[] NOT NULL DEFAULT '{}';
 ALTER TABLE products ADD COLUMN IF NOT EXISTS category_names TEXT[] NOT NULL DEFAULT '{}';
+-- Manual "on offer" curation flag, alongside is_hot/is_new_drop/is_featured —
+-- independent of whether the product actually has a discounted original_price.
+ALTER TABLE products ADD COLUMN IF NOT EXISTS is_offer BOOLEAN NOT NULL DEFAULT false;
 -- Backfill: carry every existing product's single category into the new
 -- array columns. Safe to re-run — only touches rows that haven't been
 -- migrated yet (empty category_ids).

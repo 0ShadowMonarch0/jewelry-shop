@@ -43,6 +43,7 @@ export interface Product {
   isHot: boolean;
   isNewDrop: boolean;
   isFeatured: boolean;
+  isOffer: boolean;
   restockedAt?: string | null;
   material?: string;
   color?: string;

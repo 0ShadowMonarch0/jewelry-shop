@@ -37,6 +37,7 @@ function rowToProduct(r: any): Product {
     isHot: r.is_hot,
     isNewDrop: r.is_new_drop,
     isFeatured: r.is_featured,
+    isOffer: r.is_offer,
     restockedAt: r.restocked_at,
     material: r.material || undefined,
     color: r.color || undefined,
@@ -66,6 +67,7 @@ function productToRow(p: Partial<Product>): Record<string, any> {
   if (p.isHot !== undefined) row.is_hot = p.isHot;
   if (p.isNewDrop !== undefined) row.is_new_drop = p.isNewDrop;
   if (p.isFeatured !== undefined) row.is_featured = p.isFeatured;
+  if (p.isOffer !== undefined) row.is_offer = p.isOffer;
   if (p.restockedAt !== undefined) row.restocked_at = p.restockedAt;
   if (p.material !== undefined) row.material = p.material;
   if (p.color !== undefined) row.color = p.color;

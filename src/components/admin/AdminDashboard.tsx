@@ -181,6 +181,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  // Delete category handler
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!window.confirm(`Archive category "${name}"? It will be hidden from the storefront, but any products already assigned to it keep their assignment.`)) return;
+    try {
+      await api.deleteCategory(id);
+      flashMessage(`Category "${name}" archived`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Delete failed', true);
+    }
+  };
+
   // Inquiry Status Handler
   const handleInquiryStatusChange = async (id: string, status: CustomerInquiry['status']) => {
     try {
@@ -522,6 +534,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div className="flex flex-wrap gap-1.5">
                           {product.isHot && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5">HOT</span>}
                           {product.isNewDrop && <span className="text-[9px] bg-neutral-900 text-white font-bold px-2 py-0.5">NEW DROP</span>}
+                          {product.isOffer && <span className="text-[9px] bg-rose-100 text-rose-800 font-bold px-2 py-0.5">OFFER</span>}
                           {product.restockedAt && <span className="text-[9px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5">RESTOCKED</span>}
                         </div>
 
@@ -642,8 +655,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       key={cat.id}
                       className={`bg-white border overflow-hidden p-4 space-y-3 shadow-xs ${ parent ? 'border-[#DADADA] ml-0 sm:ml-4 border-l-4 border-l-[#A9AEB5]' : 'border-[#DADADA]' } `}
                     >
-                      <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
+                      <div className="relative aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
                         <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
+                        {cat.isActive === false && (
+                          <span className="absolute top-2 left-2 text-[9px] bg-[#1C1C1C]/90 text-white font-bold px-2 py-0.5 uppercase tracking-widest">
+                            Archived
+                          </span>
+                        )}
                       </div>
                       <div>
                         {parent && (
@@ -656,15 +674,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                       <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between text-xs">
                         <span className="text-[#6B6B6B]">{cat.productCount || 0} active pieces</span>
-                        <button
-                          onClick={() => {
-                            setEditingCategory(cat);
-                            setIsCategoryModalOpen(true);
-                          }}
-                          className="text-xs font-semibold text-[#6E737A] hover:underline"
-                        >
-                          Edit Category
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => {
+                              setEditingCategory(cat);
+                              setIsCategoryModalOpen(true);
+                            }}
+                            className="text-xs font-semibold text-[#6E737A] hover:underline"
+                          >
+                            Edit Category
+                          </button>
+                          {cat.isActive !== false && (
+                            <button
+                              onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                              className="text-xs font-semibold text-red-700 hover:underline"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -942,6 +970,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [isHot, setIsHot] = useState(product?.isHot || false);
   const [isNewDrop, setIsNewDrop] = useState(product?.isNewDrop || false);
   const [isFeatured, setIsFeatured] = useState(product?.isFeatured || true);
+  const [isOffer, setIsOffer] = useState(product?.isOffer || false);
   const [images, setImages] = useState<ProductImage[]>(product?.images || []);
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -1027,6 +1056,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         isHot,
         isNewDrop,
         isFeatured,
+        isOffer,
         images
       });
     } finally {
@@ -1285,7 +1315,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           </div>
 
           {/* Badge Toggles */}
-          <div className="grid grid-cols-3 gap-3 p-3 bg-[#F4F4F3] border border-[#DADADA]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-[#F4F4F3] border border-[#DADADA]">
             <label className="flex items-center gap-2 cursor-pointer font-semibold">
               <input
                 type="checkbox"
@@ -1314,6 +1344,16 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 className="w-4 h-4"
               />
               <span>✦ Featured</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer font-semibold">
+              <input
+                type="checkbox"
+                checked={isOffer}
+                onChange={(e) => setIsOffer(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <span>🏷️ Offer</span>
             </label>
           </div>
 

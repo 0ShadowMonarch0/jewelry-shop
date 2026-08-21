@@ -35,6 +35,7 @@ export const productSchema = z.object({
   isHot: z.boolean().default(false),
   isNewDrop: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
+  isOffer: z.boolean().default(false),
   restockedAt: z.string().optional().nullable(),
   material: z.string().optional(),
   color: z.string().optional(),

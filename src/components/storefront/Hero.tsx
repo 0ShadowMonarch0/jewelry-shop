@@ -100,12 +100,14 @@ export const Hero: React.FC<HeroProps> = ({
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
-          <button
-            onClick={() => onSelectFilter("newDrop")}
+          <a
+            href={`https://instagram.com/${instagramHandle}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="border border-white/60 hover:border-white bg-transparent text-white px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.15em] transition-colors"
           >
             {secondaryCtaText}
-          </button>
+          </a>
         </div>
 
         {/* Prestige Instagram Inquiry Card */}
