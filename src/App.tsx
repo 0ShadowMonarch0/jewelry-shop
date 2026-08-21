@@ -32,6 +32,19 @@ function setMetaTag(attr: 'name' | 'property', key: string, content: string) {
   el.setAttribute('content', content);
 }
 
+// Maps a quick-filter value (as used by the header nav and Hero CTAs) to the
+// id of the homepage rail it curates, so clicking "New Drop" / "Hot" /
+// "Offer" jumps straight to that section instead of the generic catalogue.
+function railIdForFilter(filter: string): string {
+  switch (filter) {
+    case 'newDrop': return 'rail-new-drop';
+    case 'hot': return 'rail-most-selling';
+    case 'offer': return 'rail-offer';
+    case 'restocked': return 'rail-restocked';
+    default: return 'catalogue-section';
+  }
+}
+
 export default function App() {
   // App mode: 'storefront' | 'admin'
   const [viewMode, setViewMode] = useState<'storefront' | 'admin'>('storefront');
@@ -356,7 +369,7 @@ export default function App() {
         onSelectFilter={(f) => {
           closeProductModal();
           setActiveFilter(f as any);
-          const el = document.getElementById('catalogue-section');
+          const el = document.getElementById(railIdForFilter(f));
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onOpenSearch={() => setIsSearchOpen(true)}
@@ -382,12 +395,7 @@ export default function App() {
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
         onSelectFilter={(f) => {
-          const railId =
-            f === 'newDrop' ? 'rail-new-drop' :
-            f === 'hot' ? 'rail-most-selling' :
-            f === 'restocked' ? 'rail-restocked' :
-            'catalogue-section';
-          const el = document.getElementById(railId);
+          const el = document.getElementById(railIdForFilter(f));
           el?.scrollIntoView({ behavior: 'smooth' });
         }}
       />
@@ -406,7 +414,7 @@ export default function App() {
         {/* Curated Collection Rails — ordered by what should catch the eye
             first: fresh arrivals, then proven best-sellers, then live deals,
             then pieces that just came back into stock. */}
-        <div id="rail-new-drop">
+        <div id="rail-new-drop" className="scroll-mt-24">
           <ProductRail
             title="New Drop"
             icon={<Sparkles className="w-5 h-5 text-[#8A9099]" />}
@@ -417,7 +425,7 @@ export default function App() {
           />
         </div>
 
-        <div id="rail-most-selling">
+        <div id="rail-most-selling" className="scroll-mt-24">
           <ProductRail
             title="Most Selling"
             icon={<Flame className="w-5 h-5 text-[#8A9099]" />}
@@ -428,7 +436,7 @@ export default function App() {
           />
         </div>
 
-        <div id="rail-offer">
+        <div id="rail-offer" className="scroll-mt-24">
           <ProductRail
             title="Offer"
             icon={<Tag className="w-5 h-5 text-[#8A9099]" />}
@@ -439,7 +447,7 @@ export default function App() {
           />
         </div>
 
-        <div id="rail-restocked">
+        <div id="rail-restocked" className="scroll-mt-24">
           <ProductRail
             title="Restocked"
             icon={<RotateCcw className="w-5 h-5 text-[#8A9099]" />}
@@ -451,7 +459,7 @@ export default function App() {
         </div>
 
         {/* 4. Filter & Sorting Controls Toolbar */}
-        <section id="catalogue-section" className="pt-4 space-y-6">
+        <section id="catalogue-section" className="pt-4 space-y-6 scroll-mt-24">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 border-b border-[#DADADA] pb-4">
 
             {/* Quick Filter Badges */}
