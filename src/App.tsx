@@ -12,6 +12,7 @@ import { ProductPage } from './components/storefront/ProductPage';
 import { InstagramOrderModal } from './components/storefront/InstagramOrderModal';
 import { SearchOverlay } from './components/storefront/SearchOverlay';
 import { Footer } from './components/storefront/Footer';
+import { StorefrontSkeleton } from './components/storefront/StorefrontSkeleton';
 
 // Admin Components
 import { AdminLogin } from './components/admin/AdminLogin';
@@ -326,6 +327,15 @@ export default function App() {
   }
 
   // STOREFRONT VIEW
+
+  // Show a skeleton instead of the real page on the very first load (e.g. a
+  // hard refresh) — otherwise Hero and friends briefly render with their
+  // hardcoded fallback copy before `settings` arrives and replaces it,
+  // producing a flash of the wrong content.
+  if (loading && !settings) {
+    return <StorefrontSkeleton />;
+  }
+
   const currencySymbol = settings?.currencySymbol || 'NPR ';
 
   return (
@@ -383,7 +393,7 @@ export default function App() {
       />
 
       {/* 3. Main Body Container */}
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 w-full py-6 space-y-8">
+      <main className="flex-1 max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 w-full py-6 space-y-8">
 
         {/* Category Visual Stories */}
         {/* <CategoryPills
@@ -442,34 +452,34 @@ export default function App() {
 
         {/* 4. Filter & Sorting Controls Toolbar */}
         <section id="catalogue-section" className="pt-4 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#DADADA] pb-4">
-            
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4 border-b border-[#DADADA] pb-4">
+
             {/* Quick Filter Badges */}
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-5 px-5 md:mx-0 md:px-0">
               <button
                 onClick={() => setActiveFilter('all')}
-                className={`px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${ activeFilter === 'all' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]' } `}
+                className={`flex-shrink-0 whitespace-nowrap px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${ activeFilter === 'all' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]' } `}
               >
                 All Pieces ({products.length})
               </button>
 
               <button
                 onClick={() => setActiveFilter('inStock')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${ activeFilter === 'inStock' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]' } `}
+                className={`flex-shrink-0 flex items-center gap-1.5 whitespace-nowrap px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${ activeFilter === 'inStock' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]' } `}
               >
                 <span>In Stock Only</span>
               </button>
             </div>
 
             {/* Sort Selector */}
-            <div className="flex items-center gap-2 self-end sm:self-auto">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="text-[10px] text-[#757575] uppercase tracking-[0.2em] font-semibold whitespace-nowrap">
                 Sort:
               </span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-white border border-[#DADADA] text-xs font-medium text-[#1C1C1C] px-4 py-2 focus:outline-none focus:border-[#8A9099] cursor-pointer shadow-xs"
+                className="flex-shrink-0 bg-white border border-[#DADADA] text-xs font-medium text-[#1C1C1C] px-4 py-2 focus:outline-none focus:border-[#8A9099] cursor-pointer shadow-xs"
               >
                 <option value="featured">Featured Atelier</option>
                 <option value="newest">Newest Additions</option>
@@ -480,7 +490,7 @@ export default function App() {
               {priceBounds[0] < priceBounds[1] && (
                 <button
                   onClick={() => setShowPriceFilter((v) => !v)}
-                  className={`flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer whitespace-nowrap ${
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer whitespace-nowrap ${
                     showPriceFilter || isPriceFiltered
                       ? 'bg-[#1C1C1C] text-white shadow-xs'
                       : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]'

@@ -42,7 +42,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
 
       {/* Horizontal scroll on mobile (swipeable pill row); wraps to multiple
           lines from sm+ so pills never get clipped at the viewport edge. */}
-      <div className="flex items-center sm:flex-wrap gap-3 sm:gap-4 overflow-x-auto sm:overflow-visible no-scrollbar pb-2 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex items-center sm:flex-wrap gap-3 sm:gap-4 overflow-x-auto sm:overflow-visible no-scrollbar pb-2 pt-1 -mx-5 px-5 sm:mx-0 sm:px-0">
         
         {/* 'All' Visual Pill */}
         <button

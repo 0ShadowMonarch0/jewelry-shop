@@ -98,7 +98,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({
   ];
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 py-8">
+    <main className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 py-8">
       <button
         onClick={onBack}
         className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#757575] hover:text-[#1C1C1C] transition-colors mb-6"

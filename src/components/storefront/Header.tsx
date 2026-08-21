@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
       {/* Main Navigation Bar */}
       <div className={`transition-all duration-300 backdrop-blur-md border-b border-[#DADADA] ${ isScrolled ? 'bg-[#F4F4F3]/95 shadow-xs py-3.5' : 'bg-[#F4F4F3]/90 py-5' } `}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-2 sm:gap-4">
+        <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-10 flex items-center justify-between gap-2 sm:gap-4">
 
           {/* Left: Logo + Brand Lockup */}
           <a

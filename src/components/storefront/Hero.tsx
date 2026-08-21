@@ -56,7 +56,7 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="absolute inset-0 bg-[#1C1C1C]/60"></div>
 
       {/* Centered content */}
-      <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-8 py-20 sm:py-28 flex flex-col items-center text-center gap-6">
+      <div className="relative z-10 max-w-2xl mx-auto px-5 sm:px-8 py-20 sm:py-28 flex flex-col items-center text-center gap-6">
         {/* Editorial Line Badge */}
         <div className="flex items-center gap-4">
           <div className="h-[1px] w-12 bg-[#DADADA]"></div>
