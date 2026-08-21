@@ -193,19 +193,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F1EA] text-[#181816] flex flex-col">
+    <div className="min-h-screen bg-[#ECECEC] text-[#1C1C1C] flex flex-col">
       
       {/* Top Admin Navbar */}
-      <header className="sticky top-0 z-30 bg-[#181816] text-[#FAF8F5] px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md border-b border-[#2C2A26]">
+      <header className="sticky top-0 z-30 bg-[#1C1C1C] text-[#F4F4F3] px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-md border-b border-[#2A2A2A]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#C5A880] text-[#181816] flex items-center justify-center font-serif font-bold text-base">
+          <div className="w-8 h-8 bg-[#A9AEB5] text-[#1C1C1C] flex items-center justify-center font-serif font-bold text-base">
             A
           </div>
           <div>
             <h1 className="font-serif text-lg font-semibold tracking-wider">
               mini2k Atelier Manager
             </h1>
-            <span className="text-[10px] text-[#C5A880] uppercase tracking-widest block -mt-1 font-mono">
+            <span className="text-[10px] text-[#A9AEB5] uppercase tracking-widest block -mt-1 font-mono">
               Admin Suite • {user.email}
             </span>
           </div>
@@ -214,15 +214,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="flex items-center gap-2 sm:gap-4">
           <button
             onClick={onViewStorefront}
-            className="flex items-center gap-1.5 bg-[#2C2A26] hover:bg-[#3E3A34] text-xs px-3.5 py-1.5 rounded-full font-medium transition-all text-[#FAF8F5] border border-white/10"
+            className="flex items-center gap-1.5 bg-[#2A2A2A] hover:bg-[#2A2A2A] text-xs px-3.5 py-1.5 font-medium transition-all text-[#F4F4F3] border border-white/10"
           >
-            <Eye className="w-3.5 h-3.5 text-[#C5A880]" />
+            <Eye className="w-3.5 h-3.5 text-[#A9AEB5]" />
             <span className="hidden sm:inline">Live Storefront</span>
           </button>
 
           <button
             onClick={onLogout}
-            className="flex items-center gap-1 text-xs text-[#9E988D] hover:text-red-400 p-2 rounded-lg transition-colors"
+            className="flex items-center gap-1 text-xs text-[#9A9A9A] hover:text-red-400 p-2 transition-colors"
             title="Sign out"
           >
             <LogOut className="w-4 h-4" />
@@ -248,12 +248,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       <div className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col md:flex-row gap-6">
         
         {/* Left Navigation Sidebar (Desktop) */}
-        <aside className="hidden md:flex flex-col w-60 flex-shrink-0 bg-white rounded-3xl p-4 border border-[#E5DFD7] shadow-xs space-y-1 self-start sticky top-20">
+        <aside className="hidden md:flex flex-col w-60 flex-shrink-0 bg-white p-4 border border-[#DADADA] shadow-xs space-y-1 self-start sticky top-20">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'overview' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'overview' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <LayoutDashboard className="w-4 h-4" />
             <span>Overview</span>
@@ -261,9 +259,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('products')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'products' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'products' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <Package className="w-4 h-4" />
             <span>Products ({products.length})</span>
@@ -271,9 +267,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'inventory' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'inventory' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <Boxes className="w-4 h-4" />
             <span>Inventory Fast-Edit</span>
@@ -281,9 +275,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('categories')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'categories' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'categories' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <FolderTree className="w-4 h-4" />
             <span>Categories ({categories.length})</span>
@@ -291,9 +283,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('offers')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'offers' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'offers' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <Tag className="w-4 h-4" />
             <span>Offers ({offers.length})</span>
@@ -301,16 +291,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('inquiries')}
-            className={`flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'inquiries' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'inquiries' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <div className="flex items-center gap-3">
               <MessageSquare className="w-4 h-4" />
               <span>Inquiries</span>
             </div>
             {inquiries.length > 0 && (
-              <span className="bg-[#C5A880] text-[#181816] text-[10px] px-2 py-0.5 rounded-full font-bold">
+              <span className="bg-[#A9AEB5] text-[#1C1C1C] text-[10px] px-2 py-0.5 font-bold">
                 {inquiries.length}
               </span>
             )}
@@ -318,9 +306,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('settings')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'settings' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'settings' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <SettingsIcon className="w-4 h-4" />
             <span>Store Settings</span>
@@ -328,9 +314,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('content')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'content' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'content' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <LayoutTemplate className="w-4 h-4" />
             <span>Page Content</span>
@@ -338,9 +322,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <button
             onClick={() => setActiveTab('audit')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-semibold uppercase tracking-wider transition-all ${
-              activeTab === 'audit' ? 'bg-[#181816] text-white shadow-xs' : 'text-[#615C52] hover:bg-[#FAF8F5]'
-            }`}
+            className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'audit' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <History className="w-4 h-4" />
             <span>Audit Log</span>
@@ -353,9 +335,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
-                activeTab === tab ? 'bg-[#181816] text-white shadow-xs' : 'bg-white text-[#615C52] border border-[#E5DFD7]'
-              }`}
+              className={`flex-shrink-0 px-3.5 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === tab ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#6B6B6B] border border-[#DADADA]' } `}
             >
               {tab}
             </button>
@@ -369,7 +349,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'overview' && stats && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#181816]">
+                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#1C1C1C]">
                   Atelier Dashboard
                 </h2>
                 <button
@@ -377,7 +357,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setEditingProduct(null);
                     setIsProductModalOpen(true);
                   }}
-                  className="flex items-center gap-2 bg-[#181816] text-white px-4 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider hover:bg-[#33302B] transition-all shadow-sm"
+                  className="flex items-center gap-2 bg-[#1C1C1C] text-white px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#2A2A2A] transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Product</span>
@@ -386,64 +366,61 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* KPI Stat Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-5 rounded-2xl border border-[#E5DFD7] shadow-xs space-y-1">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#7A756B]">Total Catalogue</span>
-                  <div className="font-serif text-3xl font-semibold text-[#181816]">{stats.totalProducts}</div>
+                <div className="bg-white p-5 border border-[#DADADA] shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#6B6B6B]">Total Catalogue</span>
+                  <div className="font-serif text-3xl font-semibold text-[#1C1C1C]">{stats.totalProducts}</div>
                   <span className="text-xs text-emerald-700 font-medium">{stats.activeProducts} active online</span>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-[#E5DFD7] shadow-xs space-y-1">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#7A756B]">Stock Alerts</span>
+                <div className="bg-white p-5 border border-[#DADADA] shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#6B6B6B]">Stock Alerts</span>
                   <div className="font-serif text-3xl font-semibold text-amber-700">{stats.lowStockProducts}</div>
                   <span className="text-xs text-red-600 font-medium">{stats.outOfStockProducts} out of stock</span>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-[#E5DFD7] shadow-xs space-y-1">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#7A756B]">IG Inquiries</span>
-                  <div className="font-serif text-3xl font-semibold text-[#181816]">{stats.totalInquiries}</div>
-                  <span className="text-xs text-[#7A756B]">Customer leads</span>
+                <div className="bg-white p-5 border border-[#DADADA] shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#6B6B6B]">IG Inquiries</span>
+                  <div className="font-serif text-3xl font-semibold text-[#1C1C1C]">{stats.totalInquiries}</div>
+                  <span className="text-xs text-[#6B6B6B]">Customer leads</span>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-[#E5DFD7] shadow-xs space-y-1">
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#7A756B]">Active Offers</span>
-                  <div className="font-serif text-3xl font-semibold text-[#937438]">{stats.activeOffers}</div>
-                  <span className="text-xs text-[#7A756B]">Promotions live</span>
+                <div className="bg-white p-5 border border-[#DADADA] shadow-xs space-y-1">
+                  <span className="text-[10px] uppercase font-bold tracking-widest text-[#6B6B6B]">Active Offers</span>
+                  <div className="font-serif text-3xl font-semibold text-[#6E737A]">{stats.activeOffers}</div>
+                  <span className="text-xs text-[#6B6B6B]">Promotions live</span>
                 </div>
               </div>
 
               {/* Recent Inquiries List */}
-              <div className="bg-white rounded-3xl p-6 border border-[#E5DFD7] shadow-xs space-y-4">
+              <div className="bg-white p-6 border border-[#DADADA] shadow-xs space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-serif text-xl font-medium text-[#181816]">
+                  <h3 className="font-serif text-xl font-medium text-[#1C1C1C]">
                     Recent Instagram Order Inquiries
                   </h3>
                   <button
                     onClick={() => setActiveTab('inquiries')}
-                    className="text-xs uppercase font-bold tracking-wider text-[#937438] hover:underline"
+                    className="text-xs uppercase font-bold tracking-wider text-[#6E737A] hover:underline"
                   >
                     View All
                   </button>
                 </div>
 
                 {inquiries.length === 0 ? (
-                  <p className="text-xs text-[#7A756B] py-4">No customer inquiries yet.</p>
+                  <p className="text-xs text-[#6B6B6B] py-4">No customer inquiries yet.</p>
                 ) : (
                   <div className="space-y-3">
                     {inquiries.slice(0, 4).map((inq) => (
-                      <div key={inq.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-[#FAF8F5] rounded-2xl border border-[#E5DFD7]">
+                      <div key={inq.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-[#F4F4F3] border border-[#DADADA]">
                         <div>
-                          <div className="font-serif text-sm font-semibold text-[#181816]">
+                          <div className="font-serif text-sm font-semibold text-[#1C1C1C]">
                             {inq.productName} (${inq.productPrice})
                           </div>
-                          <div className="text-xs text-[#7A756B]">
+                          <div className="text-xs text-[#6B6B6B]">
                             IG: @{inq.instagramHandle} • {new Date(inq.createdAt).toLocaleDateString()}
                             {inq.customerNote && ` • "${inq.customerNote}"`}
                           </div>
                         </div>
-                        <span className={`text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full self-start sm:self-center ${
-                          inq.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' :
-                          inq.status === 'CONTACTED' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
-                        }`}>
+                        <span className={`text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 self-start sm:self-center ${ inq.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : inq.status === 'CONTACTED' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800' } `}>
                           {inq.status}
                         </span>
                       </div>
@@ -459,10 +436,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#181816]">
+                  <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#1C1C1C]">
                     Product Catalogue
                   </h2>
-                  <p className="text-xs text-[#7A756B]">Manage high-fashion pieces, photography, and badges.</p>
+                  <p className="text-xs text-[#6B6B6B]">Manage high-fashion pieces, photography, and badges.</p>
                 </div>
 
                 <button
@@ -471,7 +448,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setEditingProduct(null);
                     setIsProductModalOpen(true);
                   }}
-                  className="flex items-center justify-center gap-2 bg-[#181816] text-white px-5 py-3 rounded-full text-xs font-semibold uppercase tracking-wider hover:bg-[#33302B] transition-all shadow-sm"
+                  className="flex items-center justify-center gap-2 bg-[#1C1C1C] text-white px-5 py-3 text-xs font-semibold uppercase tracking-wider hover:bg-[#2A2A2A] transition-all shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add New Piece</span>
@@ -479,22 +456,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Filter Bar */}
-              <div className="flex flex-col sm:flex-row gap-3 bg-white p-3 rounded-2xl border border-[#E5DFD7]">
+              <div className="flex flex-col sm:flex-row gap-3 bg-white p-3 border border-[#DADADA]">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-[#7A756B] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-[#6B6B6B] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     placeholder="Search by title, SKU, or tags..."
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 text-xs bg-[#FAF8F5] border border-[#E5DFD7] rounded-xl focus:outline-none focus:border-[#181816]"
+                    className="w-full pl-9 pr-3 py-2 text-xs bg-[#F4F4F3] border border-[#DADADA] focus:outline-none focus:border-[#1C1C1C]"
                   />
                 </div>
 
                 <select
                   value={selectedCatFilter}
                   onChange={(e) => setSelectedCatFilter(e.target.value)}
-                  className="text-xs bg-[#FAF8F5] border border-[#E5DFD7] rounded-xl px-3 py-2 font-medium"
+                  className="text-xs bg-[#F4F4F3] border border-[#DADADA] px-3 py-2 font-medium"
                 >
                   <option value="all">All Categories</option>
                   {orderCategoriesByHierarchy(categories).map(c => (
@@ -517,25 +494,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   .map((product) => {
                     const primaryImg = product.images.find(i => i.isPrimary) || product.images[0];
                     return (
-                      <div key={product.id} className="bg-white rounded-2xl border border-[#E5DFD7] overflow-hidden shadow-xs flex flex-col justify-between p-4 space-y-4">
+                      <div key={product.id} className="bg-white border border-[#DADADA] overflow-hidden shadow-xs flex flex-col justify-between p-4 space-y-4">
                         <div className="flex gap-3">
-                          <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#FAF8F5] flex-shrink-0 border border-[#E5DFD7]">
+                          <div className="w-20 h-20 overflow-hidden bg-[#F4F4F3] flex-shrink-0 border border-[#DADADA]">
                             {primaryImg && (
                               <img src={primaryImg.secureUrl} alt="" className="w-full h-full object-cover" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <span className="text-[9px] uppercase font-bold tracking-widest text-[#7A756B] block">
+                            <span className="text-[9px] uppercase font-bold tracking-widest text-[#6B6B6B] block">
                               {product.sku}
                             </span>
-                            <h4 className="font-serif text-base font-semibold text-[#181816] truncate">
+                            <h4 className="font-serif text-base font-semibold text-[#1C1C1C] truncate">
                               {product.name}
                             </h4>
-                            <div className="text-sm font-bold text-[#181816]">
+                            <div className="text-sm font-bold text-[#1C1C1C]">
                               NPR {product.price.toLocaleString()}
                             </div>
-                            <div className="text-xs text-[#7A756B] flex items-center gap-2 mt-1">
-                              <span className={`inline-block w-2 h-2 rounded-full ${product.stock > 0 ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                            <div className="text-xs text-[#6B6B6B] flex items-center gap-2 mt-1">
+                              <span className={`inline-block w-2 h-2 ${product.stock > 0 ? 'bg-emerald-500' : 'bg-red-500'} `}></span>
                               <span>Stock: <strong>{product.stock}</strong></span>
                             </div>
                           </div>
@@ -543,19 +520,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                         {/* Badges row */}
                         <div className="flex flex-wrap gap-1.5">
-                          {product.isHot && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded">HOT</span>}
-                          {product.isNewDrop && <span className="text-[9px] bg-neutral-900 text-white font-bold px-2 py-0.5 rounded">NEW DROP</span>}
-                          {product.restockedAt && <span className="text-[9px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">RESTOCKED</span>}
+                          {product.isHot && <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5">HOT</span>}
+                          {product.isNewDrop && <span className="text-[9px] bg-neutral-900 text-white font-bold px-2 py-0.5">NEW DROP</span>}
+                          {product.restockedAt && <span className="text-[9px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5">RESTOCKED</span>}
                         </div>
 
                         {/* Quick Action Buttons */}
-                        <div className="pt-2 border-t border-[#E5DFD7] flex items-center justify-between gap-2">
+                        <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between gap-2">
                           <button
                             onClick={() => {
                               setEditingProduct(product);
                               setIsProductModalOpen(true);
                             }}
-                            className="flex-1 py-2 rounded-xl bg-[#FAF8F5] hover:bg-[#EFECE6] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-[#E5DFD7]"
+                            className="flex-1 py-2 bg-[#F4F4F3] hover:bg-[#ECECEC] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-[#DADADA]"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                             <span>Edit Piece</span>
@@ -563,7 +540,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                           <button
                             onClick={() => handleDeleteProduct(product.id, product.name)}
-                            className="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors border border-red-200"
+                            className="p-2 text-red-600 hover:bg-red-50 transition-colors border border-red-200"
                             title="Archive piece"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -578,12 +555,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {/* TAB 3: INVENTORY QUICK-EDIT */}
           {activeTab === 'inventory' && (
-            <div className="bg-white rounded-3xl p-6 border border-[#E5DFD7] shadow-xs space-y-6">
+            <div className="bg-white p-6 border border-[#DADADA] shadow-xs space-y-6">
               <div>
-                <h2 className="font-serif text-2xl font-light text-[#181816]">
+                <h2 className="font-serif text-2xl font-light text-[#1C1C1C]">
                   Mobile Inventory Fast-Adjuster
                 </h2>
-                <p className="text-xs text-[#7A756B]">
+                <p className="text-xs text-[#6B6B6B]">
                   Update live stock with one tap. When stock drops to 0, storefront automatically displays OUT OF STOCK and disables ordering.
                 </p>
               </div>
@@ -592,14 +569,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {products.map((p) => {
                   const img = p.images.find(i => i.isPrimary) || p.images[0];
                   return (
-                    <div key={p.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-[#FAF8F5] border border-[#E5DFD7]">
+                    <div key={p.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#F4F4F3] border border-[#DADADA]">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-white flex-shrink-0 border border-[#E5DFD7]">
+                        <div className="w-12 h-12 overflow-hidden bg-white flex-shrink-0 border border-[#DADADA]">
                           {img && <img src={img.secureUrl} alt="" className="w-full h-full object-cover" />}
                         </div>
                         <div>
-                          <div className="font-serif text-sm font-semibold text-[#181816]">{p.name}</div>
-                          <div className="text-[11px] text-[#7A756B] font-mono">SKU: {p.sku} • NPR {p.price}</div>
+                          <div className="font-serif text-sm font-semibold text-[#1C1C1C]">{p.name}</div>
+                          <div className="text-[11px] text-[#6B6B6B] font-mono">SKU: {p.sku} • NPR {p.price}</div>
                         </div>
                       </div>
 
@@ -607,25 +584,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleStockUpdate(p.id, Math.max(0, p.stock - 1))}
-                          className="w-10 h-10 rounded-xl bg-white border border-[#DCD6CC] text-base font-bold flex items-center justify-center hover:bg-[#EFECE6] active:scale-95 transition-all"
+                          className="w-10 h-10 bg-white border border-[#DADADA] text-base font-bold flex items-center justify-center hover:bg-[#ECECEC] active:scale-95 transition-all"
                         >
                           -
                         </button>
 
-                        <span className={`w-14 text-center font-mono text-base font-bold ${p.stock === 0 ? 'text-red-600' : 'text-[#181816]'}`}>
+                        <span className={`w-14 text-center font-mono text-base font-bold ${p.stock === 0 ? 'text-red-600' : 'text-[#1C1C1C]'} `}>
                           {p.stock}
                         </span>
 
                         <button
                           onClick={() => handleStockUpdate(p.id, p.stock + 1)}
-                          className="w-10 h-10 rounded-xl bg-white border border-[#DCD6CC] text-base font-bold flex items-center justify-center hover:bg-[#EFECE6] active:scale-95 transition-all"
+                          className="w-10 h-10 bg-white border border-[#DADADA] text-base font-bold flex items-center justify-center hover:bg-[#ECECEC] active:scale-95 transition-all"
                         >
                           +
                         </button>
 
                         <button
                           onClick={() => handleStockUpdate(p.id, p.stock + 5, true)}
-                          className="px-3 py-2 rounded-xl bg-[#181816] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#33302B] transition-all shadow-xs"
+                          className="px-3 py-2 bg-[#1C1C1C] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#2A2A2A] transition-all shadow-xs"
                           title="Add 5 units & mark restocked badge"
                         >
                           Restock +5
@@ -642,7 +619,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'categories' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#181816]">
+                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#1C1C1C]">
                   Atelier Categories
                 </h2>
                 <button
@@ -650,7 +627,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setEditingCategory(null);
                     setIsCategoryModalOpen(true);
                   }}
-                  className="flex items-center gap-2 bg-[#181816] text-white px-4 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider hover:bg-[#33302B] transition-all"
+                  className="flex items-center gap-2 bg-[#1C1C1C] text-white px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#2A2A2A] transition-all"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add Category</span>
@@ -663,30 +640,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   return (
                     <div
                       key={cat.id}
-                      className={`bg-white rounded-2xl border overflow-hidden p-4 space-y-3 shadow-xs ${
-                        parent ? 'border-[#E5DFD7] ml-0 sm:ml-4 border-l-4 border-l-[#C5A880]' : 'border-[#E5DFD7]'
-                      }`}
+                      className={`bg-white border overflow-hidden p-4 space-y-3 shadow-xs ${ parent ? 'border-[#DADADA] ml-0 sm:ml-4 border-l-4 border-l-[#A9AEB5]' : 'border-[#DADADA]' } `}
                     >
-                      <div className="aspect-[16/9] rounded-xl overflow-hidden bg-[#FAF8F5]">
+                      <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
                         <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
                       </div>
                       <div>
                         {parent && (
-                          <div className="text-[10px] uppercase tracking-wider font-bold text-[#937438] mb-0.5">
+                          <div className="text-[10px] uppercase tracking-wider font-bold text-[#6E737A] mb-0.5">
                             ↳ Sub-category of {parent.name}
                           </div>
                         )}
-                        <h4 className="font-serif text-lg font-semibold text-[#181816]">{cat.name}</h4>
-                        <p className="text-xs text-[#7A756B] line-clamp-2">{cat.description}</p>
+                        <h4 className="font-serif text-lg font-semibold text-[#1C1C1C]">{cat.name}</h4>
+                        <p className="text-xs text-[#6B6B6B] line-clamp-2">{cat.description}</p>
                       </div>
-                      <div className="pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-xs">
-                        <span className="text-[#7A756B]">{cat.productCount || 0} active pieces</span>
+                      <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between text-xs">
+                        <span className="text-[#6B6B6B]">{cat.productCount || 0} active pieces</span>
                         <button
                           onClick={() => {
                             setEditingCategory(cat);
                             setIsCategoryModalOpen(true);
                           }}
-                          className="text-xs font-semibold text-[#937438] hover:underline"
+                          className="text-xs font-semibold text-[#6E737A] hover:underline"
                         >
                           Edit Category
                         </button>
@@ -702,7 +677,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'offers' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#181816]">
+                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#1C1C1C]">
                   Offers & Promotions
                 </h2>
                 <button
@@ -710,7 +685,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setEditingOffer(null);
                     setIsOfferModalOpen(true);
                   }}
-                  className="flex items-center gap-2 bg-[#181816] text-white px-4 py-2.5 rounded-full text-xs font-semibold uppercase tracking-wider hover:bg-[#33302B] transition-all"
+                  className="flex items-center gap-2 bg-[#1C1C1C] text-white px-4 py-2.5 text-xs font-semibold uppercase tracking-wider hover:bg-[#2A2A2A] transition-all"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Create Promotion</span>
@@ -719,28 +694,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {offers.map((offer) => (
-                  <div key={offer.id} className="bg-white rounded-3xl border border-[#E5DFD7] p-5 space-y-4 shadow-xs">
-                    <div className="aspect-[16/9] rounded-2xl overflow-hidden bg-[#FAF8F5]">
+                  <div key={offer.id} className="bg-white border border-[#DADADA] p-5 space-y-4 shadow-xs">
+                    <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
                       <img src={offer.imageUrl} alt="" className="w-full h-full object-cover" />
                     </div>
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <span className="bg-[#C5A880]/20 text-[#937438] font-bold text-xs px-2.5 py-0.5 rounded-full">
+                        <span className="bg-[#A9AEB5]/20 text-[#6E737A] font-bold text-xs px-2.5 py-0.5">
                           {offer.discountValue}{offer.discountType === 'PERCENTAGE' ? '%' : ' NPR'} OFF
                         </span>
-                        <span className="text-xs text-[#7A756B] font-mono">Code: {offer.code || 'N/A'}</span>
+                        <span className="text-xs text-[#6B6B6B] font-mono">Code: {offer.code || 'N/A'}</span>
                       </div>
-                      <h4 className="font-serif text-lg font-semibold text-[#181816]">{offer.title}</h4>
-                      <p className="text-xs text-[#615C52]">{offer.description}</p>
+                      <h4 className="font-serif text-lg font-semibold text-[#1C1C1C]">{offer.title}</h4>
+                      <p className="text-xs text-[#6B6B6B]">{offer.description}</p>
                     </div>
-                    <div className="pt-2 border-t border-[#E5DFD7] flex items-center justify-between text-xs text-[#7A756B]">
+                    <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between text-xs text-[#6B6B6B]">
                       <span>Valid until {new Date(offer.endDate).toLocaleDateString()}</span>
                       <button
                         onClick={() => {
                           setEditingOffer(offer);
                           setIsOfferModalOpen(true);
                         }}
-                        className="font-semibold text-[#937438] hover:underline"
+                        className="font-semibold text-[#6E737A] hover:underline"
                       >
                         Edit
                       </button>
@@ -753,30 +728,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {/* TAB 6: INQUIRIES */}
           {activeTab === 'inquiries' && (
-            <div className="bg-white rounded-3xl p-6 border border-[#E5DFD7] shadow-xs space-y-6">
-              <h2 className="font-serif text-2xl font-light text-[#181816]">
+            <div className="bg-white p-6 border border-[#DADADA] shadow-xs space-y-6">
+              <h2 className="font-serif text-2xl font-light text-[#1C1C1C]">
                 Instagram Inquiries & Leads
               </h2>
 
               {inquiries.length === 0 ? (
-                <p className="text-xs text-[#7A756B] py-6 text-center">No inquiries logged yet.</p>
+                <p className="text-xs text-[#6B6B6B] py-6 text-center">No inquiries logged yet.</p>
               ) : (
                 <div className="space-y-3">
                   {inquiries.map((inq) => (
-                    <div key={inq.id} className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E5DFD7] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div key={inq.id} className="p-4 bg-[#F4F4F3] border border-[#DADADA] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="space-y-1">
-                        <div className="font-serif text-base font-semibold text-[#181816]">
+                        <div className="font-serif text-base font-semibold text-[#1C1C1C]">
                           {inq.productName} • ${inq.productPrice}
                         </div>
-                        <div className="text-xs text-[#7A756B]">
+                        <div className="text-xs text-[#6B6B6B]">
                           SKU: <strong>{inq.productSku}</strong> • Customer IG Handle: <strong>@{inq.instagramHandle}</strong>
                         </div>
                         {inq.customerNote && (
-                          <div className="text-xs text-[#181816] italic bg-white p-2 rounded-lg border border-[#E5DFD7]">
+                          <div className="text-xs text-[#1C1C1C] italic bg-white p-2 border border-[#DADADA]">
                             "{inq.customerNote}"
                           </div>
                         )}
-                        <div className="text-[10px] text-[#9E988D]">
+                        <div className="text-[10px] text-[#9A9A9A]">
                           Logged on {new Date(inq.createdAt).toLocaleString()}
                         </div>
                       </div>
@@ -785,7 +760,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <select
                         value={inq.status}
                         onChange={(e) => handleInquiryStatusChange(inq.id, e.target.value as any)}
-                        className="text-xs bg-white border border-[#DCD6CC] rounded-xl px-3 py-2 font-semibold self-start sm:self-center"
+                        className="text-xs bg-white border border-[#DADADA] px-3 py-2 font-semibold self-start sm:self-center"
                       >
                         <option value="PENDING">Pending (Need to Reply)</option>
                         <option value="CONTACTED">Contacted on IG</option>
@@ -833,19 +808,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {/* TAB 8: AUDIT LOG */}
           {activeTab === 'audit' && (
-            <div className="bg-white rounded-3xl p-6 border border-[#E5DFD7] shadow-xs space-y-4">
-              <h2 className="font-serif text-2xl font-light text-[#181816]">
+            <div className="bg-white p-6 border border-[#DADADA] shadow-xs space-y-4">
+              <h2 className="font-serif text-2xl font-light text-[#1C1C1C]">
                 Security & Administrative Audit Log
               </h2>
               <div className="space-y-2">
                 {auditLogs.map((log) => (
-                  <div key={log.id} className="p-3 bg-[#FAF8F5] rounded-xl border border-[#E5DFD7] text-xs space-y-1">
-                    <div className="flex justify-between items-center text-[#7A756B]">
-                      <span className="font-mono text-[10px] uppercase font-bold text-[#937438]">{log.action}</span>
+                  <div key={log.id} className="p-3 bg-[#F4F4F3] border border-[#DADADA] text-xs space-y-1">
+                    <div className="flex justify-between items-center text-[#6B6B6B]">
+                      <span className="font-mono text-[10px] uppercase font-bold text-[#6E737A]">{log.action}</span>
                       <span>{new Date(log.timestamp).toLocaleString()}</span>
                     </div>
-                    <div className="text-[#181816] font-medium">{log.details}</div>
-                    <div className="text-[10px] text-[#9E988D]">Admin: {log.adminEmail}</div>
+                    <div className="text-[#1C1C1C] font-medium">{log.details}</div>
+                    <div className="text-[10px] text-[#9A9A9A]">Admin: {log.adminEmail}</div>
                   </div>
                 ))}
               </div>
@@ -1061,14 +1036,14 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-150">
-      <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#E5DFD7] overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      <div className="bg-white w-full max-w-2xl shadow-2xl border border-[#DADADA] overflow-hidden my-auto max-h-[92vh] flex flex-col">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E5DFD7] bg-[#FAF8F5] flex items-center justify-between">
-          <h3 className="font-serif text-xl font-semibold text-[#181816]">
+        <div className="px-6 py-4 border-b border-[#DADADA] bg-[#F4F4F3] flex items-center justify-between">
+          <h3 className="font-serif text-xl font-semibold text-[#1C1C1C]">
             {product ? 'Edit Atelier Piece' : 'Add New Jewelry Piece'}
           </h3>
-          <button onClick={onClose} className="p-1.5 rounded-full text-[#7A756B] hover:bg-[#EFECE6]">
+          <button onClick={onClose} className="p-1.5 text-[#6B6B6B] hover:bg-[#ECECEC]">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1077,22 +1052,22 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
         <form onSubmit={handleSubmit} className="overflow-y-auto p-6 space-y-6 flex-1 text-xs">
           
           {/* Section: Photos (Cloudinary / Direct) */}
-          <div className="space-y-3 bg-[#FAF8F5] p-4 rounded-2xl border border-[#E5DFD7]">
+          <div className="space-y-3 bg-[#F4F4F3] p-4 border border-[#DADADA]">
             <div className="flex items-center justify-between">
-              <label className="font-semibold uppercase tracking-wider text-[#181816] flex items-center gap-1.5">
-                <ImageIcon className="w-4 h-4 text-[#C5A880]" />
+              <label className="font-semibold uppercase tracking-wider text-[#1C1C1C] flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-[#A9AEB5]" />
                 <span>Product Photos ({images.length})</span>
               </label>
-              <span className="text-[10px] text-[#7A756B]">Tap photo to set as primary</span>
+              <span className="text-[10px] text-[#6B6B6B]">Tap photo to set as primary</span>
             </div>
 
             {/* Existing Images Carousel */}
             <div className="flex items-center gap-3 overflow-x-auto no-scrollbar py-1">
               {images.map((img, idx) => (
-                <div key={img.id || idx} className="relative w-20 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 group">
+                <div key={img.id || idx} className="relative w-20 h-20 overflow-hidden border-2 flex-shrink-0 group">
                   <img src={img.secureUrl} alt="" className="w-full h-full object-cover" />
                   {img.isPrimary && (
-                    <span className="absolute top-1 left-1 bg-[#181816] text-white text-[8px] px-1.5 py-0.5 rounded font-bold">
+                    <span className="absolute top-1 left-1 bg-[#1C1C1C] text-white text-[8px] px-1.5 py-0.5 font-bold">
                       MAIN
                     </span>
                   )}
@@ -1100,7 +1075,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setImages(prev => prev.map((im, i) => ({ ...im, isPrimary: i === idx })))}
-                      className="p-1 bg-white text-[#181816] rounded"
+                      className="p-1 bg-white text-[#1C1C1C]"
                       title="Set Primary"
                     >
                       <Check className="w-3 h-3" />
@@ -1108,7 +1083,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     <button
                       type="button"
                       onClick={() => setImages(prev => prev.filter((_, i) => i !== idx))}
-                      className="p-1 bg-red-600 text-white rounded"
+                      className="p-1 bg-red-600 text-white"
                       title="Remove"
                     >
                       <Trash2 className="w-3 h-3" />
@@ -1118,9 +1093,9 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
               ))}
 
               {/* Upload Button */}
-              <label className="w-20 h-20 rounded-xl border-2 border-dashed border-[#C5A880] hover:border-[#181816] bg-white flex flex-col items-center justify-center cursor-pointer flex-shrink-0 text-center transition-colors">
-                <Camera className="w-5 h-5 text-[#C5A880] mb-1" />
-                <span className="text-[9px] font-semibold text-[#7A756B]">
+              <label className="w-20 h-20 border-2 border-dashed border-[#A9AEB5] hover:border-[#1C1C1C] bg-white flex flex-col items-center justify-center cursor-pointer flex-shrink-0 text-center transition-colors">
+                <Camera className="w-5 h-5 text-[#A9AEB5] mb-1" />
+                <span className="text-[9px] font-semibold text-[#6B6B6B]">
                   {uploadingImage ? 'Uploading...' : 'Add Photo'}
                 </span>
                 <input type="file" accept="image/*" onChange={handleImageFile} className="hidden" />
@@ -1128,26 +1103,26 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </div>
 
             {/* Quick Sample Presets */}
-            <div className="pt-2 border-t border-[#E5DFD7] flex items-center gap-2 text-[10px] text-[#7A756B]">
+            <div className="pt-2 border-t border-[#DADADA] flex items-center gap-2 text-[10px] text-[#6B6B6B]">
               <span>Quick Presets:</span>
               <button
                 type="button"
                 onClick={() => handleAddSampleImage('https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=85&w=1200')}
-                className="underline hover:text-[#181816]"
+                className="underline hover:text-[#1C1C1C]"
               >
                 + Gold Ring
               </button>
               <button
                 type="button"
                 onClick={() => handleAddSampleImage('https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=85&w=1200')}
-                className="underline hover:text-[#181816]"
+                className="underline hover:text-[#1C1C1C]"
               >
                 + Pearl Necklace
               </button>
               <button
                 type="button"
                 onClick={() => handleAddSampleImage('https://images.unsplash.com/photo-1611591475883-8a306c59b666?auto=format&fit=crop&q=85&w=1200')}
-                className="underline hover:text-[#181816]"
+                className="underline hover:text-[#1C1C1C]"
               >
                 + Diamond Bracelet
               </button>
@@ -1157,57 +1132,55 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           {/* Section: Basic Details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Piece Title *</label>
+              <label className="font-semibold text-[#1C1C1C]">Piece Title *</label>
               <input
                 type="text"
                 required
                 value={name}
                 onChange={handleNameChange}
                 placeholder="e.g. Solstice 18K Signet Ring"
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">SEO Slug *</label>
+              <label className="font-semibold text-[#1C1C1C]">SEO Slug *</label>
               <input
                 type="text"
                 required
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="solstice-18k-signet-ring"
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono text-[11px]"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono text-[11px]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">SKU Number *</label>
+              <label className="font-semibold text-[#1C1C1C]">SKU Number *</label>
               <input
                 type="text"
                 required
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono"
               />
             </div>
           </div>
 
           {/* Categories (a product can belong to more than one) */}
           <div className="space-y-1">
-            <label className="font-semibold text-[#181816]">Categories * ({categoryIds.length} selected)</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl max-h-48 overflow-y-auto">
+            <label className="font-semibold text-[#1C1C1C]">Categories * ({categoryIds.length} selected)</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-3 bg-[#F4F4F3] border border-[#DADADA] max-h-48 overflow-y-auto">
               {orderCategoriesByHierarchy(categories).map(c => (
                 <label
                   key={c.id}
-                  className={`flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer text-[11px] font-medium transition-colors ${
-                    categoryIds.includes(c.id) ? 'bg-[#181816] text-white' : 'bg-white text-[#181816] hover:bg-[#F0EFEC]'
-                  }`}
+                  className={`flex items-center gap-2 px-2.5 py-2 cursor-pointer text-[11px] font-medium transition-colors ${ categoryIds.includes(c.id) ? 'bg-[#1C1C1C] text-white' : 'bg-white text-[#1C1C1C] hover:bg-[#ECECEC]' } `}
                 >
                   <input
                     type="checkbox"
                     checked={categoryIds.includes(c.id)}
                     onChange={() => toggleCategoryId(c.id)}
-                    className="accent-[#937438]"
+                    className="accent-[#6E737A]"
                   />
                   <span className="truncate">{c.parentId ? `— ${c.name}` : c.name}</span>
                 </label>
@@ -1218,7 +1191,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
           {/* Pricing & Stock */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Price (NPR) *</label>
+              <label className="font-semibold text-[#1C1C1C]">Price (NPR) *</label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -1228,12 +1201,12 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   const v = sanitizeDecimalInput(e.target.value);
                   setPrice(v === '' || v === '.' ? 0 : Number(v));
                 }}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-semibold"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-semibold"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#7A756B]">Original Price (Optional)</label>
+              <label className="font-semibold text-[#6B6B6B]">Original Price (Optional)</label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -1243,12 +1216,12 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   setOriginalPrice(v === '' || v === '.' ? undefined : Number(v));
                 }}
                 placeholder="e.g. 520"
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Current Stock Units *</label>
+              <label className="font-semibold text-[#1C1C1C]">Current Stock Units *</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -1258,67 +1231,67 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   const v = sanitizeIntegerInput(e.target.value);
                   setStock(v === '' ? 0 : Number(v));
                 }}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono font-bold"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono font-bold"
               />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="font-semibold text-[#7A756B]">Atelier Craftsmanship Notes (Optional)</label>
+            <label className="font-semibold text-[#6B6B6B]">Atelier Craftsmanship Notes (Optional)</label>
             <textarea
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe metal weight, gemstone clarity, cut, and setting details..."
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-sans"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-sans"
             />
           </div>
 
           {/* Material & Sizing */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Primary Material</label>
+              <label className="font-semibold text-[#1C1C1C]">Primary Material</label>
               <input
                 type="text"
                 value={material}
                 onChange={(e) => setMaterial(e.target.value)}
                 placeholder="18K Solid Gold"
-                className="w-full p-2 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Color Finish</label>
+              <label className="font-semibold text-[#1C1C1C]">Color Finish</label>
               <input
                 type="text"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
                 placeholder="Yellow Gold"
-                className="w-full p-2 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
 
             <div className="space-y-1">
-              <label className="font-semibold text-[#181816]">Available Sizes</label>
+              <label className="font-semibold text-[#1C1C1C]">Available Sizes</label>
               <input
                 type="text"
                 value={size}
                 onChange={(e) => setSize(e.target.value)}
                 placeholder="US 6, 7, 8"
-                className="w-full p-2 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
           </div>
 
           {/* Badge Toggles */}
-          <div className="grid grid-cols-3 gap-3 p-3 bg-[#FAF8F5] rounded-2xl border border-[#E5DFD7]">
+          <div className="grid grid-cols-3 gap-3 p-3 bg-[#F4F4F3] border border-[#DADADA]">
             <label className="flex items-center gap-2 cursor-pointer font-semibold">
               <input
                 type="checkbox"
                 checked={isHot}
                 onChange={(e) => setIsHot(e.target.checked)}
-                className="w-4 h-4 rounded"
+                className="w-4 h-4"
               />
               <span>🔥 Hot Piece</span>
             </label>
@@ -1328,7 +1301,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 type="checkbox"
                 checked={isNewDrop}
                 onChange={(e) => setIsNewDrop(e.target.checked)}
-                className="w-4 h-4 rounded"
+                className="w-4 h-4"
               />
               <span>✨ New Drop</span>
             </label>
@@ -1338,7 +1311,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 type="checkbox"
                 checked={isFeatured}
                 onChange={(e) => setIsFeatured(e.target.checked)}
-                className="w-4 h-4 rounded"
+                className="w-4 h-4"
               />
               <span>✦ Featured</span>
             </label>
@@ -1349,7 +1322,7 @@ const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-[#181816] text-white rounded-full text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#33302B] transition-all shadow-md"
+              className="w-full py-3.5 bg-[#1C1C1C] text-white text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#2A2A2A] transition-all shadow-md"
             >
               {loading ? 'Saving Piece...' : 'Save & Publish to Catalogue'}
             </button>
@@ -1399,8 +1372,8 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-[#E5DFD7] p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+      <div className="bg-white w-full max-w-md shadow-2xl border border-[#DADADA] p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#DADADA] pb-3">
           <h3 className="font-serif text-lg font-semibold">{category ? 'Edit Category' : 'New Category'}</h3>
           <button onClick={onClose}><X className="w-5 h-5" /></button>
         </div>
@@ -1415,7 +1388,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
                 setName(e.target.value);
                 if (!category) setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
               }}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
           <div>
@@ -1425,7 +1398,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               required
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono text-[11px]"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono text-[11px]"
             />
           </div>
           <div>
@@ -1435,7 +1408,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               required
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
           <div>
@@ -1444,7 +1417,7 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
           <div>
@@ -1452,21 +1425,21 @@ const CategoryFormModal: React.FC<CategoryFormModalProps> = ({
             <select
               value={parentId}
               onChange={(e) => setParentId(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             >
               <option value="">— None (Top Level) —</option>
               {parentOptions.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
-            <p className="text-[10px] text-[#7A756B] mt-1">
+            <p className="text-[10px] text-[#6B6B6B] mt-1">
               Make this a sub-category nested under one of your top-level categories.
             </p>
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#181816] text-white rounded-full font-semibold uppercase tracking-wider"
+            className="w-full py-3 bg-[#1C1C1C] text-white font-semibold uppercase tracking-wider"
           >
             {loading ? 'Saving...' : 'Save Category'}
           </button>
@@ -1526,8 +1499,8 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-[#E5DFD7] p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+      <div className="bg-white w-full max-w-md shadow-2xl border border-[#DADADA] p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#DADADA] pb-3">
           <h3 className="font-serif text-lg font-semibold">{offer ? 'Edit Offer' : 'New Offer'}</h3>
           <button onClick={onClose}><X className="w-5 h-5" /></button>
         </div>
@@ -1539,7 +1512,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -1548,7 +1521,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
               <select
                 value={discountType}
                 onChange={(e) => setDiscountType(e.target.value as any)}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
                 <option value="FIXED">Fixed Amount (NPR)</option>
@@ -1565,7 +1538,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
                   const v = sanitizeDecimalInput(e.target.value);
                   setDiscountValue(v === '' || v === '.' ? 0 : Number(v));
                 }}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-bold"
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-bold"
               />
             </div>
           </div>
@@ -1575,7 +1548,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono uppercase"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono uppercase"
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -1586,7 +1559,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
                 required
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full p-2 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
             <div>
@@ -1596,7 +1569,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
                 required
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full p-2 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+                className="w-full p-2 bg-[#F4F4F3] border border-[#DADADA]"
               />
             </div>
           </div>
@@ -1607,7 +1580,7 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
               required
               value={imageUrl}
               onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
           <div>
@@ -1616,13 +1589,13 @@ const OfferFormModal: React.FC<OfferFormModalProps> = ({
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#181816] text-white rounded-full font-semibold uppercase tracking-wider"
+            className="w-full py-3 bg-[#1C1C1C] text-white font-semibold uppercase tracking-wider"
           >
             {loading ? 'Saving...' : 'Save Promotion'}
           </button>
@@ -1653,12 +1626,12 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E5DFD7] shadow-xs space-y-6">
+    <div className="bg-white p-6 sm:p-8 border border-[#DADADA] shadow-xs space-y-6">
       <div>
-        <h2 className="font-serif text-2xl font-light text-[#181816]">
+        <h2 className="font-serif text-2xl font-light text-[#1C1C1C]">
           Atelier & Storefront Settings
         </h2>
-        <p className="text-xs text-[#7A756B]">
+        <p className="text-xs text-[#6B6B6B]">
           Configure your Instagram destination, announcement bar, hero section, and branding.
         </p>
       </div>
@@ -1671,7 +1644,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="text"
               value={formData.storeName}
               onChange={(e) => setFormData({ ...formData, storeName: e.target.value })}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-serif text-sm font-semibold"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-serif text-sm font-semibold"
             />
           </div>
 
@@ -1681,7 +1654,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="text"
               value={formData.instagramHandle}
               onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value.replace('@', '') })}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono text-sm"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono text-sm"
             />
           </div>
         </div>
@@ -1690,14 +1663,14 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
           <label className="font-semibold block mb-1">Logo URL</label>
           <div className="flex items-center gap-3">
             {formData.logoUrl && (
-              <img src={formData.logoUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-[#E5DFD7] flex-shrink-0 bg-[#FAF8F5]" />
+              <img src={formData.logoUrl} alt="" className="w-10 h-10 object-cover border border-[#DADADA] flex-shrink-0 bg-[#F4F4F3]" />
             )}
             <input
               type="url"
               value={formData.logoUrl || ''}
               onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
               placeholder="https://... (leave blank to use the initial-letter badge)"
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono text-[11px]"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono text-[11px]"
             />
           </div>
         </div>
@@ -1709,7 +1682,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
             value={formData.tagline}
             onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
             placeholder="Shown under the logo in the header"
-            className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+            className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
           />
         </div>
 
@@ -1720,15 +1693,15 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
             value={formData.aboutText || ''}
             onChange={(e) => setFormData({ ...formData, aboutText: e.target.value })}
             placeholder="Shown in the footer's brand narrative"
-            className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+            className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
           />
         </div>
 
         {/* Page Content & SEO */}
-        <div className="pt-4 border-t border-[#E5DFD7] space-y-4">
+        <div className="pt-4 border-t border-[#DADADA] space-y-4">
           <div>
-            <h3 className="font-serif text-lg font-light text-[#181816]">Page Content &amp; SEO</h3>
-            <p className="text-[10px] text-[#7A756B]">
+            <h3 className="font-serif text-lg font-light text-[#1C1C1C]">Page Content &amp; SEO</h3>
+            <p className="text-[10px] text-[#6B6B6B]">
               Drives the browser tab title, search-engine listing, and social share preview. Fetched live from the API and applied to every page load.
             </p>
           </div>
@@ -1740,7 +1713,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               value={formData.defaultSeoTitle}
               onChange={(e) => setFormData({ ...formData, defaultSeoTitle: e.target.value })}
               placeholder="e.g. mini2k | Editorial Atelier"
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
 
@@ -1751,7 +1724,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               value={formData.defaultSeoDescription}
               onChange={(e) => setFormData({ ...formData, defaultSeoDescription: e.target.value })}
               placeholder="One or two sentences summarizing the store for search results"
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
 
@@ -1762,7 +1735,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               value={formData.defaultSeoKeywords || ''}
               onChange={(e) => setFormData({ ...formData, defaultSeoKeywords: e.target.value })}
               placeholder="comma, separated, keywords"
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl font-mono"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA] font-mono"
             />
           </div>
         </div>
@@ -1773,7 +1746,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
             type="text"
             value={formData.announcementText}
             onChange={(e) => setFormData({ ...formData, announcementText: e.target.value })}
-            className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+            className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
           />
         </div>
 
@@ -1784,7 +1757,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="text"
               value={formData.heroHeadline}
               onChange={(e) => setFormData({ ...formData, heroHeadline: e.target.value })}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
 
@@ -1794,7 +1767,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="url"
               value={formData.heroImageUrl}
               onChange={(e) => setFormData({ ...formData, heroImageUrl: e.target.value })}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
         </div>
@@ -1805,7 +1778,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
             rows={2}
             value={formData.heroSubhead}
             onChange={(e) => setFormData({ ...formData, heroSubhead: e.target.value })}
-            className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+            className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
           />
         </div>
 
@@ -1816,7 +1789,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="email"
               value={formData.contactEmail}
               onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
 
@@ -1826,7 +1799,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
               type="text"
               value={formData.atelierAddress || ''}
               onChange={(e) => setFormData({ ...formData, atelierAddress: e.target.value })}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl"
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]"
             />
           </div>
         </div>
@@ -1834,7 +1807,7 @@ const AdminSettingsForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<
         <button
           type="submit"
           disabled={saving}
-          className="px-8 py-3.5 bg-[#181816] text-white rounded-full text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#33302B] transition-all shadow-md"
+          className="px-8 py-3.5 bg-[#1C1C1C] text-white text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#2A2A2A] transition-all shadow-md"
         >
           {saving ? 'Saving Settings...' : 'Save Configuration'}
         </button>
@@ -1870,12 +1843,12 @@ const PageContentForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<Si
   };
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E5DFD7] shadow-xs space-y-6">
+    <div className="bg-white p-6 sm:p-8 border border-[#DADADA] shadow-xs space-y-6">
       <div>
-        <h2 className="font-serif text-2xl font-light text-[#181816]">
+        <h2 className="font-serif text-2xl font-light text-[#1C1C1C]">
           Page Content
         </h2>
-        <p className="text-xs text-[#7A756B]">
+        <p className="text-xs text-[#6B6B6B]">
           Every headline, label, and blurb across the storefront &mdash; from the Hero section down to the footer &mdash; fetched live from the API on every page load. Nothing here is hardcoded.
         </p>
       </div>
@@ -1884,37 +1857,37 @@ const PageContentForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<Si
 
         {/* Hero Section */}
         <div className="space-y-4">
-          <h3 className="font-serif text-lg font-light text-[#181816] border-b border-[#E5DFD7] pb-2">Hero Section</h3>
+          <h3 className="font-serif text-lg font-light text-[#1C1C1C] border-b border-[#DADADA] pb-2">Hero Section</h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="font-semibold block mb-1">Eyebrow Badge</label>
               <input type="text" value={field('heroEyebrowText')} onChange={(e) => update('heroEyebrowText', e.target.value)}
-                placeholder="e.g. Editorial 2026" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Editorial 2026" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">Headline</label>
               <input type="text" value={field('heroHeadline')} onChange={(e) => update('heroHeadline', e.target.value)}
-                placeholder="e.g. Adorn the Unseen" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Adorn the Unseen" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
 
           <div>
             <label className="font-semibold block mb-1">Subhead</label>
             <textarea rows={2} value={field('heroSubhead')} onChange={(e) => update('heroSubhead', e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="font-semibold block mb-1">Current Drop Label</label>
               <input type="text" value={field('heroCurrentDropLabel')} onChange={(e) => update('heroCurrentDropLabel', e.target.value)}
-                placeholder="e.g. Current Atelier Drop" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Current Atelier Drop" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">Current Drop Text</label>
               <input type="text" value={field('heroCurrentDropText')} onChange={(e) => update('heroCurrentDropText', e.target.value)}
-                className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
 
@@ -1922,12 +1895,12 @@ const PageContentForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<Si
             <div>
               <label className="font-semibold block mb-1">Primary CTA Text</label>
               <input type="text" value={field('heroCtaText')} onChange={(e) => update('heroCtaText', e.target.value)}
-                placeholder="e.g. Explore Drop" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Explore Drop" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">Secondary CTA Text</label>
               <input type="text" value={field('heroSecondaryCtaText')} onChange={(e) => update('heroSecondaryCtaText', e.target.value)}
-                placeholder="e.g. New Arrivals" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. New Arrivals" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
 
@@ -1935,100 +1908,100 @@ const PageContentForm: React.FC<{ settings: SiteSettings; onSave: (s: Partial<Si
             <div>
               <label className="font-semibold block mb-1">Inquiry Card Title</label>
               <input type="text" value={field('heroInquiryCardTitle')} onChange={(e) => update('heroInquiryCardTitle', e.target.value)}
-                placeholder="e.g. Instagram Inquiry" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Instagram Inquiry" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">Inquiry Card Subtitle</label>
               <input type="text" value={field('heroInquiryCardSubtitle')} onChange={(e) => update('heroInquiryCardSubtitle', e.target.value)}
-                placeholder="e.g. Atelier Concierge" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Atelier Concierge" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
 
           <div>
             <label className="font-semibold block mb-1">Inquiry Card Text</label>
             <textarea rows={2} value={field('heroInquiryCardText')} onChange={(e) => update('heroInquiryCardText', e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
           </div>
         </div>
 
         {/* Categories Section */}
         <div className="space-y-4">
-          <h3 className="font-serif text-lg font-light text-[#181816] border-b border-[#E5DFD7] pb-2">Categories Section</h3>
+          <h3 className="font-serif text-lg font-light text-[#1C1C1C] border-b border-[#DADADA] pb-2">Categories Section</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="font-semibold block mb-1">Section Heading</label>
               <input type="text" value={field('categoriesHeading')} onChange={(e) => update('categoriesHeading', e.target.value)}
-                placeholder="e.g. Curated Categories" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Curated Categories" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">"Show All" Link Text</label>
               <input type="text" value={field('categoriesShowAllText')} onChange={(e) => update('categoriesShowAllText', e.target.value)}
-                placeholder="e.g. Show All Curations" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Show All Curations" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">"All" Pill Label</label>
               <input type="text" value={field('categoriesAllPillLabel')} onChange={(e) => update('categoriesAllPillLabel', e.target.value)}
-                placeholder="e.g. All Atelier" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. All Atelier" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
         </div>
 
         {/* Offers Section */}
         <div className="space-y-4">
-          <h3 className="font-serif text-lg font-light text-[#181816] border-b border-[#E5DFD7] pb-2">Offers Banner</h3>
+          <h3 className="font-serif text-lg font-light text-[#1C1C1C] border-b border-[#DADADA] pb-2">Offers Banner</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="font-semibold block mb-1">Eyebrow Text</label>
               <input type="text" value={field('offersEyebrowText')} onChange={(e) => update('offersEyebrowText', e.target.value)}
-                placeholder="e.g. Limited Seasonal Atelier Event" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Limited Seasonal Atelier Event" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">Discount Code Label</label>
               <input type="text" value={field('offersCodeLabel')} onChange={(e) => update('offersCodeLabel', e.target.value)}
-                placeholder="e.g. Mention code:" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Mention code:" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
         </div>
 
         {/* Footer Section */}
         <div className="space-y-4">
-          <h3 className="font-serif text-lg font-light text-[#181816] border-b border-[#E5DFD7] pb-2">Footer</h3>
+          <h3 className="font-serif text-lg font-light text-[#1C1C1C] border-b border-[#DADADA] pb-2">Footer</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="font-semibold block mb-1">Philosophy Eyebrow</label>
               <input type="text" value={field('footerPhilosophyEyebrow')} onChange={(e) => update('footerPhilosophyEyebrow', e.target.value)}
-                placeholder="e.g. Atelier Philosophy" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Atelier Philosophy" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
             <div>
               <label className="font-semibold block mb-1">Collections Heading</label>
               <input type="text" value={field('footerCollectionsHeading')} onChange={(e) => update('footerCollectionsHeading', e.target.value)}
-                placeholder="e.g. Collections" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+                placeholder="e.g. Collections" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
             </div>
           </div>
 
           <div>
             <label className="font-semibold block mb-1">Ordering Heading</label>
             <input type="text" value={field('footerOrderingHeading')} onChange={(e) => update('footerOrderingHeading', e.target.value)}
-              placeholder="e.g. Instagram Ordering" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+              placeholder="e.g. Instagram Ordering" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
           </div>
 
           <div>
             <label className="font-semibold block mb-1">Ordering Text</label>
             <textarea rows={2} value={field('footerOrderingText')} onChange={(e) => update('footerOrderingText', e.target.value)}
-              className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+              className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
           </div>
 
           <div>
             <label className="font-semibold block mb-1">Bottom Bar Tagline</label>
             <input type="text" value={field('footerBottomTagline')} onChange={(e) => update('footerBottomTagline', e.target.value)}
-              placeholder="e.g. Curated in Florence & New York" className="w-full p-2.5 bg-[#FAF8F5] border border-[#DCD6CC] rounded-xl" />
+              placeholder="e.g. Curated in Florence & New York" className="w-full p-2.5 bg-[#F4F4F3] border border-[#DADADA]" />
           </div>
         </div>
 
         <button
           type="submit"
           disabled={saving}
-          className="px-8 py-3.5 bg-[#181816] text-white rounded-full text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#33302B] transition-all shadow-md"
+          className="px-8 py-3.5 bg-[#1C1C1C] text-white text-xs font-semibold uppercase tracking-[0.2em] hover:bg-[#2A2A2A] transition-all shadow-md"
         >
           {saving ? 'Saving Page Content...' : 'Save Page Content'}
         </button>
@@ -2152,16 +2125,16 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
   };
 
   return (
-    <div className="mt-8 pt-8 border-t border-[#E5DFD7] space-y-4">
+    <div className="mt-8 pt-8 border-t border-[#DADADA] space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <h3 className="font-serif text-lg font-semibold text-[#181816]">
+            <span className="w-2.5 h-2.5 bg-emerald-500"></span>
+            <h3 className="font-serif text-lg font-semibold text-[#1C1C1C]">
               Supabase Cloud Database
             </h3>
           </div>
-          <p className="text-xs text-[#7A756B] mt-0.5">
+          <p className="text-xs text-[#6B6B6B] mt-0.5">
             Connect your own Supabase project for persistent cloud storage and PostgreSQL tables.
           </p>
         </div>
@@ -2170,23 +2143,23 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
           <button
             type="button"
             onClick={() => setShowSqlModal(true)}
-            className="px-3.5 py-1.5 rounded-xl border border-[#DCD6CC] text-xs font-semibold text-[#181816] hover:bg-[#FAF8F5] transition-all"
+            className="px-3.5 py-1.5 border border-[#DADADA] text-xs font-semibold text-[#1C1C1C] hover:bg-[#F4F4F3] transition-all"
           >
             View SQL Schema
           </button>
         </div>
       </div>
 
-      <div className="bg-[#FAF8F5] p-5 rounded-2xl border border-[#E5DFD7] space-y-4 text-xs">
+      <div className="bg-[#F4F4F3] p-5 border border-[#DADADA] space-y-4 text-xs">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-[#181816]">Status:</span>
+            <span className="font-semibold text-[#1C1C1C]">Status:</span>
             {status?.configured ? (
-              <span className="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-[11px]">
+              <span className="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 text-[11px]">
                 Connected ({status.supabaseUrl})
               </span>
             ) : (
-              <span className="bg-amber-100 text-amber-800 font-medium px-2.5 py-0.5 rounded-full text-[11px]">
+              <span className="bg-amber-100 text-amber-800 font-medium px-2.5 py-0.5 text-[11px]">
                 Using Built-in Local Storage (store.json)
               </span>
             )}
@@ -2197,7 +2170,7 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
               type="button"
               disabled={testing}
               onClick={handleTest}
-              className="px-3 py-1.5 bg-white border border-[#DCD6CC] rounded-xl font-semibold text-[#181816] hover:bg-[#F0ECE1] transition-all"
+              className="px-3 py-1.5 bg-white border border-[#DADADA] font-semibold text-[#1C1C1C] hover:bg-[#ECECEC] transition-all"
             >
               {testing ? 'Testing...' : 'Test Connection'}
             </button>
@@ -2207,7 +2180,7 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
                 type="button"
                 disabled={syncing}
                 onClick={handleSync}
-                className="px-3 py-1.5 bg-[#181816] text-white rounded-xl font-semibold hover:bg-[#33302B] transition-all"
+                className="px-3 py-1.5 bg-[#1C1C1C] text-white font-semibold hover:bg-[#2A2A2A] transition-all"
               >
                 {syncing ? 'Syncing...' : 'Sync Local Data to Supabase'}
               </button>
@@ -2216,13 +2189,13 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
         </div>
 
         {testResult && (
-          <div className={`p-3 rounded-xl border ${testResult.success ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+          <div className={`p-3 border ${testResult.success ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'} `}>
             <p className="font-medium">{testResult.message}</p>
           </div>
         )}
 
         {syncResult && (
-          <div className={`p-3 rounded-xl border ${syncResult.success ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'}`}>
+          <div className={`p-3 border ${syncResult.success ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900'} `}>
             <p className="font-medium">{syncResult.message}</p>
             {syncResult.counts && (
               <p className="text-[11px] mt-1 opacity-80">
@@ -2232,12 +2205,12 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
           </div>
         )}
 
-        <div className="text-[11px] text-[#7A756B] bg-white p-3.5 rounded-xl border border-[#E5DFD7] space-y-1.5">
-          <p className="font-semibold text-[#181816]">How to link your Supabase account:</p>
+        <div className="text-[11px] text-[#6B6B6B] bg-white p-3.5 border border-[#DADADA] space-y-1.5">
+          <p className="font-semibold text-[#1C1C1C]">How to link your Supabase account:</p>
           <ol className="list-decimal list-inside space-y-1 leading-relaxed">
             <li>Create a free project at <span className="font-mono text-emerald-700">supabase.com</span></li>
-            <li>Run the provided <strong className="text-[#181816]">supabase-schema.sql</strong> in your Supabase SQL Editor</li>
-            <li>Add <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">SUPABASE_URL</span> and <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">SUPABASE_KEY</span> to project environment variables</li>
+            <li>Run the provided <strong className="text-[#1C1C1C]">supabase-schema.sql</strong> in your Supabase SQL Editor</li>
+            <li>Add <span className="font-mono bg-neutral-100 px-1 py-0.5">SUPABASE_URL</span> and <span className="font-mono bg-neutral-100 px-1 py-0.5">SUPABASE_KEY</span> to project environment variables</li>
           </ol>
         </div>
       </div>
@@ -2245,19 +2218,19 @@ CREATE TABLE IF NOT EXISTS customer_inquiries (
       {/* SQL SCHEMA MODAL */}
       {showSqlModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-[#E5DFD7] p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-[#E5DFD7] pb-3">
+          <div className="bg-white w-full max-w-2xl shadow-2xl border border-[#DADADA] p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#DADADA] pb-3">
               <div>
                 <h3 className="font-serif text-lg font-semibold">Supabase PostgreSQL Schema</h3>
-                <p className="text-xs text-[#7A756B]">Execute this in Supabase SQL Editor to initialize all tables.</p>
+                <p className="text-xs text-[#6B6B6B]">Execute this in Supabase SQL Editor to initialize all tables.</p>
               </div>
-              <button onClick={() => setShowSqlModal(false)} className="p-1 hover:bg-[#FAF8F5] rounded-lg">
+              <button onClick={() => setShowSqlModal(false)} className="p-1 hover:bg-[#F4F4F3]">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="relative">
-              <pre className="bg-[#181816] text-[#FAF8F5] font-mono text-[11px] p-4 rounded-2xl max-h-80 overflow-y-auto leading-relaxed selection:bg-[#C5A880]/40">
+              <pre className="bg-[#1C1C1C] text-[#F4F4F3] font-mono text-[11px] p-4 max-h-80 overflow-y-auto leading-relaxed selection:bg-[#A9AEB5]/40">
 {`-- 1. CATEGORIES TABLE
 CREATE TABLE IF NOT EXISTS categories (
   id TEXT PRIMARY KEY,
@@ -2306,7 +2279,7 @@ CREATE TABLE IF NOT EXISTS offers (
               <button
                 type="button"
                 onClick={copySqlToClipboard}
-                className="absolute top-3 right-3 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-lg text-xs font-semibold backdrop-blur-sm transition-all"
+                className="absolute top-3 right-3 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 text-xs font-semibold backdrop-blur-sm transition-all"
               >
                 {copiedSql ? '✓ Copied SQL' : 'Copy SQL'}
               </button>
@@ -2316,7 +2289,7 @@ CREATE TABLE IF NOT EXISTS offers (
               <button
                 type="button"
                 onClick={() => setShowSqlModal(false)}
-                className="px-5 py-2.5 bg-[#181816] text-white rounded-full text-xs font-semibold"
+                className="px-5 py-2.5 bg-[#1C1C1C] text-white text-xs font-semibold"
               >
                 Done
               </button>

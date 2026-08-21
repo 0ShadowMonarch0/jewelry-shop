@@ -16,7 +16,7 @@ import { Footer } from './components/storefront/Footer';
 // Admin Components
 import { AdminLogin } from './components/admin/AdminLogin';
 import { AdminDashboard } from './components/admin/AdminDashboard';
-import { Sparkles, Flame, Tag, RotateCcw } from 'lucide-react';
+import { Sparkles, Flame, Tag, RotateCcw, SlidersHorizontal } from 'lucide-react';
 import { Slider } from './components/ui/slider';
 
 // Creates or updates a <meta> tag identified by name/property, and returns
@@ -48,6 +48,9 @@ export default function App() {
   const [sortBy, setSortBy] = useState<'featured' | 'priceAsc' | 'priceDesc' | 'newest'>('featured');
   // null = no manual price filter applied yet (defaults to the full catalogue range)
   const [priceRange, setPriceRange] = useState<[number, number] | null>(null);
+  // The price slider stays tucked behind this "Filter by Price" toggle in the
+  // sort toolbar instead of always taking up space above the grid.
+  const [showPriceFilter, setShowPriceFilter] = useState(false);
 
   // Interactive Overlays & Modals
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -326,7 +329,7 @@ export default function App() {
   const currencySymbol = settings?.currencySymbol || 'NPR ';
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#1C1C1C] flex flex-col font-sans selection:bg-[#C5A059]/30">
+    <div className="min-h-screen bg-[#F4F4F3] text-[#1C1C1C] flex flex-col font-sans selection:bg-[#8A9099]/30">
       
       {/* 1. Header (Sticky navigation, announcement, brand logo, search trigger) */}
       <Header
@@ -383,12 +386,12 @@ export default function App() {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-8 lg:px-10 w-full py-6 space-y-8">
 
         {/* Category Visual Stories */}
-        <CategoryPills
+        {/* <CategoryPills
           categories={categories}
           activeCategoryId={selectedCategoryId}
           onSelectCategory={(catId) => setSelectedCategoryId(catId)}
           settings={settings}
-        />
+        /> */}
 
         {/* Curated Collection Rails — ordered by what should catch the eye
             first: fresh arrivals, then proven best-sellers, then live deals,
@@ -396,7 +399,7 @@ export default function App() {
         <div id="rail-new-drop">
           <ProductRail
             title="New Drop"
-            icon={<Sparkles className="w-5 h-5 text-[#C5A059]" />}
+            icon={<Sparkles className="w-5 h-5 text-[#8A9099]" />}
             products={newDropProducts}
             currencySymbol={currencySymbol}
             onQuickView={(product) => openProduct(product)}
@@ -407,7 +410,7 @@ export default function App() {
         <div id="rail-most-selling">
           <ProductRail
             title="Most Selling"
-            icon={<Flame className="w-5 h-5 text-[#C5A059]" />}
+            icon={<Flame className="w-5 h-5 text-[#8A9099]" />}
             products={mostSellingProducts}
             currencySymbol={currencySymbol}
             onQuickView={(product) => openProduct(product)}
@@ -418,7 +421,7 @@ export default function App() {
         <div id="rail-offer">
           <ProductRail
             title="Offer"
-            icon={<Tag className="w-5 h-5 text-[#C5A059]" />}
+            icon={<Tag className="w-5 h-5 text-[#8A9099]" />}
             products={offerProducts}
             currencySymbol={currencySymbol}
             onQuickView={(product) => openProduct(product)}
@@ -429,7 +432,7 @@ export default function App() {
         <div id="rail-restocked">
           <ProductRail
             title="Restocked"
-            icon={<RotateCcw className="w-5 h-5 text-[#C5A059]" />}
+            icon={<RotateCcw className="w-5 h-5 text-[#8A9099]" />}
             products={restockedProducts}
             currencySymbol={currencySymbol}
             onQuickView={(product) => openProduct(product)}
@@ -439,28 +442,20 @@ export default function App() {
 
         {/* 4. Filter & Sorting Controls Toolbar */}
         <section id="catalogue-section" className="pt-4 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E3DB] pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#DADADA] pb-4">
             
             {/* Quick Filter Badges */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
               <button
                 onClick={() => setActiveFilter('all')}
-                className={`px-4 py-2 rounded-full text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${
-                  activeFilter === 'all'
-                    ? 'bg-[#1C1C1C] text-white shadow-xs'
-                    : 'bg-white text-[#1C1C1C] border border-[#E5E3DB] hover:border-[#C5A059]'
-                }`}
+                className={`px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${ activeFilter === 'all' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]' } `}
               >
                 All Pieces ({products.length})
               </button>
 
               <button
                 onClick={() => setActiveFilter('inStock')}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${
-                  activeFilter === 'inStock'
-                    ? 'bg-[#1C1C1C] text-white shadow-xs'
-                    : 'bg-white text-[#1C1C1C] border border-[#E5E3DB] hover:border-[#C5A059]'
-                }`}
+                className={`flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer ${ activeFilter === 'inStock' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]' } `}
               >
                 <span>In Stock Only</span>
               </button>
@@ -468,26 +463,40 @@ export default function App() {
 
             {/* Sort Selector */}
             <div className="flex items-center gap-2 self-end sm:self-auto">
-              <span className="text-[10px] text-[#777] uppercase tracking-[0.2em] font-semibold whitespace-nowrap">
+              <span className="text-[10px] text-[#757575] uppercase tracking-[0.2em] font-semibold whitespace-nowrap">
                 Sort:
               </span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-white border border-[#E5E3DB] text-xs font-medium text-[#1C1C1C] rounded-full px-4 py-2 focus:outline-none focus:border-[#C5A059] cursor-pointer shadow-xs"
+                className="bg-white border border-[#DADADA] text-xs font-medium text-[#1C1C1C] px-4 py-2 focus:outline-none focus:border-[#8A9099] cursor-pointer shadow-xs"
               >
                 <option value="featured">Featured Atelier</option>
                 <option value="newest">Newest Additions</option>
                 <option value="priceAsc">Price: Low to High</option>
                 <option value="priceDesc">Price: High to Low</option>
               </select>
+
+              {priceBounds[0] < priceBounds[1] && (
+                <button
+                  onClick={() => setShowPriceFilter((v) => !v)}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] transition-all cursor-pointer whitespace-nowrap ${
+                    showPriceFilter || isPriceFiltered
+                      ? 'bg-[#1C1C1C] text-white shadow-xs'
+                      : 'bg-white text-[#1C1C1C] border border-[#DADADA] hover:border-[#8A9099]'
+                  }`}
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <span>Filter by Price</span>
+                </button>
+              )}
             </div>
 
           </div>
 
-          {/* Price Range Filter */}
-          {priceBounds[0] < priceBounds[1] && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 bg-white border border-[#E5E3DB] rounded-2xl px-4 sm:px-5 py-3.5">
+          {/* Price Range Filter — tucked behind the "Filter by Price" toggle above */}
+          {priceBounds[0] < priceBounds[1] && (showPriceFilter || isPriceFiltered) && (
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 bg-white border border-[#DADADA] px-4 sm:px-5 py-3.5">
               <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-[#1C1C1C] flex-shrink-0 sm:w-24">
                 Price Range
               </span>
@@ -511,7 +520,7 @@ export default function App() {
               {isPriceFiltered && (
                 <button
                   onClick={() => setPriceRange(null)}
-                  className="text-[10px] uppercase tracking-widest font-bold text-[#C5A059] hover:underline flex-shrink-0 self-end sm:self-auto"
+                  className="text-[10px] uppercase tracking-widest font-bold text-[#8A9099] hover:underline flex-shrink-0 self-end sm:self-auto"
                 >
                   Reset
                 </button>
@@ -521,24 +530,24 @@ export default function App() {
 
           {/* Active Filter Indicators */}
           {(selectedCategoryId || activeFilter !== 'all' || isPriceFiltered) && (
-            <div className="flex items-center gap-2 text-xs text-[#777] flex-wrap">
+            <div className="flex items-center gap-2 text-xs text-[#757575] flex-wrap">
               <span className="text-[10px] uppercase tracking-widest font-semibold">Active filter:</span>
               {selectedCategoryId && (
-                <span className="bg-[#F0EFEC] px-3 py-1 rounded-full text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#E5E3DB]">
+                <span className="bg-[#ECECEC] px-3 py-1 text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#DADADA]">
                   {categories.find(c => c.id === selectedCategoryId)?.name}
-                  <button onClick={() => setSelectedCategoryId(null)} className="hover:text-[#C5A059] font-bold">×</button>
+                  <button onClick={() => setSelectedCategoryId(null)} className="hover:text-[#8A9099] font-bold">×</button>
                 </span>
               )}
               {activeFilter !== 'all' && (
-                <span className="bg-[#F0EFEC] px-3 py-1 rounded-full text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#E5E3DB]">
+                <span className="bg-[#ECECEC] px-3 py-1 text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#DADADA]">
                   In Stock
-                  <button onClick={() => setActiveFilter('all')} className="hover:text-[#C5A059] font-bold">×</button>
+                  <button onClick={() => setActiveFilter('all')} className="hover:text-[#8A9099] font-bold">×</button>
                 </span>
               )}
               {isPriceFiltered && (
-                <span className="bg-[#F0EFEC] px-3 py-1 rounded-full text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#E5E3DB]">
+                <span className="bg-[#ECECEC] px-3 py-1 text-[#1C1C1C] font-medium flex items-center gap-1.5 text-xs border border-[#DADADA]">
                   {currencySymbol}{effectivePriceRange[0].toLocaleString()} – {currencySymbol}{effectivePriceRange[1].toLocaleString()}
-                  <button onClick={() => setPriceRange(null)} className="hover:text-[#C5A059] font-bold">×</button>
+                  <button onClick={() => setPriceRange(null)} className="hover:text-[#8A9099] font-bold">×</button>
                 </span>
               )}
             </div>

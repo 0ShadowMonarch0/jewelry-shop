@@ -68,13 +68,13 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex flex-col items-center p-4 sm:p-6 animate-in fade-in duration-150">
       <div 
-        className="w-full max-w-3xl bg-[#FAF9F6] rounded-3xl shadow-2xl border border-[#E5E3DB] overflow-hidden my-auto flex flex-col max-h-[88vh]"
+        className="w-full max-w-3xl bg-[#F4F4F3] shadow-2xl border border-[#DADADA] overflow-hidden my-auto flex flex-col max-h-[88vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Header Input */}
-        <div className="p-4 sm:p-6 border-b border-[#E5E3DB] flex items-center gap-3 bg-white">
-          <div className="w-5 h-5 border border-[#1C1C1C] flex items-center justify-center rounded-full flex-shrink-0">
-            <div className="w-1.5 h-1.5 bg-[#C5A059] rounded-full"></div>
+        <div className="p-4 sm:p-6 border-b border-[#DADADA] flex items-center gap-3 bg-white">
+          <div className="w-5 h-5 border border-[#1C1C1C] flex items-center justify-center flex-shrink-0">
+            <div className="w-1.5 h-1.5 bg-[#8A9099]"></div>
           </div>
           <input
             ref={inputRef}
@@ -82,34 +82,30 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
             placeholder="Search rings, 18K gold chains, baroque pearls, SKU..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full text-base sm:text-lg bg-transparent border-0 focus:outline-none font-light text-[#1C1C1C] placeholder-[#999]"
+            className="w-full text-base sm:text-lg bg-transparent border-0 focus:outline-none font-light text-[#1C1C1C] placeholder-[#8C8C8C]"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="p-1 rounded-full text-[#777] hover:text-[#1C1C1C] hover:bg-[#F0EFEC]"
+              className="p-1 text-[#757575] hover:text-[#1C1C1C] hover:bg-[#ECECEC]"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-[#777] hover:text-[#1C1C1C] hover:bg-[#F0EFEC] transition-colors"
+            className="p-2 text-[#757575] hover:text-[#1C1C1C] hover:bg-[#ECECEC] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Filters Row */}
-        <div className="px-6 py-3 bg-[#FAF9F6] border-b border-[#E5E3DB] flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="px-6 py-3 bg-[#F4F4F3] border-b border-[#DADADA] flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-3.5 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold transition-all ${
-                selectedCategory === 'all'
-                  ? 'bg-[#1C1C1C] text-white'
-                  : 'bg-white text-[#777] border border-[#E5E3DB] hover:border-[#C5A059]'
-              }`}
+              className={`px-3.5 py-1.5 text-[11px] uppercase tracking-wider font-semibold transition-all ${ selectedCategory === 'all' ? 'bg-[#1C1C1C] text-white' : 'bg-white text-[#757575] border border-[#DADADA] hover:border-[#8A9099]' } `}
             >
               All Pieces
             </button>
@@ -117,23 +113,19 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3.5 py-1.5 rounded-full text-[11px] uppercase tracking-wider font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat.id
-                    ? 'bg-[#1C1C1C] text-white'
-                    : 'bg-white text-[#777] border border-[#E5E3DB] hover:border-[#C5A059]'
-                }`}
+                className={`px-3.5 py-1.5 text-[11px] uppercase tracking-wider font-semibold whitespace-nowrap transition-all ${ selectedCategory === cat.id ? 'bg-[#1C1C1C] text-white' : 'bg-white text-[#757575] border border-[#DADADA] hover:border-[#8A9099]' } `}
               >
                 {cat.name}
               </button>
             ))}
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer select-none text-[#777] font-medium text-xs">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-[#757575] font-medium text-xs">
             <input
               type="checkbox"
               checked={inStockOnly}
               onChange={(e) => setInStockOnly(e.target.checked)}
-              className="rounded text-[#1C1C1C] focus:ring-0 w-4 h-4"
+              className="text-[#1C1C1C] focus:ring-0 w-4 h-4"
             />
             <span>In Stock Only</span>
           </label>
@@ -142,7 +134,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
         {/* Results List */}
         <div className="overflow-y-auto p-4 sm:p-6 space-y-3 flex-1">
           {filteredProducts.length === 0 ? (
-            <div className="py-12 text-center text-[#777] space-y-2">
+            <div className="py-12 text-center text-[#757575] space-y-2">
               <p className="font-serif text-lg text-[#1C1C1C]">No atelier pieces match your search.</p>
               <p className="text-xs">Try searching for keywords like "pearl", "signet", "diamond", or "18K".</p>
             </div>
@@ -157,23 +149,23 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
                       onSelectProduct(p);
                       onClose();
                     }}
-                    className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-[#E5E3DB] hover:border-[#C5A059] cursor-pointer transition-all shadow-xs group"
+                    className="flex items-center gap-3 p-3.5 bg-white border border-[#DADADA] hover:border-[#8A9099] cursor-pointer transition-all shadow-xs group"
                   >
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#F0EFEC] flex-shrink-0">
+                    <div className="w-16 h-16 overflow-hidden bg-[#ECECEC] flex-shrink-0">
                       {img && <img src={img.secureUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <span className="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#777]">
+                      <span className="text-[9px] uppercase tracking-[0.2em] font-semibold text-[#757575]">
                         {p.categoryNames && p.categoryNames.length > 0 ? p.categoryNames.join(' · ') : 'Atelier'}
                       </span>
-                      <h5 className="font-serif text-sm font-normal text-[#1C1C1C] truncate group-hover:text-[#C5A059]">
+                      <h5 className="font-serif text-sm font-normal text-[#1C1C1C] truncate group-hover:text-[#8A9099]">
                         {p.name}
                       </h5>
                       <div className="text-xs font-semibold text-[#1C1C1C]">
                         {currencySymbol}{p.price.toLocaleString()}
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-[#777] group-hover:text-[#1C1C1C] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-[#757575] group-hover:text-[#1C1C1C] group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                   </div>
                 );
               })}
@@ -182,7 +174,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({
         </div>
 
         {/* Footer Hint */}
-        <div className="p-3 bg-[#FAF9F6] border-t border-[#E5E3DB] text-center text-[10px] uppercase tracking-widest text-[#777]">
+        <div className="p-3 bg-[#F4F4F3] border-t border-[#DADADA] text-center text-[10px] uppercase tracking-widest text-[#757575]">
           Showing {filteredProducts.length} pieces • Press ESC to close
         </div>
       </div>

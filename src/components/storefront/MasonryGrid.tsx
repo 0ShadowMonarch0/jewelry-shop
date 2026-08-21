@@ -26,11 +26,11 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({
     return (
       <div className="masonry-grid py-6">
         {[1, 2, 3, 4, 5, 6].map((idx) => (
-          <div key={idx} className="masonry-item bg-white rounded-2xl p-4 border border-[#E5DFD7] animate-pulse space-y-4">
-            <div className="bg-[#EFECE6] rounded-xl aspect-[4/5] w-full"></div>
-            <div className="h-4 bg-[#EFECE6] rounded-md w-3/4"></div>
-            <div className="h-3 bg-[#EFECE6] rounded-md w-1/2"></div>
-            <div className="h-8 bg-[#EFECE6] rounded-full w-full"></div>
+          <div key={idx} className="masonry-item bg-white p-4 border border-[#DADADA] animate-pulse space-y-4">
+            <div className="bg-[#ECECEC] aspect-[4/5] w-full"></div>
+            <div className="h-4 bg-[#ECECEC] w-3/4"></div>
+            <div className="h-3 bg-[#ECECEC] w-1/2"></div>
+            <div className="h-8 bg-[#ECECEC] w-full"></div>
           </div>
         ))}
       </div>
@@ -39,12 +39,12 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({
 
   if (products.length === 0) {
     return (
-      <div className="w-full py-16 px-4 text-center bg-white rounded-3xl border border-[#E5DFD7] my-8 max-w-2xl mx-auto shadow-xs">
-        <div className="w-16 h-16 rounded-full bg-[#FAF8F5] border border-[#E5DFD7] flex items-center justify-center mx-auto mb-4 text-[#7A756B]">
+      <div className="w-full py-16 px-4 text-center bg-white border border-[#DADADA] my-8 max-w-2xl mx-auto shadow-xs">
+        <div className="w-16 h-16 bg-[#F4F4F3] border border-[#DADADA] flex items-center justify-center mx-auto mb-4 text-[#6B6B6B]">
           <PackageOpen className="w-8 h-8" />
         </div>
-        <h3 className="font-serif text-2xl font-medium text-[#181816] mb-2">{emptyTitle}</h3>
-        <p className="text-sm text-[#615C52] max-w-md mx-auto leading-relaxed">{emptySubtitle}</p>
+        <h3 className="font-serif text-2xl font-medium text-[#1C1C1C] mb-2">{emptyTitle}</h3>
+        <p className="text-sm text-[#6B6B6B] max-w-md mx-auto leading-relaxed">{emptySubtitle}</p>
       </div>
     );
   }

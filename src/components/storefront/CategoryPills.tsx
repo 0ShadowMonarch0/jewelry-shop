@@ -25,7 +25,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
     <div className="w-full py-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="h-[1px] w-8 bg-[#C5A059]"></div>
+          <div className="h-[1px] w-8 bg-[#8A9099]"></div>
           <h2 className="font-serif text-xl sm:text-2xl font-normal text-[#1C1C1C] tracking-tight">
             {heading}
           </h2>
@@ -33,7 +33,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
         {activeCategoryId && (
           <button
             onClick={() => onSelectCategory(null)}
-            className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] hover:underline"
+            className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#8A9099] hover:underline"
           >
             {showAllText}
           </button>
@@ -47,13 +47,9 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
         {/* 'All' Visual Pill */}
         <button
           onClick={() => onSelectCategory(null)}
-          className={`flex-shrink-0 flex items-center gap-3 pr-5 pl-2.5 py-1.5 rounded-full border transition-all ${
-            activeCategoryId === null
-              ? 'bg-[#1C1C1C] text-white border-[#1C1C1C] shadow-xs'
-              : 'bg-white text-[#1C1C1C] border-[#E5E3DB] hover:border-[#C5A059]'
-          }`}
+          className={`flex-shrink-0 flex items-center gap-3 pr-5 pl-2.5 py-1.5 border transition-all ${ activeCategoryId === null ? 'bg-[#1C1C1C] text-white border-[#1C1C1C] shadow-xs' : 'bg-white text-[#1C1C1C] border-[#DADADA] hover:border-[#8A9099]' } `}
         >
-          <div className="w-8 h-8 rounded-full bg-[#F0EFEC] flex items-center justify-center font-serif text-xs font-bold text-[#1C1C1C]">
+          <div className="w-8 h-8 bg-[#ECECEC] flex items-center justify-center font-serif text-xs font-bold text-[#1C1C1C]">
             ✦
           </div>
           <span className="text-[11px] uppercase tracking-[0.18em] font-medium whitespace-nowrap">
@@ -68,13 +64,9 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className={`group flex-shrink-0 flex items-center gap-3 pr-5 pl-2 py-1.5 rounded-full border transition-all ${
-                isSelected
-                  ? 'bg-[#1C1C1C] text-white border-[#1C1C1C] shadow-xs'
-                  : 'bg-white text-[#1C1C1C] border-[#E5E3DB] hover:border-[#C5A059]'
-              }`}
+              className={`group flex-shrink-0 flex items-center gap-3 pr-5 pl-2 py-1.5 border transition-all ${ isSelected ? 'bg-[#1C1C1C] text-white border-[#1C1C1C] shadow-xs' : 'bg-white text-[#1C1C1C] border-[#DADADA] hover:border-[#8A9099]' } `}
             >
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-[#F0EFEC] flex-shrink-0 border border-black/5">
+              <div className="w-8 h-8 overflow-hidden bg-[#ECECEC] flex-shrink-0 border border-black/5">
                 <img
                   src={cat.imageUrl}
                   alt={cat.name}
@@ -87,7 +79,7 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
                   {cat.name}
                 </span>
                 {cat.productCount !== undefined && (
-                  <span className={`text-[9px] -mt-0.5 ${isSelected ? 'text-[#C5A059]' : 'text-[#777]'}`}>
+                  <span className={`text-[9px] -mt-0.5 ${isSelected ? 'text-[#8A9099]' : 'text-[#757575]'} `}>
                     {cat.productCount} {cat.productCount === 1 ? 'piece' : 'pieces'}
                   </span>
                 )}
