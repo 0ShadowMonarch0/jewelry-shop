@@ -27,7 +27,9 @@ import {
   Camera,
   Image as ImageIcon,
   Copy,
-  LayoutTemplate
+  LayoutTemplate,
+  Archive,
+  ArchiveRestore
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import type { 
@@ -82,7 +84,7 @@ interface AdminDashboardProps {
   onViewStorefront: () => void;
 }
 
-type TabType = 'overview' | 'products' | 'inventory' | 'categories' | 'offers' | 'inquiries' | 'settings' | 'content' | 'audit';
+type TabType = 'overview' | 'products' | 'inventory' | 'categories' | 'offers' | 'archived' | 'inquiries' | 'settings' | 'content' | 'audit';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   user,
@@ -193,6 +195,92 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  // Active vs archived splits, shared by the live tabs (which should never
+  // show an archived item) and the Archived tab (which shows nothing else).
+  const activeProducts = products.filter(p => p.isActive);
+  const archivedProducts = products.filter(p => !p.isActive);
+  const activeCategories = categories.filter(c => c.isActive);
+  const archivedCategories = categories.filter(c => !c.isActive);
+  const activeOffers = offers.filter(o => o.isActive);
+  const archivedOffers = offers.filter(o => !o.isActive);
+
+  // Restore handlers: PUT the full existing record back with isActive:true —
+  // the update routes validate the complete schema, so a partial
+  // { isActive: true } payload alone would fail required-field validation.
+  const handleRestoreProduct = async (product: Product) => {
+    try {
+      await api.updateProduct(product.id, { ...product, isActive: true });
+      flashMessage(`Product "${product.name}" restored`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Restore failed', true);
+    }
+  };
+
+  const handlePermanentDeleteProduct = async (id: string, name: string) => {
+    if (!window.confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await api.deleteProduct(id, true);
+      flashMessage(`Product "${name}" permanently deleted`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Delete failed', true);
+    }
+  };
+
+  const handleRestoreCategory = async (cat: Category) => {
+    try {
+      await api.updateCategory(cat.id, { ...cat, isActive: true });
+      flashMessage(`Category "${cat.name}" restored`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Restore failed', true);
+    }
+  };
+
+  const handlePermanentDeleteCategory = async (id: string, name: string) => {
+    if (!window.confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
+    try {
+      await api.deleteCategory(id, true);
+      flashMessage(`Category "${name}" permanently deleted`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Delete failed', true);
+    }
+  };
+
+  const handleArchiveOffer = async (id: string, title: string) => {
+    if (!window.confirm(`Archive offer "${title}"? It will be hidden from the storefront.`)) return;
+    try {
+      await api.deleteOffer(id, false);
+      flashMessage(`Offer "${title}" archived`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Archive failed', true);
+    }
+  };
+
+  const handleRestoreOffer = async (offer: Offer) => {
+    try {
+      await api.updateOffer(offer.id, { ...offer, isActive: true });
+      flashMessage(`Offer "${offer.title}" restored`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Restore failed', true);
+    }
+  };
+
+  const handlePermanentDeleteOffer = async (id: string, title: string) => {
+    if (!window.confirm(`Permanently delete "${title}"? This cannot be undone.`)) return;
+    try {
+      await api.deleteOffer(id, true);
+      flashMessage(`Offer "${title}" permanently deleted`);
+      loadData();
+    } catch (err: any) {
+      flashMessage(err.message || 'Delete failed', true);
+    }
+  };
+
   // Inquiry Status Handler
   const handleInquiryStatusChange = async (id: string, status: CustomerInquiry['status']) => {
     try {
@@ -274,7 +362,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'products' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <Package className="w-4 h-4" />
-            <span>Products ({products.length})</span>
+            <span>Products ({activeProducts.length})</span>
           </button>
 
           <button
@@ -290,7 +378,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'categories' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <FolderTree className="w-4 h-4" />
-            <span>Categories ({categories.length})</span>
+            <span>Categories ({activeCategories.length})</span>
           </button>
 
           <button
@@ -298,7 +386,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'offers' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
           >
             <Tag className="w-4 h-4" />
-            <span>Offers ({offers.length})</span>
+            <span>Offers ({activeOffers.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('archived')}
+            className={`flex items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-wider transition-all ${ activeTab === 'archived' ? 'bg-[#1C1C1C] text-white shadow-xs' : 'text-[#6B6B6B] hover:bg-[#F4F4F3]' } `}
+          >
+            <div className="flex items-center gap-3">
+              <Archive className="w-4 h-4" />
+              <span>Archived</span>
+            </div>
+            {(archivedProducts.length + archivedCategories.length + archivedOffers.length) > 0 && (
+              <span className="bg-[#A9AEB5] text-[#1C1C1C] text-[10px] px-2 py-0.5 font-bold">
+                {archivedProducts.length + archivedCategories.length + archivedOffers.length}
+              </span>
+            )}
           </button>
 
           <button
@@ -343,7 +446,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* Mobile Horizontal Pill Navigation Bar */}
         <div className="md:hidden flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 -mx-4 px-4">
-          {(['overview', 'products', 'inventory', 'categories', 'offers', 'inquiries', 'settings', 'content', 'audit'] as TabType[]).map(tab => (
+          {(['overview', 'products', 'inventory', 'categories', 'offers', 'archived', 'inquiries', 'settings', 'content', 'audit'] as TabType[]).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -494,7 +597,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* Product Cards / Table View */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {products
+                {activeProducts
                   .filter(p => {
                     if (selectedCatFilter !== 'all' && !p.categoryIds.includes(selectedCatFilter)) return false;
                     if (productSearch) {
@@ -579,7 +682,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div className="space-y-3">
-                {products.map((p) => {
+                {activeProducts.map((p) => {
                   const img = p.images.find(i => i.isPrimary) || p.images[0];
                   return (
                     <div key={p.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-[#F4F4F3] border border-[#DADADA]">
@@ -648,20 +751,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {orderCategoriesByHierarchy(categories).map((cat) => {
+                {orderCategoriesByHierarchy(activeCategories).map((cat) => {
                   const parent = cat.parentId ? categories.find(c => c.id === cat.parentId) : null;
                   return (
                     <div
                       key={cat.id}
                       className={`bg-white border overflow-hidden p-4 space-y-3 shadow-xs ${ parent ? 'border-[#DADADA] ml-0 sm:ml-4 border-l-4 border-l-[#A9AEB5]' : 'border-[#DADADA]' } `}
                     >
-                      <div className="relative aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
+                      <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
                         <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
-                        {cat.isActive === false && (
-                          <span className="absolute top-2 left-2 text-[9px] bg-[#1C1C1C]/90 text-white font-bold px-2 py-0.5 uppercase tracking-widest">
-                            Archived
-                          </span>
-                        )}
                       </div>
                       <div>
                         {parent && (
@@ -684,14 +782,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           >
                             Edit Category
                           </button>
-                          {cat.isActive !== false && (
-                            <button
-                              onClick={() => handleDeleteCategory(cat.id, cat.name)}
-                              className="text-xs font-semibold text-red-700 hover:underline"
-                            >
-                              Delete
-                            </button>
-                          )}
+                          <button
+                            onClick={() => handleDeleteCategory(cat.id, cat.name)}
+                            className="text-xs font-semibold text-red-700 hover:underline"
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -721,7 +817,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {offers.map((offer) => (
+                {activeOffers.map((offer) => (
                   <div key={offer.id} className="bg-white border border-[#DADADA] p-5 space-y-4 shadow-xs">
                     <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3]">
                       <img src={offer.imageUrl} alt="" className="w-full h-full object-cover" />
@@ -738,18 +834,173 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                     <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between text-xs text-[#6B6B6B]">
                       <span>Valid until {new Date(offer.endDate).toLocaleDateString()}</span>
-                      <button
-                        onClick={() => {
-                          setEditingOffer(offer);
-                          setIsOfferModalOpen(true);
-                        }}
-                        className="font-semibold text-[#6E737A] hover:underline"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setEditingOffer(offer);
+                            setIsOfferModalOpen(true);
+                          }}
+                          className="font-semibold text-[#6E737A] hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleArchiveOffer(offer.id, offer.title)}
+                          className="font-semibold text-red-700 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* TAB: ARCHIVED */}
+          {activeTab === 'archived' && (
+            <div className="space-y-10">
+              <div>
+                <h2 className="font-serif text-2xl sm:text-3xl font-light text-[#1C1C1C]">
+                  Archived
+                </h2>
+                <p className="text-xs text-[#6B6B6B]">
+                  Items deleted from Products, Categories, and Offers land here instead of disappearing. Restore one to bring it back live, or delete it permanently.
+                </p>
+              </div>
+
+              {/* Sub-section: Archived Products */}
+              <div className="space-y-3">
+                <h3 className="font-serif text-lg font-semibold text-[#1C1C1C] flex items-center gap-2">
+                  <Package className="w-4 h-4 text-[#6E737A]" />
+                  <span>Products ({archivedProducts.length})</span>
+                </h3>
+                {archivedProducts.length === 0 ? (
+                  <p className="text-xs text-[#6B6B6B] py-2">No archived products.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {archivedProducts.map((product) => {
+                      const primaryImg = product.images.find(i => i.isPrimary) || product.images[0];
+                      return (
+                        <div key={product.id} className="bg-white border border-[#DADADA] overflow-hidden shadow-xs flex flex-col justify-between p-4 space-y-4">
+                          <div className="flex gap-3">
+                            <div className="w-16 h-16 overflow-hidden bg-[#F4F4F3] flex-shrink-0 border border-[#DADADA] grayscale">
+                              {primaryImg && (
+                                <img src={primaryImg.secureUrl} alt="" className="w-full h-full object-cover" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="text-[9px] uppercase font-bold tracking-widest text-[#6B6B6B] block">
+                                {product.sku}
+                              </span>
+                              <h4 className="font-serif text-sm font-semibold text-[#1C1C1C] truncate">
+                                {product.name}
+                              </h4>
+                              <div className="text-xs text-[#6B6B6B]">NPR {product.price.toLocaleString()}</div>
+                            </div>
+                          </div>
+                          <div className="pt-2 border-t border-[#DADADA] flex items-center gap-2">
+                            <button
+                              onClick={() => handleRestoreProduct(product)}
+                              className="flex-1 py-2 bg-[#F4F4F3] hover:bg-[#ECECEC] text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-[#DADADA]"
+                            >
+                              <ArchiveRestore className="w-3.5 h-3.5" />
+                              <span>Restore</span>
+                            </button>
+                            <button
+                              onClick={() => handlePermanentDeleteProduct(product.id, product.name)}
+                              className="p-2 text-red-600 hover:bg-red-50 transition-colors border border-red-200"
+                              title="Permanently delete"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Sub-section: Archived Categories */}
+              <div className="space-y-3">
+                <h3 className="font-serif text-lg font-semibold text-[#1C1C1C] flex items-center gap-2">
+                  <FolderTree className="w-4 h-4 text-[#6E737A]" />
+                  <span>Categories ({archivedCategories.length})</span>
+                </h3>
+                {archivedCategories.length === 0 ? (
+                  <p className="text-xs text-[#6B6B6B] py-2">No archived categories.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {archivedCategories.map((cat) => (
+                      <div key={cat.id} className="bg-white border border-[#DADADA] overflow-hidden p-4 space-y-3 shadow-xs">
+                        <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3] grayscale">
+                          <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <h4 className="font-serif text-base font-semibold text-[#1C1C1C]">{cat.name}</h4>
+                          <p className="text-xs text-[#6B6B6B] line-clamp-2">{cat.description}</p>
+                        </div>
+                        <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between text-xs">
+                          <button
+                            onClick={() => handleRestoreCategory(cat)}
+                            className="font-semibold text-[#6E737A] hover:underline flex items-center gap-1"
+                          >
+                            <ArchiveRestore className="w-3.5 h-3.5" />
+                            <span>Restore</span>
+                          </button>
+                          <button
+                            onClick={() => handlePermanentDeleteCategory(cat.id, cat.name)}
+                            className="font-semibold text-red-700 hover:underline"
+                          >
+                            Delete Permanently
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Sub-section: Archived Offers */}
+              <div className="space-y-3">
+                <h3 className="font-serif text-lg font-semibold text-[#1C1C1C] flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[#6E737A]" />
+                  <span>Offers ({archivedOffers.length})</span>
+                </h3>
+                {archivedOffers.length === 0 ? (
+                  <p className="text-xs text-[#6B6B6B] py-2">No archived offers.</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {archivedOffers.map((offer) => (
+                      <div key={offer.id} className="bg-white border border-[#DADADA] p-5 space-y-4 shadow-xs">
+                        <div className="aspect-[16/9] overflow-hidden bg-[#F4F4F3] grayscale">
+                          <img src={offer.imageUrl} alt="" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="font-serif text-lg font-semibold text-[#1C1C1C]">{offer.title}</h4>
+                          <p className="text-xs text-[#6B6B6B]">{offer.description}</p>
+                        </div>
+                        <div className="pt-2 border-t border-[#DADADA] flex items-center justify-between text-xs">
+                          <button
+                            onClick={() => handleRestoreOffer(offer)}
+                            className="font-semibold text-[#6E737A] hover:underline flex items-center gap-1"
+                          >
+                            <ArchiveRestore className="w-3.5 h-3.5" />
+                            <span>Restore</span>
+                          </button>
+                          <button
+                            onClick={() => handlePermanentDeleteOffer(offer.id, offer.title)}
+                            className="font-semibold text-red-700 hover:underline"
+                          >
+                            Delete Permanently
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}

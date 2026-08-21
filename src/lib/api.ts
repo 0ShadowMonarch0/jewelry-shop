@@ -191,8 +191,8 @@ export const api = {
     });
   },
 
-  deleteCategory: (id: string) => {
-    return request<{ success: boolean; message: string }>(`/api/admin/categories/${id}`, {
+  deleteCategory: (id: string, hard: boolean = false) => {
+    return request<{ success: boolean; message: string }>(`/api/admin/categories/${id}?hard=${hard}`, {
       method: 'DELETE'
     });
   },
@@ -215,8 +215,8 @@ export const api = {
     });
   },
 
-  deleteOffer: (id: string) => {
-    return request<{ success: boolean; message: string }>(`/api/admin/offers/${id}`, {
+  deleteOffer: (id: string, hard: boolean = false) => {
+    return request<{ success: boolean; message: string }>(`/api/admin/offers/${id}?hard=${hard}`, {
       method: 'DELETE'
     });
   },

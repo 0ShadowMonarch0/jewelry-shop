@@ -476,6 +476,12 @@ export const db = {
     return offers;
   },
 
+  async getOfferById(id: string): Promise<Offer | undefined> {
+    const { data, error } = await client().from('offers').select('*').eq('id', id).maybeSingle();
+    if (error) throw error;
+    return data ? rowToOffer(data) : undefined;
+  },
+
   async createOffer(offer: Offer): Promise<Offer> {
     const { data, error } = await client().from('offers').insert(offerToRow(offer)).select().single();
     if (error) throw error;

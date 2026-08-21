@@ -513,24 +513,26 @@ apiRouter.put('/admin/categories/:id', requireAdminAuth, async (req: Authenticat
 apiRouter.delete('/admin/categories/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
+    const { hard } = req.query;
     const category = await db.getCategoryById(id);
     if (!category) {
       return res.status(404).json({ error: 'Category not found' });
     }
 
-    await db.deleteCategory(id, false);
+    const isHardDelete = hard === 'true';
+    await db.deleteCategory(id, isHardDelete);
 
     await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
-      action: 'CATEGORY_ARCHIVED',
+      action: isHardDelete ? 'CATEGORY_HARD_DELETED' : 'CATEGORY_ARCHIVED',
       entity: 'CATEGORY',
       entityId: id,
-      details: `Archived category "${category.name}"`
+      details: `${isHardDelete ? 'Permanently deleted' : 'Archived'} category "${category.name}"`
     });
 
-    res.json({ success: true, message: 'Category archived successfully' });
+    res.json({ success: true, message: `Category ${isHardDelete ? 'deleted' : 'archived'} successfully` });
   } catch (err: any) {
-    res.status(500).json({ error: 'Failed to archive category' });
+    res.status(500).json({ error: 'Failed to delete category' });
   }
 });
 
@@ -603,17 +605,28 @@ apiRouter.put('/admin/offers/:id', requireAdminAuth, async (req: AuthenticatedRe
 apiRouter.delete('/admin/offers/:id', requireAdminAuth, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    await db.deleteOffer(id);
+    const { hard } = req.query;
+    const offer = await db.getOfferById(id);
+    if (!offer) {
+      return res.status(404).json({ error: 'Offer not found' });
+    }
+
+    const isHardDelete = hard === 'true';
+    if (isHardDelete) {
+      await db.deleteOffer(id);
+    } else {
+      await db.updateOffer(id, { isActive: false });
+    }
 
     await db.addAuditLog({
       adminEmail: req.admin?.email || 'admin',
-      action: 'OFFER_DELETED',
+      action: isHardDelete ? 'OFFER_HARD_DELETED' : 'OFFER_ARCHIVED',
       entity: 'OFFER',
       entityId: id,
-      details: `Deleted offer ID ${id}`
+      details: `${isHardDelete ? 'Permanently deleted' : 'Archived'} offer "${offer.title}"`
     });
 
-    res.json({ success: true, message: 'Offer deleted successfully' });
+    res.json({ success: true, message: `Offer ${isHardDelete ? 'deleted' : 'archived'} successfully` });
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to delete offer' });
   }
